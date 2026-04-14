@@ -1,0 +1,179 @@
+{
+  "nav": {
+    "features": "Features",
+    "blog": "Blog",
+    "help": "Help",
+    "support": "Support",
+    "about": "About",
+    "download": "Download on App Store",
+    "openMenu": "Open Menu",
+    "closeMenu": "Close Menu"
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "legal": "Legal",
+    "features": "Features",
+    "blog": "Blog",
+    "about": "About",
+    "help": "Help Center",
+    "supportPage": "Support",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookies": "Cookie Policy",
+    "copyright": "© 2026 PawCal Studio. All rights reserved.",
+    "socialSoon": "Coming Soon",
+    "tagline": "Manage your pet's health with data."
+  },
+  "hero": {
+    "badge": "Now available for iOS",
+    "title": "Manage Your Pet's Health",
+    "titleHighlight": "With Data",
+    "description": "Track your pet's nutrition, health, and activity. Trust your data, not just your instincts.",
+    "downloadBtn": "Download Free on App Store",
+    "learnMore": "Explore Features",
+    "stats": {
+      "pets": "Registered Pets",
+      "meals": "Meal Logs",
+      "reminders": "Medication Reminders"
+    }
+  },
+  "features": {
+    "badge": "Features",
+    "title": "Everything You Need",
+    "titleHighlight": "In One App",
+    "description": "PawCal brings together all the tools you need to track your pet's health with data.",
+    "learnMore": "Learn More"
+  },
+  "testimonials": {
+    "badge": "User Reviews",
+    "title": "Thousands of Pet Owners",
+    "titleHighlight": "Trust PawCal"
+  },
+  "cta": {
+    "badge": "Free Download",
+    "title": "Download PawCal Now",
+    "description": "Start tracking your pet's health professionally today. Free on the App Store.",
+    "downloadBtn": "Download on App Store",
+    "note": "iOS 16+ • Free • Premium options available"
+  },
+  "about": {
+    "badge": "Our Story",
+    "title": "About PawCal Studio",
+    "mission": "Mission",
+    "missionText": "To help pet owners live more conscious, healthier lives with their pets.",
+    "story": "PawCal was born in 2026 out of a real problem pet owners face: tracking daily data about our friends' health is hard, scattered, and not resistant to forgetfulness. A notebook, a calendar, a calculator, and our memory — all need to work at the same time.\n\nAt PawCal Studio, we wanted to end this chaos. We're doing for pets what modern tracking apps do for human health: a data-driven, science-based, yet user-friendly experience.\n\nPawCal Studio is an independent software studio dedicated to helping pet owners live more conscious, healthier lives with their pets. From Turkey, to the world.",
+    "location": "Turkey",
+    "contact": "info@pawcal.net",
+    "values": {
+      "title": "Our Values",
+      "data": {
+        "title": "Data-Driven",
+        "desc": "Every decision is backed by data, based on real facts not guesses."
+      },
+      "science": {
+        "title": "Scientific Foundation",
+        "desc": "Veterinary science forms the basis of our guidelines."
+      },
+      "privacy": {
+        "title": "Privacy First",
+        "desc": "Your data is used only for the wellbeing of you and your pet."
+      }
+    }
+  },
+  "blog": {
+    "badge": "Blog",
+    "title": "Pet Health",
+    "titleHighlight": "Guide",
+    "description": "Expert insights, practical tips, and data-driven advice for your pet.",
+    "readMore": "Read More",
+    "allPosts": "All Posts",
+    "backToBlog": "Back to Blog",
+    "by": "By:"
+  },
+  "help": {
+    "badge": "Help Center",
+    "title": "How Can We",
+    "titleHighlight": "Help You?",
+    "description": "Use PawCal most effectively with frequently asked questions and guides.",
+    "searchPlaceholder": "Search questions or topics...",
+    "allCategories": "All Categories",
+    "backToHelp": "Back to Help Center",
+    "stillNeedHelp": "Still Need Help?",
+    "contactSupport": "Contact Support Team",
+    "questions": "questions"
+  },
+  "support": {
+    "badge": "Support",
+    "title": "Need",
+    "titleHighlight": "Help?",
+    "description": "Our support team is ready to help you. We respond as quickly as possible.",
+    "form": {
+      "name": "Your Name",
+      "email": "Your Email",
+      "subject": "Subject",
+      "message": "Your Message",
+      "send": "Send",
+      "sending": "Sending...",
+      "success": "Your message was received! We'll get back to you as soon as possible.",
+      "namePlaceholder": "Enter your name",
+      "emailPlaceholder": "email@example.com",
+      "subjectPlaceholder": "Briefly describe the topic",
+      "messagePlaceholder": "Describe your issue or feedback in detail..."
+    },
+    "info": {
+      "email": "Email Support",
+      "emailDesc": "We usually respond within 24 hours.",
+      "help": "Help Center",
+      "helpDesc": "Frequently asked questions and guides.",
+      "response": "Average Response Time",
+      "responseTime": "24 hours"
+    }
+  },
+  "contact": {
+    "badge": "Contact",
+    "title": "Get In",
+    "titleHighlight": "Touch",
+    "description": "Reach us for questions, suggestions, or partnership proposals.",
+    "email": "Email",
+    "location": "Location",
+    "locationValue": "Turkey",
+    "social": "Social Media",
+    "socialSoon": "Coming soon on all platforms"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 14, 2026"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: April 14, 2026"
+  },
+  "cookies": {
+    "title": "Cookie Policy",
+    "lastUpdated": "Last updated: April 14, 2026",
+    "banner": {
+      "text": "We use cookies to improve your experience. By continuing, you agree to our",
+      "linkText": "cookie policy",
+      "accept": "Accept",
+      "decline": "Decline"
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or may have been moved.",
+    "backHome": "Back to Home"
+  },
+  "common": {
+    "appName": "PawCal",
+    "tagline": "Track your pet's nutrition, health, and activity.",
+    "downloadApp": "Download on App Store",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "comingSoon": "Coming Soon"
+  }
+}

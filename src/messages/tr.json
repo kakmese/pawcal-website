@@ -1,0 +1,179 @@
+{
+  "nav": {
+    "features": "Özellikler",
+    "blog": "Blog",
+    "help": "Yardım",
+    "support": "Destek",
+    "about": "Hakkında",
+    "download": "App Store'dan İndir",
+    "openMenu": "Menüyü Aç",
+    "closeMenu": "Menüyü Kapat"
+  },
+  "footer": {
+    "product": "Ürün",
+    "company": "Şirket",
+    "support": "Destek",
+    "legal": "Yasal",
+    "features": "Özellikler",
+    "blog": "Blog",
+    "about": "Hakkında",
+    "help": "Yardım Merkezi",
+    "supportPage": "Destek",
+    "contact": "İletişim",
+    "privacy": "Gizlilik Politikası",
+    "terms": "Kullanım Şartları",
+    "cookies": "Çerez Politikası",
+    "copyright": "© 2026 PawCal Studio. Tüm hakları saklıdır.",
+    "socialSoon": "Yakında",
+    "tagline": "Evcil dostunuzun sağlığını veriyle yönetin."
+  },
+  "hero": {
+    "badge": "iOS için şimdi mevcut",
+    "title": "Evcil Hayvanınızın Sağlığını",
+    "titleHighlight": "Veriyle Yönetin",
+    "description": "Evcil dostunuzun beslenme, sağlık ve aktivitesini takip edin. İçgüdülerinize değil, verilerinize güvenin.",
+    "downloadBtn": "App Store'dan Ücretsiz İndir",
+    "learnMore": "Özellikleri Keşfet",
+    "stats": {
+      "pets": "Kayıtlı Evcil Hayvan",
+      "meals": "Öğün Kaydı",
+      "reminders": "İlaç Hatırlatıcısı"
+    }
+  },
+  "features": {
+    "badge": "Özellikler",
+    "title": "İhtiyacınız Olan Her Şey",
+    "titleHighlight": "Tek Uygulamada",
+    "description": "PawCal, evcil hayvanınızın sağlığını veriyle takip etmeniz için ihtiyaç duyduğunuz tüm araçları bir araya getirir.",
+    "learnMore": "Daha Fazla Öğren"
+  },
+  "testimonials": {
+    "badge": "Kullanıcı Yorumları",
+    "title": "Binlerce Evcil Hayvan Sahibi",
+    "titleHighlight": "PawCal'a Güveniyor"
+  },
+  "cta": {
+    "badge": "Ücretsiz İndir",
+    "title": "PawCal'ı Hemen İndirin",
+    "description": "Evcil dostunuzun sağlığını profesyonelce takip etmeye bugün başlayın. App Store'da ücretsiz.",
+    "downloadBtn": "App Store'dan İndir",
+    "note": "iOS 16+ • Ücretsiz • Premium seçenekli"
+  },
+  "about": {
+    "badge": "Hikayemiz",
+    "title": "PawCal Studio Hakkında",
+    "mission": "Misyon",
+    "missionText": "Evcil hayvan sahiplerinin dostlarıyla daha bilinçli, daha sağlıklı bir yaşam sürmesini sağlamak.",
+    "story": "PawCal, 2026 yılında evcil hayvan sahiplerinin karşılaştığı gerçek bir sorundan doğdu: Dostlarımızın sağlığıyla ilgili günlük verileri takip etmek zor, dağınık ve unutkanlığa dayanıklı değil. Bir not defteri, bir takvim, bir hesap makinesi ve hafızamız — hepsi aynı anda çalışmalı.\n\nBiz PawCal Studio olarak bu dağınıklığa bir son vermek istedik. Modern takip uygulamalarının insan sağlığı için yaptığını evcil hayvanlar için yapıyoruz: Veri odaklı, bilimsel temelli, ama kullanıcı dostu bir deneyim.\n\nPawCal Studio, evcil hayvan sahiplerinin evcil dostlarıyla daha bilinçli, daha sağlıklı bir yaşam sürmesini hedefleyen bağımsız bir yazılım stüdyosudur. Türkiye'den dünyaya.",
+    "location": "Türkiye",
+    "contact": "info@pawcal.net",
+    "values": {
+      "title": "Değerlerimiz",
+      "data": {
+        "title": "Veri Odaklı",
+        "desc": "Her karar veriyle desteklenir, tahminlere değil gerçek verilere dayanır."
+      },
+      "science": {
+        "title": "Bilimsel Temel",
+        "desc": "Veteriner bilimi rehberlerimizin temelini oluşturur."
+      },
+      "privacy": {
+        "title": "Gizlilik Önce",
+        "desc": "Verileriniz yalnızca sizin ve evcil hayvanınızın iyiliği için kullanılır."
+      }
+    }
+  },
+  "blog": {
+    "badge": "Blog",
+    "title": "Evcil Hayvan",
+    "titleHighlight": "Sağlık Rehberi",
+    "description": "Uzman görüşleri, pratik ipuçları ve evcil hayvanınız için veri odaklı öneriler.",
+    "readMore": "Devamını Oku",
+    "allPosts": "Tüm Yazılar",
+    "backToBlog": "Bloga Dön",
+    "by": "Yazar:"
+  },
+  "help": {
+    "badge": "Yardım Merkezi",
+    "title": "Size Nasıl",
+    "titleHighlight": "Yardımcı Olabiliriz?",
+    "description": "Sık sorulan sorular ve rehberler ile PawCal'ı en verimli şekilde kullanın.",
+    "searchPlaceholder": "Soru veya konu arayın...",
+    "allCategories": "Tüm Kategoriler",
+    "backToHelp": "Yardım Merkezine Dön",
+    "stillNeedHelp": "Hâlâ Yardıma mı İhtiyacınız Var?",
+    "contactSupport": "Destek Ekibiyle İletişime Geçin",
+    "questions": "soru"
+  },
+  "support": {
+    "badge": "Destek",
+    "title": "Yardıma mı",
+    "titleHighlight": "İhtiyacınız Var?",
+    "description": "Destek ekibimiz size yardımcı olmak için hazır. En kısa sürede dönüş yapıyoruz.",
+    "form": {
+      "name": "Adınız",
+      "email": "E-posta Adresiniz",
+      "subject": "Konu",
+      "message": "Mesajınız",
+      "send": "Gönder",
+      "sending": "Gönderiliyor...",
+      "success": "Mesajınız alındı! En kısa sürede dönüş yapacağız.",
+      "namePlaceholder": "Adınızı girin",
+      "emailPlaceholder": "email@ornek.com",
+      "subjectPlaceholder": "Konuyu kısaca belirtin",
+      "messagePlaceholder": "Sorununuzu veya geri bildiriminizi detaylı açıklayın..."
+    },
+    "info": {
+      "email": "E-posta Desteği",
+      "emailDesc": "Genellikle 24 saat içinde yanıt veriyoruz.",
+      "help": "Yardım Merkezi",
+      "helpDesc": "Sık sorulan sorular ve rehberler.",
+      "response": "Ortalama Yanıt Süresi",
+      "responseTime": "24 saat"
+    }
+  },
+  "contact": {
+    "badge": "İletişim",
+    "title": "Bizimle",
+    "titleHighlight": "İletişime Geçin",
+    "description": "Sorularınız, önerileriniz veya iş birliği teklifleriniz için bize ulaşın.",
+    "email": "E-posta",
+    "location": "Konum",
+    "locationValue": "Türkiye",
+    "social": "Sosyal Medya",
+    "socialSoon": "Yakında tüm platformlarda"
+  },
+  "privacy": {
+    "title": "Gizlilik Politikası",
+    "lastUpdated": "Son güncelleme: 14 Nisan 2026"
+  },
+  "terms": {
+    "title": "Kullanım Şartları",
+    "lastUpdated": "Son güncelleme: 14 Nisan 2026"
+  },
+  "cookies": {
+    "title": "Çerez Politikası",
+    "lastUpdated": "Son güncelleme: 14 Nisan 2026",
+    "banner": {
+      "text": "Deneyiminizi iyileştirmek için çerezler kullanıyoruz. Devam ederek",
+      "linkText": "çerez politikamızı",
+      "accept": "Kabul Et",
+      "decline": "Reddet"
+    }
+  },
+  "notFound": {
+    "title": "Sayfa Bulunamadı",
+    "description": "Aradığınız sayfa mevcut değil veya taşınmış olabilir.",
+    "backHome": "Ana Sayfaya Dön"
+  },
+  "common": {
+    "appName": "PawCal",
+    "tagline": "Evcil hayvanınızın beslenme, sağlık ve aktivitesini takip edin.",
+    "downloadApp": "App Store'dan İndir",
+    "learnMore": "Daha Fazla",
+    "viewAll": "Tümünü Gör",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "comingSoon": "Yakında"
+  }
+}
