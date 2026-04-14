@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { PawPrint } from 'lucide-react';
+import { PawPrint, Apple, PlayCircle } from 'lucide-react';
 import { type Locale } from '@/i18n/config';
+import { APP_STORE_URL, GOOGLE_PLAY_URL } from '@/constants/links';
 import Container from './ui/Container';
 
 interface FooterProps {
@@ -53,20 +54,39 @@ export default function Footer({ locale }: FooterProps) {
   ];
 
   return (
-    <footer className="border-t border-white/10 bg-[var(--bg-secondary)]">
+    <footer className="border-t border-[var(--border)] bg-[var(--bg-secondary)]">
       <Container>
-        <div className="py-12 grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="py-12 grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand column */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2">
             <Link href={`/${l}`} className="flex items-center gap-2 mb-4 w-fit">
               <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center">
                 <PawPrint className="w-4 h-4 text-white" />
               </div>
-              <span className="font-display font-bold text-xl">PawCal</span>
+              <span className="font-display font-bold text-xl text-[var(--foreground)]">PawCal</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
               {t('tagline')}
             </p>
+
+            {/* SORUN 3: Store linkleri footer'da */}
+            <div className="flex flex-col gap-2 mb-4">
+              <a
+                href={APP_STORE_URL}
+                className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[#FF8F6B] transition-colors"
+              >
+                <Apple className="w-3.5 h-3.5" />
+                {t('appStore')}
+              </a>
+              <a
+                href={GOOGLE_PLAY_URL}
+                className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[#FF8F6B] transition-colors"
+              >
+                <PlayCircle className="w-3.5 h-3.5" />
+                {t('googlePlay')}
+              </a>
+            </div>
+
             {/* Social media */}
             <div className="flex items-center gap-2">
               {socials.map(({ label, name }) => (
@@ -75,7 +95,7 @@ export default function Footer({ locale }: FooterProps) {
                   disabled
                   aria-label={`${name} — ${t('socialSoon')}`}
                   title={t('socialSoon')}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-white/30 cursor-not-allowed text-[10px] font-bold"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FF8F6B]/10 text-[var(--text-secondary)] cursor-not-allowed text-[10px] font-bold opacity-50"
                 >
                   {label}
                 </button>
@@ -86,7 +106,7 @@ export default function Footer({ locale }: FooterProps) {
           {/* Nav columns */}
           {columns.map((col) => (
             <div key={col.title}>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-4">
                 {col.title}
               </h3>
               <ul className="space-y-3">
@@ -106,7 +126,7 @@ export default function Footer({ locale }: FooterProps) {
         </div>
 
         {/* Bottom bar */}
-        <div className="py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="py-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[var(--text-secondary)]">{t('copyright')}</p>
           <p className="text-xs text-[var(--text-secondary)]">
             Made with 🐾 in Turkey

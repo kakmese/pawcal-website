@@ -24,7 +24,7 @@ export default function FAQAccordion({ items, locale }: FAQAccordionProps) {
               onClick={() => setOpenIndex(isOpen ? null : index)}
               aria-expanded={isOpen}
             >
-              <span className="font-medium text-white pr-4">
+              <span className="font-medium text-[var(--foreground)] pr-4">
                 {item.question[locale]}
               </span>
               <ChevronDown

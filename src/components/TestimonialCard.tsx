@@ -25,12 +25,12 @@ export default function TestimonialCard({ testimonial, locale }: TestimonialCard
       </p>
 
       {/* Author */}
-      <div className="flex items-center gap-3 pt-2 border-t border-white/10">
+      <div className="flex items-center gap-3 pt-2 border-t border-[var(--border)]">
         <div className="w-10 h-10 rounded-full bg-[#FF8F6B]/20 flex items-center justify-center text-xl">
           {testimonial.avatar}
         </div>
         <div>
-          <div className="font-semibold text-sm text-white">
+          <div className="font-semibold text-sm text-[var(--foreground)]">
             {testimonial.name[locale]}
           </div>
           <div className="text-xs text-[var(--text-secondary)]">

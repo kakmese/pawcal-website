@@ -22,7 +22,7 @@ export default function FeaturesGrid({ locale, detailed = false }: FeaturesGridP
           <Badge variant="primary" className="mb-4">
             ✨ {t('badge')}
           </Badge>
-          <h2 className="font-display font-bold text-3xl md:text-4xl text-white mb-4">
+          <h2 className="font-display font-bold text-3xl md:text-4xl text-[var(--foreground)] mb-4">
             {t('title')}{' '}
             <span className="text-gradient-primary">{t('titleHighlight')}</span>
           </h2>

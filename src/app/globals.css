@@ -12,20 +12,28 @@
   --font-display: var(--font-poppins);
 }
 
+/* ── Dark mode (default) ───────────────────────────────── */
 :root {
   --background: #111318;
   --foreground: #FFFFFF;
   --bg-secondary: #1A1D24;
   --surface: #22262F;
   --text-secondary: #A0A4AE;
+  --border: rgba(255,255,255,0.1);
+  --navbar-bg: rgba(17,19,24,0.85);
+  --navbar-border: rgba(255,255,255,0.1);
 }
 
+/* ── Light mode ────────────────────────────────────────── */
 .light {
   --background: #FFFFFF;
   --foreground: #111318;
   --bg-secondary: #FFF7F3;
   --surface: #FFEFE5;
   --text-secondary: #6B7280;
+  --border: rgba(0,0,0,0.08);
+  --navbar-bg: rgba(255,255,255,0.9);
+  --navbar-border: rgba(0,0,0,0.08);
 }
 
 html {
@@ -37,8 +45,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s, color 0.2s;
 }
 
+/* ── Gradient utilities ────────────────────────────────── */
 .bg-gradient-primary {
   background: linear-gradient(135deg, #FF8F6B, #FF6B9D);
 }
@@ -50,6 +60,7 @@ body {
   background-clip: text;
 }
 
+/* ── Glass morphism ────────────────────────────────────── */
 .glass {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -58,10 +69,33 @@ body {
 }
 
 .light .glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(255, 143, 107, 0.2);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
+/* ── Navbar glass ──────────────────────────────────────── */
+.navbar-scrolled {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: var(--navbar-bg);
+  border-bottom: 1px solid var(--navbar-border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+/* ── Foreground-aware text helpers ─────────────────────── */
+.text-foreground { color: var(--foreground); }
+.text-secondary  { color: var(--text-secondary); }
+.bg-surface      { background-color: var(--surface); }
+.bg-bg-secondary { background-color: var(--bg-secondary); }
+.border-border   { border-color: var(--border); }
+
+/* ── Phone mockup (always dark — represents the app) ───── */
+.phone-screen {
+  background: linear-gradient(180deg, #111318 0%, #1A1D24 100%);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #111318; }
 ::-webkit-scrollbar-thumb { background: #FF8F6B; border-radius: 3px; }

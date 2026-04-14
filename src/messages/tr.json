@@ -5,7 +5,9 @@
     "help": "Yardım",
     "support": "Destek",
     "about": "Hakkında",
-    "download": "App Store'dan İndir",
+    "download": "Uygulamayı İndir",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
     "openMenu": "Menüyü Aç",
     "closeMenu": "Menüyü Kapat"
   },
@@ -25,15 +27,22 @@
     "cookies": "Çerez Politikası",
     "copyright": "© 2026 PawCal Studio. Tüm hakları saklıdır.",
     "socialSoon": "Yakında",
-    "tagline": "Evcil dostunuzun sağlığını veriyle yönetin."
+    "tagline": "Evcil dostunuzun sağlığını veriyle yönetin.",
+    "appStore": "App Store",
+    "googlePlay": "Google Play"
   },
   "hero": {
-    "badge": "iOS için şimdi mevcut",
+    "betaBadge": "🧪 Şu anda beta testi aşamasında — yakında App Store ve Google Play'de",
+    "badge": "iOS ve Android için yakında",
     "title": "Evcil Hayvanınızın Sağlığını",
     "titleHighlight": "Veriyle Yönetin",
     "description": "Evcil dostunuzun beslenme, sağlık ve aktivitesini takip edin. İçgüdülerinize değil, verilerinize güvenin.",
     "downloadBtn": "App Store'dan Ücretsiz İndir",
     "learnMore": "Özellikleri Keşfet",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "downloadOnThe": "İndir",
+    "getItOn": "Edinin",
     "stats": {
       "pets": "Kayıtlı Evcil Hayvan",
       "meals": "Öğün Kaydı",
@@ -55,9 +64,9 @@
   "cta": {
     "badge": "Ücretsiz İndir",
     "title": "PawCal'ı Hemen İndirin",
-    "description": "Evcil dostunuzun sağlığını profesyonelce takip etmeye bugün başlayın. App Store'da ücretsiz.",
+    "description": "Evcil dostunuzun sağlığını profesyonelce takip etmeye bugün başlayın. Ücretsiz.",
     "downloadBtn": "App Store'dan İndir",
-    "note": "iOS 16+ • Ücretsiz • Premium seçenekli"
+    "note": "iOS ve Android • Ücretsiz • Premium seçenekli"
   },
   "about": {
     "badge": "Hikayemiz",
@@ -169,7 +178,7 @@
   "common": {
     "appName": "PawCal",
     "tagline": "Evcil hayvanınızın beslenme, sağlık ve aktivitesini takip edin.",
-    "downloadApp": "App Store'dan İndir",
+    "downloadApp": "Uygulamayı İndir",
     "learnMore": "Daha Fazla",
     "viewAll": "Tümünü Gör",
     "loading": "Yükleniyor...",

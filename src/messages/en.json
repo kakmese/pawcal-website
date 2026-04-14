@@ -5,7 +5,9 @@
     "help": "Help",
     "support": "Support",
     "about": "About",
-    "download": "Download on App Store",
+    "download": "Download App",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
     "openMenu": "Open Menu",
     "closeMenu": "Close Menu"
   },
@@ -25,15 +27,22 @@
     "cookies": "Cookie Policy",
     "copyright": "© 2026 PawCal Studio. All rights reserved.",
     "socialSoon": "Coming Soon",
-    "tagline": "Manage your pet's health with data."
+    "tagline": "Manage your pet's health with data.",
+    "appStore": "App Store",
+    "googlePlay": "Google Play"
   },
   "hero": {
-    "badge": "Now available for iOS",
+    "betaBadge": "🧪 Currently in beta testing — coming soon to App Store and Google Play",
+    "badge": "Coming soon to iOS & Android",
     "title": "Manage Your Pet's Health",
     "titleHighlight": "With Data",
     "description": "Track your pet's nutrition, health, and activity. Trust your data, not just your instincts.",
     "downloadBtn": "Download Free on App Store",
     "learnMore": "Explore Features",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "downloadOnThe": "Download on the",
+    "getItOn": "Get it on",
     "stats": {
       "pets": "Registered Pets",
       "meals": "Meal Logs",
@@ -55,9 +64,9 @@
   "cta": {
     "badge": "Free Download",
     "title": "Download PawCal Now",
-    "description": "Start tracking your pet's health professionally today. Free on the App Store.",
+    "description": "Start tracking your pet's health professionally today. Free.",
     "downloadBtn": "Download on App Store",
-    "note": "iOS 16+ • Free • Premium options available"
+    "note": "iOS & Android • Free • Premium options available"
   },
   "about": {
     "badge": "Our Story",
@@ -169,7 +178,7 @@
   "common": {
     "appName": "PawCal",
     "tagline": "Track your pet's nutrition, health, and activity.",
-    "downloadApp": "Download on App Store",
+    "downloadApp": "Download App",
     "learnMore": "Learn More",
     "viewAll": "View All",
     "loading": "Loading...",

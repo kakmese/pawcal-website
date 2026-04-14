@@ -18,7 +18,7 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
   };
 
   return (
-    <div className="flex items-center gap-1 bg-white/10 rounded-full p-1">
+    <div className="flex items-center gap-1 bg-[#FF8F6B]/10 rounded-full p-1">
       {(['tr', 'en'] as Locale[]).map((l) => (
         <button
           key={l}
@@ -26,7 +26,7 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
           className={`px-3 py-1 rounded-full text-xs font-semibold uppercase transition-all ${
             locale === l
               ? 'bg-[#FF8F6B] text-white'
-              : 'text-white/60 hover:text-white'
+              : 'text-[var(--text-secondary)] hover:text-[var(--foreground)]'
           }`}
         >
           {l}

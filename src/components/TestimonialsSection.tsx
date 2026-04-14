@@ -21,7 +21,7 @@ export default function TestimonialsSection({ locale }: TestimonialsSectionProps
           <Badge variant="primary" className="mb-4">
             ⭐ {t('badge')}
           </Badge>
-          <h2 className="font-display font-bold text-3xl md:text-4xl text-white">
+          <h2 className="font-display font-bold text-3xl md:text-4xl text-[var(--foreground)]">
             {t('title')}{' '}
             <span className="text-gradient-primary">{t('titleHighlight')}</span>
           </h2>

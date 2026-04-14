@@ -37,7 +37,7 @@ export default function FeatureCard({ feature, locale, detailed = false }: Featu
         <Icon className="w-6 h-6" style={{ color: feature.color }} />
       </div>
 
-      <h3 className="font-display font-semibold text-lg text-white mb-2">
+      <h3 className="font-display font-semibold text-lg text-[var(--foreground)] mb-2">
         {title}
       </h3>
       <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
