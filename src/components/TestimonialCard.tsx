@@ -1,15 +1,13 @@
 'use client';
 
 import { type Testimonial } from '@/data/testimonials';
-import { type Locale } from '@/i18n/config';
 import { Star } from 'lucide-react';
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
-  locale: Locale;
 }
 
-export default function TestimonialCard({ testimonial, locale }: TestimonialCardProps) {
+export default function TestimonialCard({ testimonial }: TestimonialCardProps) {
   return (
     <div className="glass rounded-3xl p-6 flex flex-col gap-4">
       {/* Stars */}
@@ -21,7 +19,7 @@ export default function TestimonialCard({ testimonial, locale }: TestimonialCard
 
       {/* Quote */}
       <p className="text-[var(--text-secondary)] text-sm leading-relaxed italic flex-1">
-        &ldquo;{testimonial.quote[locale]}&rdquo;
+        &ldquo;{testimonial.quote}&rdquo;
       </p>
 
       {/* Author */}
@@ -31,10 +29,10 @@ export default function TestimonialCard({ testimonial, locale }: TestimonialCard
         </div>
         <div>
           <div className="font-semibold text-sm text-[var(--foreground)]">
-            {testimonial.name[locale]}
+            {testimonial.name}
           </div>
           <div className="text-xs text-[var(--text-secondary)]">
-            {testimonial.pet[locale]}
+            {testimonial.pet}
           </div>
         </div>
       </div>

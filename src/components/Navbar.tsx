@@ -2,39 +2,34 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 import { Menu, X, PawPrint, Apple, PlayCircle } from 'lucide-react';
-import { type Locale } from '@/i18n/config';
+import { useTranslations } from 'next-intl';
 import { APP_STORE_URL, GOOGLE_PLAY_URL } from '@/constants/links';
-import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import Container from './ui/Container';
 
-interface NavbarProps {
-  locale: Locale;
-}
+const btnBase =
+  'flex items-center gap-1.5 bg-gradient-primary text-white text-xs font-semibold px-3 py-2 rounded-full shadow-md shadow-[#FF8F6B]/30 hover:shadow-[#FF8F6B]/50 hover:scale-105 transition-all';
 
-export default function Navbar({ locale }: NavbarProps) {
+export default function Navbar() {
   const t = useTranslations('nav');
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { href: '/features', label: t('features') },
+    { href: '/blog', label: t('blog') },
+    { href: '/help', label: t('help') },
+    { href: '/support', label: t('support') },
+    { href: '/about', label: t('about') },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const navLinks = [
-    { href: `/${locale}/features`, label: t('features') },
-    { href: `/${locale}/blog`, label: t('blog') },
-    { href: `/${locale}/help`, label: t('help') },
-    { href: `/${locale}/support`, label: t('support') },
-    { href: `/${locale}/about`, label: t('about') },
-  ];
-
-  const btnBase =
-    'flex items-center gap-1.5 bg-gradient-primary text-white text-xs font-semibold px-3 py-2 rounded-full shadow-md shadow-[#FF8F6B]/30 hover:shadow-[#FF8F6B]/50 hover:scale-105 transition-all';
 
   return (
     <header
@@ -46,7 +41,7 @@ export default function Navbar({ locale }: NavbarProps) {
         <nav className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2 group flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
             <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg shadow-[#FF8F6B]/30 group-hover:scale-110 transition-transform">
               <PawPrint className="w-4 h-4 text-white" />
             </div>
@@ -71,27 +66,26 @@ export default function Navbar({ locale }: NavbarProps) {
 
           {/* Desktop actions */}
           <div className="hidden lg:flex items-center gap-2">
-            <LanguageSwitcher locale={locale} />
+            <LanguageSwitcher />
             <ThemeToggle />
-            {/* SORUN 3: İki ayrı buton desktop */}
             <a href={APP_STORE_URL} className={btnBase} aria-label="App Store">
               <Apple className="w-3.5 h-3.5" />
-              {t('appStore')}
+              App Store
             </a>
             <a href={GOOGLE_PLAY_URL} className={btnBase} aria-label="Google Play">
               <PlayCircle className="w-3.5 h-3.5" />
-              {t('googlePlay')}
+              Google Play
             </a>
           </div>
 
-          {/* Mobile: lang + theme + hamburger */}
+          {/* Mobile: theme + hamburger */}
           <div className="lg:hidden flex items-center gap-2">
-            <LanguageSwitcher locale={locale} />
+            <LanguageSwitcher />
             <ThemeToggle />
             <button
               className="w-9 h-9 flex items-center justify-center rounded-full bg-[#FF8F6B]/10 text-[var(--foreground)]"
               onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
+              aria-label={mobileOpen ? 'Menüyü Kapat' : 'Menüyü Aç'}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -114,7 +108,6 @@ export default function Navbar({ locale }: NavbarProps) {
                   {link.label}
                 </Link>
               ))}
-              {/* SORUN 3: Mobilde tek buton (ayrı ayrı) */}
               <div className="flex flex-col gap-2 pt-2">
                 <a
                   href={APP_STORE_URL}
@@ -122,7 +115,7 @@ export default function Navbar({ locale }: NavbarProps) {
                   onClick={() => setMobileOpen(false)}
                 >
                   <Apple className="w-4 h-4" />
-                  {t('appStore')}
+                  App Store
                 </a>
                 <a
                   href={GOOGLE_PLAY_URL}
@@ -130,7 +123,7 @@ export default function Navbar({ locale }: NavbarProps) {
                   onClick={() => setMobileOpen(false)}
                 >
                   <PlayCircle className="w-4 h-4" />
-                  {t('googlePlay')}
+                  Google Play
                 </a>
               </div>
             </div>

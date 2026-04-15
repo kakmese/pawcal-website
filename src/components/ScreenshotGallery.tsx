@@ -1,50 +1,64 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Container from './ui/Container';
 import ScreenshotMockup from './ScreenshotMockup';
 
-export default function ScreenshotGallery() {
-  const locale = useLocale();
+const screenshotSrcs = [
+  '/screenshots/home-light.png',
+  '/screenshots/health-light.png',
+  '/screenshots/weight-light.png',
+  '/screenshots/nearby-light.png',
+  '/screenshots/community-dark.png',
+  '/screenshots/home-dark.png',
+];
 
-  const screens = [
-    {
-      titleTR: 'Dashboard',
-      titleEN: 'Dashboard',
-      accentColor: '#FF8F6B',
-    },
-    {
-      titleTR: 'Beslenme',
-      titleEN: 'Nutrition',
-      accentColor: '#4ADE80',
-    },
-    {
-      titleTR: 'Sağlık',
-      titleEN: 'Health',
-      accentColor: '#FF6B9D',
-    },
-    {
-      titleTR: 'Aktivite',
-      titleEN: 'Activity',
-      accentColor: '#FBBF24',
-    },
-  ];
+export default function ScreenshotGallery() {
+  const t = useTranslations('screenshots');
+
+  const screenshots = screenshotSrcs.map((src, i) => ({
+    src,
+    title: t(`shot${i + 1}Title` as Parameters<typeof t>[0]),
+    description: t(`shot${i + 1}Desc` as Parameters<typeof t>[0]),
+  }));
 
   return (
-    <section className="py-12 bg-[var(--bg-secondary)]">
+    <section className="py-12 sm:py-16 bg-[var(--bg-secondary)]">
       <Container>
-        {/* SORUN 2: Grid layout, ortalanmış */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto justify-items-center">
-          {screens.map((screen) => {
-            const title = locale === 'tr' ? screen.titleTR : screen.titleEN;
-            return (
+        <div className="text-center mb-8 sm:mb-12">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#FF8F6B] mb-2">
+            {t('badge')}
+          </p>
+          <h2 className="font-display font-bold text-2xl md:text-3xl text-[var(--foreground)]">
+            {t('title')}
+          </h2>
+        </div>
+
+        {/* Mobile: horizontal scroll */}
+        <div className="md:hidden -mx-4 px-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory flex gap-4 pb-4">
+          {screenshots.map((s, i) => (
+            <div key={i} className="flex-shrink-0 w-[80%] snap-center">
               <ScreenshotMockup
-                key={title}
-                title={title}
-                accentColor={screen.accentColor}
+                src={s.src}
+                alt={s.title}
+                title={s.title}
+                description={s.description}
               />
-            );
-          })}
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: 3-col grid */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {screenshots.map((s, i) => (
+            <ScreenshotMockup
+              key={i}
+              src={s.src}
+              alt={s.title}
+              title={s.title}
+              description={s.description}
+            />
+          ))}
         </div>
       </Container>
     </section>

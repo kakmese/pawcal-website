@@ -26,14 +26,14 @@
 
 /* ── Light mode ────────────────────────────────────────── */
 .light {
-  --background: #FFFFFF;
-  --foreground: #111318;
-  --bg-secondary: #FFF7F3;
-  --surface: #FFEFE5;
+  --background: #FAF9F7;
+  --bg-secondary: #F5F2ED;
+  --surface: #FFFFFF;
+  --foreground: #171717;
   --text-secondary: #6B7280;
-  --border: rgba(0,0,0,0.08);
-  --navbar-bg: rgba(255,255,255,0.9);
-  --navbar-border: rgba(0,0,0,0.08);
+  --border: #E8E4DE;
+  --navbar-bg: rgba(250,249,247,0.92);
+  --navbar-border: #E8E4DE;
 }
 
 html {
@@ -99,3 +99,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #111318; }
 ::-webkit-scrollbar-thumb { background: #FF8F6B; border-radius: 3px; }
+
+/* ── Hide scrollbar (horizontal scroll carousels) ──────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

@@ -1,39 +1,31 @@
-import { type Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { type Locale } from '@/i18n/config';
 import { faqCategories } from '@/data/faq';
 import Container from '@/components/ui/Container';
 import FAQAccordion from '@/components/FAQAccordion';
 import { ArrowLeft, Mail } from 'lucide-react';
 
 interface PageProps {
-  params: Promise<{ locale: Locale; category: string }>;
+  params: Promise<{ category: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, category } = await params;
+  const { category } = await params;
   const cat = faqCategories.find((c) => c.slug === category);
   if (!cat) return {};
   return {
-    title: cat.title[locale],
-    description: `${cat.title[locale]} — PawCal Help Center`,
+    title: cat.title,
+    description: `${cat.title} — PawCal Yardım Merkezi`,
   };
 }
 
-export async function generateStaticParams() {
-  return faqCategories.flatMap((cat) =>
-    (['tr', 'en'] as Locale[]).map((locale) => ({
-      locale,
-      category: cat.slug,
-    }))
-  );
+export function generateStaticParams() {
+  return faqCategories.map((cat) => ({ category: cat.slug }));
 }
 
 export default async function HelpCategoryPage({ params }: PageProps) {
-  const { locale, category } = await params;
-  const t = await getTranslations({ locale, namespace: 'help' });
+  const { category } = await params;
   const cat = faqCategories.find((c) => c.slug === category);
 
   if (!cat) notFound();
@@ -44,14 +36,14 @@ export default async function HelpCategoryPage({ params }: PageProps) {
         <Container>
           <div className="max-w-3xl mx-auto">
             <Link
-              href={`/${locale}/help`}
+              href="/help"
               className="inline-flex items-center gap-2 text-[#FF8F6B] text-sm font-semibold mb-6 hover:gap-3 transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
-              {t('backToHelp')}
+              Yardım Merkezine Dön
             </Link>
             <h1 className="font-display font-bold text-3xl md:text-4xl text-white">
-              {cat.title[locale]}
+              {cat.title}
             </h1>
           </div>
         </Container>
@@ -60,11 +52,11 @@ export default async function HelpCategoryPage({ params }: PageProps) {
       <section className="py-12">
         <Container>
           <div className="max-w-3xl mx-auto">
-            <FAQAccordion items={cat.items} locale={locale} />
+            <FAQAccordion items={cat.items} />
 
             <div className="mt-12 glass rounded-3xl p-8 text-center">
               <h2 className="font-display font-semibold text-xl text-white mb-2">
-                {t('stillNeedHelp')}
+                Hâlâ Yardıma mı İhtiyacınız Var?
               </h2>
               <p className="text-[var(--text-secondary)] text-sm mb-4">
                 info@pawcal.net
@@ -74,7 +66,7 @@ export default async function HelpCategoryPage({ params }: PageProps) {
                 className="inline-flex items-center gap-2 bg-gradient-primary text-white font-semibold px-6 py-3 rounded-full hover:opacity-90 transition-opacity"
               >
                 <Mail className="w-4 h-4" />
-                {t('contactSupport')}
+                Destek Ekibiyle İletişime Geçin
               </a>
             </div>
           </div>

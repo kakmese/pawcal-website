@@ -3,14 +3,12 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { type FAQItem } from '@/data/faq';
-import { type Locale } from '@/i18n/config';
 
 interface FAQAccordionProps {
   items: FAQItem[];
-  locale: Locale;
 }
 
-export default function FAQAccordion({ items, locale }: FAQAccordionProps) {
+export default function FAQAccordion({ items }: FAQAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
@@ -25,7 +23,7 @@ export default function FAQAccordion({ items, locale }: FAQAccordionProps) {
               aria-expanded={isOpen}
             >
               <span className="font-medium text-[var(--foreground)] pr-4">
-                {item.question[locale]}
+                {item.question}
               </span>
               <ChevronDown
                 className={`w-5 h-5 text-[#FF8F6B] flex-shrink-0 transition-transform duration-200 ${
@@ -36,7 +34,7 @@ export default function FAQAccordion({ items, locale }: FAQAccordionProps) {
             {isOpen && (
               <div className="px-4 pb-4">
                 <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                  {item.answer[locale]}
+                  {item.answer}
                 </p>
               </div>
             )}

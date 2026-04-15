@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 import createNextIntlPlugin from 'next-intl/plugin';
 import createMDX from '@next/mdx';
 
@@ -12,6 +13,7 @@ const withMDX = createMDX({
 });
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: path.join(__dirname),
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   images: {
     remotePatterns: [

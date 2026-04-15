@@ -1,56 +1,50 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 import { PawPrint, Apple, PlayCircle } from 'lucide-react';
-import { type Locale } from '@/i18n/config';
+import { useTranslations } from 'next-intl';
 import { APP_STORE_URL, GOOGLE_PLAY_URL } from '@/constants/links';
 import Container from './ui/Container';
 
-interface FooterProps {
-  locale: Locale;
-}
+const socials = [
+  { label: 'IG', name: 'Instagram' },
+  { label: 'X', name: 'X / Twitter' },
+  { label: 'TK', name: 'TikTok' },
+];
 
-export default function Footer({ locale }: FooterProps) {
+export default function Footer() {
   const t = useTranslations('footer');
-  const l = locale;
 
   const columns = [
     {
       title: t('product'),
       links: [
-        { href: `/${l}/features`, label: t('features') },
-        { href: `/${l}/blog`, label: t('blog') },
+        { href: '/features', label: t('features') },
+        { href: '/blog', label: t('blog') },
       ],
     },
     {
       title: t('company'),
       links: [
-        { href: `/${l}/about`, label: t('about') },
-        { href: `/${l}/contact`, label: t('contact') },
+        { href: '/about', label: t('about') },
+        { href: '/contact', label: t('contact') },
       ],
     },
     {
       title: t('support'),
       links: [
-        { href: `/${l}/help`, label: t('help') },
-        { href: `/${l}/support`, label: t('supportPage') },
+        { href: '/help', label: t('helpCenter') },
+        { href: '/support', label: t('supportLink') },
       ],
     },
     {
       title: t('legal'),
       links: [
-        { href: `/${l}/privacy`, label: t('privacy') },
-        { href: `/${l}/terms`, label: t('terms') },
-        { href: `/${l}/cookies`, label: t('cookies') },
+        { href: '/privacy', label: t('privacy') },
+        { href: '/terms', label: t('terms') },
+        { href: '/cookies', label: t('cookies') },
       ],
     },
-  ];
-
-  const socials = [
-    { label: 'IG', name: 'Instagram' },
-    { label: 'X', name: 'X / Twitter' },
-    { label: 'TK', name: 'TikTok' },
   ];
 
   return (
@@ -59,7 +53,7 @@ export default function Footer({ locale }: FooterProps) {
         <div className="py-12 grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand column */}
           <div className="col-span-2">
-            <Link href={`/${l}`} className="flex items-center gap-2 mb-4 w-fit">
+            <Link href="/" className="flex items-center gap-2 mb-4 w-fit">
               <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center">
                 <PawPrint className="w-4 h-4 text-white" />
               </div>
@@ -69,21 +63,20 @@ export default function Footer({ locale }: FooterProps) {
               {t('tagline')}
             </p>
 
-            {/* SORUN 3: Store linkleri footer'da */}
             <div className="flex flex-col gap-2 mb-4">
               <a
                 href={APP_STORE_URL}
                 className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[#FF8F6B] transition-colors"
               >
                 <Apple className="w-3.5 h-3.5" />
-                {t('appStore')}
+                App Store
               </a>
               <a
                 href={GOOGLE_PLAY_URL}
                 className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[#FF8F6B] transition-colors"
               >
                 <PlayCircle className="w-3.5 h-3.5" />
-                {t('googlePlay')}
+                Google Play
               </a>
             </div>
 
@@ -93,8 +86,8 @@ export default function Footer({ locale }: FooterProps) {
                 <button
                   key={name}
                   disabled
-                  aria-label={`${name} — ${t('socialSoon')}`}
-                  title={t('socialSoon')}
+                  aria-label={`${name} — Yakında`}
+                  title="Yakında"
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FF8F6B]/10 text-[var(--text-secondary)] cursor-not-allowed text-[10px] font-bold opacity-50"
                 >
                   {label}
@@ -127,10 +120,10 @@ export default function Footer({ locale }: FooterProps) {
 
         {/* Bottom bar */}
         <div className="py-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[var(--text-secondary)]">{t('copyright')}</p>
           <p className="text-xs text-[var(--text-secondary)]">
-            Made with 🐾 in Turkey
+            {t('copyright')}
           </p>
+          <p className="text-xs text-[var(--text-secondary)]">{t('madeWith')}</p>
         </div>
       </Container>
     </footer>

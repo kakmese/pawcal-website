@@ -1,7 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { Apple, PlayCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { APP_STORE_URL, GOOGLE_PLAY_URL } from '@/constants/links';
 
 interface StoreButtonsProps {
@@ -15,8 +15,7 @@ export default function StoreButtons({
   direction = 'row',
   className = '',
 }: StoreButtonsProps) {
-  const t = useTranslations('hero');
-
+  const t = useTranslations('storeButtons');
   const padding = {
     sm: 'px-4 py-2.5',
     md: 'px-5 py-3',
@@ -48,35 +47,19 @@ export default function StoreButtons({
 
   return (
     <div className={`flex ${flexDir} gap-3 ${className}`}>
-      <a
-        href={APP_STORE_URL}
-        className={`${baseBtn} ${padding}`}
-        aria-label="App Store"
-      >
+      <a href={APP_STORE_URL} className={`${baseBtn} ${padding}`} aria-label="App Store">
         <Apple className={iconSize} />
         <div className="text-left">
-          <div className={`${subSize} opacity-80 leading-none mb-0.5`}>
-            {t('downloadOnThe')}
-          </div>
-          <div className={`${labelSize} font-bold leading-none`}>
-            {t('appStore')}
-          </div>
+          <div className={`${subSize} opacity-80 leading-none mb-0.5`}>{t('downloadOn')}</div>
+          <div className={`${labelSize} font-bold leading-none`}>{t('appStore')}</div>
         </div>
       </a>
 
-      <a
-        href={GOOGLE_PLAY_URL}
-        className={`${baseBtn} ${padding}`}
-        aria-label="Google Play"
-      >
+      <a href={GOOGLE_PLAY_URL} className={`${baseBtn} ${padding}`} aria-label="Google Play">
         <PlayCircle className={iconSize} />
         <div className="text-left">
-          <div className={`${subSize} opacity-80 leading-none mb-0.5`}>
-            {t('getItOn')}
-          </div>
-          <div className={`${labelSize} font-bold leading-none`}>
-            {t('googlePlay')}
-          </div>
+          <div className={`${subSize} opacity-80 leading-none mb-0.5`}>{t('getItOn')}</div>
+          <div className={`${labelSize} font-bold leading-none`}>{t('googlePlay')}</div>
         </div>
       </a>
     </div>

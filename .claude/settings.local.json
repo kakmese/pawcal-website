@@ -6,7 +6,26 @@
       "Bash(npm run:*)",
       "Bash(node -e \"const l = require\\('lucide-react'\\); const keys = Object.keys\\(l\\).filter\\(k => k.match\\(/^[A-Z]/\\)\\).filter\\(k => k.toLowerCase\\(\\).includes\\('share'\\) || k.toLowerCase\\(\\).includes\\('link'\\) || k.toLowerCase\\(\\).includes\\('external'\\)\\); console.log\\(keys.slice\\(0, 20\\)\\)\")",
       "Bash(node -e \"const next = require\\('next/package.json'\\); console.log\\(next.version\\)\")",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(grep -l \"NextIntlClientProvider\" \"C:/Users/kakme/OneDrive/Masaüstü/pawcal-website/node_modules/next-intl/dist/types\"/*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -v \"//.*script\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 22008)",
+      "Bash(powershell:*)",
+      "Read(//c/Users/kakme/**)",
+      "Bash(rm:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(mkdir -p \"[locale]\")",
+      "Bash(mv page.tsx layout.tsx not-found.tsx \"[locale]/\")",
+      "Bash(mv features:*)",
+      "Bash(cp -r blog \"[locale]/blog\")",
+      "Bash(cp -r help \"[locale]/help\")",
+      "Bash(rm -rf blog help)",
+      "Read(//tmp/**)",
+      "Bash(rm -rf .next)"
     ]
   }
 }

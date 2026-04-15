@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations, useLocale } from 'next-intl';
 import { X } from 'lucide-react';
 
 export default function CookieBanner() {
-  const t = useTranslations('cookies.banner');
-  const locale = useLocale();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -36,27 +33,24 @@ export default function CookieBanner() {
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <p className="text-sm text-[var(--foreground)]">
-              {t('text')}{' '}
-              <Link
-                href={`/${locale}/cookies`}
-                className="text-[#FF8F6B] hover:underline"
-              >
-                {t('linkText')}
+              Deneyiminizi iyileştirmek için çerezler kullanıyoruz. Devam ederek{' '}
+              <Link href="/cookies" className="text-[#FF8F6B] hover:underline">
+                çerez politikamızı
               </Link>
-              {' '} kabul etmiş olursunuz.
+              {' '}kabul etmiş olursunuz.
             </p>
             <div className="flex gap-2 mt-3">
               <button
                 onClick={accept}
                 className="flex-1 bg-gradient-primary text-white text-xs font-semibold py-2 rounded-full hover:opacity-90 transition-opacity"
               >
-                {t('accept')}
+                Kabul Et
               </button>
               <button
                 onClick={decline}
                 className="flex-1 bg-white/10 text-white/70 text-xs font-semibold py-2 rounded-full hover:bg-white/20 transition-colors"
               >
-                {t('decline')}
+                Reddet
               </button>
             </div>
           </div>

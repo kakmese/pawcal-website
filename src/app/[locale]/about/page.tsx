@@ -1,67 +1,56 @@
-import { type Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import { type Locale } from '@/i18n/config';
+import type { Metadata } from 'next';
 import Container from '@/components/ui/Container';
 import Badge from '@/components/ui/Badge';
 import CTASection from '@/components/CTASection';
 import { Database, Microscope, Shield, MapPin, Mail } from 'lucide-react';
 
-interface PageProps {
-  params: Promise<{ locale: Locale }>;
-}
+export const metadata: Metadata = {
+  title: 'Hakkında',
+  description:
+    "PawCal Studio hakkında bilgi edinin. Türkiye'den dünyaya evcil hayvan sağlık takibi.",
+};
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale } = await params;
-  return {
-    title: locale === 'tr' ? 'Hakkında' : 'About',
-    description: locale === 'tr'
-      ? 'PawCal Studio hakkında bilgi edinin. Türkiye\'den dünyaya evcil hayvan sağlık takibi.'
-      : 'Learn about PawCal Studio. Pet health tracking from Turkey to the world.',
-  };
-}
+const values = [
+  {
+    icon: Database,
+    title: 'Veri Odaklı',
+    desc: 'Her karar veriyle desteklenir, tahminlere değil gerçek verilere dayanır.',
+    color: '#FF8F6B',
+  },
+  {
+    icon: Microscope,
+    title: 'Bilimsel Temel',
+    desc: 'Veteriner bilimi rehberlerimizin temelini oluşturur.',
+    color: '#4ADE80',
+  },
+  {
+    icon: Shield,
+    title: 'Gizlilik Önce',
+    desc: 'Verileriniz yalnızca sizin ve evcil hayvanınızın iyiliği için kullanılır.',
+    color: '#A78BFA',
+  },
+];
 
-export default async function AboutPage({ params }: PageProps) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'about' });
+const storyParagraphs = [
+  "PawCal, 2026 yılında evcil hayvan sahiplerinin karşılaştığı gerçek bir sorundan doğdu: Dostlarımızın sağlığıyla ilgili günlük verileri takip etmek zor, dağınık ve unutkanlığa dayanıklı değil. Bir not defteri, bir takvim, bir hesap makinesi ve hafızamız — hepsi aynı anda çalışmalı.",
+  "Biz PawCal Studio olarak bu dağınıklığa bir son vermek istedik. Modern takip uygulamalarının insan sağlığı için yaptığını evcil hayvanlar için yapıyoruz: Veri odaklı, bilimsel temelli, ama kullanıcı dostu bir deneyim.",
+  "PawCal Studio, evcil hayvan sahiplerinin evcil dostlarıyla daha bilinçli, daha sağlıklı bir yaşam sürmesini hedefleyen bağımsız bir yazılım stüdyosudur. Türkiye'den dünyaya.",
+];
 
-  const values = [
-    {
-      icon: Database,
-      title: t('values.data.title'),
-      desc: t('values.data.desc'),
-      color: '#FF8F6B',
-    },
-    {
-      icon: Microscope,
-      title: t('values.science.title'),
-      desc: t('values.science.desc'),
-      color: '#4ADE80',
-    },
-    {
-      icon: Shield,
-      title: t('values.privacy.title'),
-      desc: t('values.privacy.desc'),
-      color: '#A78BFA',
-    },
-  ];
-
-  const storyParagraphs = t('story').split('\n\n');
-
+export default function AboutPage() {
   return (
     <>
-      {/* Hero */}
       <section className="pt-32 pb-16 bg-[var(--bg-secondary)]">
         <Container>
           <div className="max-w-3xl mx-auto text-center">
-            <Badge variant="primary" className="mb-6">🐾 {t('badge')}</Badge>
+            <Badge variant="primary" className="mb-6">🐾 Hikayemiz</Badge>
             <h1 className="font-display font-bold text-4xl md:text-5xl text-white mb-8">
-              {t('title')}
+              PawCal Studio Hakkında
             </h1>
           </div>
         </Container>
       </section>
 
-      {/* Story */}
       <section className="py-16">
         <Container>
           <div className="max-w-3xl mx-auto">
@@ -73,19 +62,17 @@ export default async function AboutPage({ params }: PageProps) {
               ))}
             </div>
 
-            {/* Mission */}
             <div className="bg-gradient-primary rounded-3xl p-8 mb-12 text-center">
               <h2 className="font-display font-bold text-2xl text-white mb-3">
-                {t('mission')}
+                Misyon
               </h2>
               <p className="text-white/90 text-lg leading-relaxed">
-                {t('missionText')}
+                Evcil hayvan sahiplerinin dostlarıyla daha bilinçli, daha sağlıklı bir yaşam sürmesini sağlamak.
               </p>
             </div>
 
-            {/* Values */}
             <h2 className="font-display font-bold text-2xl text-white mb-6 text-center">
-              {t('values.title')}
+              Değerlerimiz
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               {values.map((value) => (
@@ -102,19 +89,15 @@ export default async function AboutPage({ params }: PageProps) {
               ))}
             </div>
 
-            {/* Contact info */}
             <div className="glass rounded-3xl p-6 flex flex-col sm:flex-row gap-6 items-center justify-center">
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-[#FF8F6B]" />
-                <span className="text-[var(--text-secondary)]">{t('location')}</span>
+                <span className="text-[var(--text-secondary)]">Türkiye</span>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-[#FF8F6B]" />
-                <a
-                  href="mailto:info@pawcal.net"
-                  className="text-[#FF8F6B] hover:underline"
-                >
-                  {t('contact')}
+                <a href="mailto:info@pawcal.net" className="text-[#FF8F6B] hover:underline">
+                  info@pawcal.net
                 </a>
               </div>
             </div>
