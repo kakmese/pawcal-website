@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
@@ -64,6 +65,7 @@ export default async function LocaleLayout({
               <CookieBanner />
             </div>
           </ThemeProvider>
+          <Analytics />
         </NextIntlClientProvider>
       </body>
     </html>
