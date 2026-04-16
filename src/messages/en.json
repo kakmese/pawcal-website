@@ -128,6 +128,35 @@
     "value3Desc": "Your data is used solely for the well-being of you and your pet.",
     "location": "Turkey"
   },
+  "HomePage": {
+    "metaTitle": "PawCal — Pet Health Tracking",
+    "metaDescription": "PawCal is a modern app for tracking your pet's health with data. Nutrition, weight, medications, activity, and more — all in one place."
+  },
+  "ContactPage": {
+    "badge": "📧 Contact",
+    "title": "Get in Touch",
+    "description": "Reach out for questions, suggestions, or collaboration opportunities.",
+    "emailTitle": "Email",
+    "emailValue": "info@pawcal.net",
+    "locationTitle": "Location",
+    "locationValue": "Turkey",
+    "socialTitle": "Social Media",
+    "socialSoon": "Coming soon on all platforms",
+    "metaTitle": "Contact | PawCal"
+  },
+  "NotFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "homeLink": "Back to Home"
+  },
+  "CookieBanner": {
+    "message": "We use cookies to improve your experience. For details, see our",
+    "policyLink": "cookie policy",
+    "messageSuffix": ".",
+    "accept": "Accept",
+    "reject": "Reject",
+    "close": "Close"
+  },
   "SupportPage": {
     "badge": "💬 Support",
     "title": "Need Some",

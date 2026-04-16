@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { X } from 'lucide-react';
 
 export default function CookieBanner() {
+  const t = useTranslations('CookieBanner');
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -33,31 +35,31 @@ export default function CookieBanner() {
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <p className="text-sm text-[var(--foreground)]">
-              Deneyiminizi iyileştirmek için çerezler kullanıyoruz. Devam ederek{' '}
+              {t('message')}{' '}
               <Link href="/cookies" className="text-[#FF8F6B] hover:underline">
-                çerez politikamızı
+                {t('policyLink')}
               </Link>
-              {' '}kabul etmiş olursunuz.
+              {t('messageSuffix')}
             </p>
             <div className="flex gap-2 mt-3">
               <button
                 onClick={accept}
                 className="flex-1 bg-gradient-primary text-white text-xs font-semibold py-2 rounded-full hover:opacity-90 transition-opacity"
               >
-                Kabul Et
+                {t('accept')}
               </button>
               <button
                 onClick={decline}
                 className="flex-1 bg-white/10 text-white/70 text-xs font-semibold py-2 rounded-full hover:bg-white/20 transition-colors"
               >
-                Reddet
+                {t('reject')}
               </button>
             </div>
           </div>
           <button
             onClick={decline}
             className="text-white/40 hover:text-white transition-colors mt-0.5"
-            aria-label="Kapat"
+            aria-label={t('close')}
           >
             <X className="w-4 h-4" />
           </button>

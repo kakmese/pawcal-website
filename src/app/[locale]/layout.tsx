@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import Navbar from '@/components/Navbar';
@@ -19,21 +19,28 @@ const poppins = Poppins({
   variable: '--font-poppins',
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: 'PawCal — Evcil Hayvan Sağlık Takibi',
-    template: '%s | PawCal',
-  },
-  description:
-    'Evcil hayvanınızın beslenme, sağlık ve aktivitesini takip edin. PawCal ile veri odaklı evcil hayvan bakımı.',
-  metadataBase: new URL('https://pawcal.net'),
-  openGraph: {
-    type: 'website',
-    locale: 'tr_TR',
-    url: 'https://pawcal.net',
-    siteName: 'PawCal',
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'HomePage' });
+  return {
+    title: {
+      default: t('metaTitle'),
+      template: '%s | PawCal',
+    },
+    description: t('metaDescription'),
+    metadataBase: new URL('https://pawcal.net'),
+    openGraph: {
+      type: 'website',
+      locale: locale === 'tr' ? 'tr_TR' : 'en_US',
+      url: 'https://pawcal.net',
+      siteName: 'PawCal',
+    },
+  };
+}
 
 export default async function LocaleLayout({
   children,

@@ -1,25 +1,33 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import Container from '@/components/ui/Container';
 import Badge from '@/components/ui/Badge';
 import { Mail, MapPin } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'İletişim',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ContactPage' });
+  return { title: t('metaTitle') };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const t = await getTranslations('ContactPage');
+
   return (
     <>
       <section className="pt-32 pb-16 bg-[var(--bg-secondary)]">
         <Container>
           <div className="text-center max-w-2xl mx-auto">
-            <Badge variant="primary" className="mb-4">📬 İletişim</Badge>
+            <Badge variant="primary" className="mb-4">{t('badge')}</Badge>
             <h1 className="font-display font-bold text-4xl md:text-5xl text-white mb-4">
-              Bizimle{' '}
-              <span className="text-gradient-primary">İletişime Geçin</span>
+              {t('title')}
             </h1>
             <p className="text-[var(--text-secondary)] text-lg">
-              Sorularınız, önerileriniz veya iş birliği teklifleriniz için bize ulaşın.
+              {t('description')}
             </p>
           </div>
         </Container>
@@ -34,9 +42,9 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-[#FF8F6B]" />
                 </div>
                 <div>
-                  <h2 className="font-display font-semibold text-lg text-white mb-2">E-posta</h2>
+                  <h2 className="font-display font-semibold text-lg text-white mb-2">{t('emailTitle')}</h2>
                   <a href="mailto:info@pawcal.net" className="text-[#FF8F6B] hover:underline text-lg">
-                    info@pawcal.net
+                    {t('emailValue')}
                   </a>
                 </div>
               </div>
@@ -48,15 +56,15 @@ export default function ContactPage() {
                   <MapPin className="w-6 h-6 text-[#FF8F6B]" />
                 </div>
                 <div>
-                  <h2 className="font-display font-semibold text-lg text-white mb-2">Konum</h2>
-                  <p className="text-[var(--text-secondary)]">Türkiye</p>
+                  <h2 className="font-display font-semibold text-lg text-white mb-2">{t('locationTitle')}</h2>
+                  <p className="text-[var(--text-secondary)]">{t('locationValue')}</p>
                 </div>
               </div>
             </div>
 
             <div className="glass rounded-3xl p-8">
-              <h2 className="font-display font-semibold text-lg text-white mb-2">Sosyal Medya</h2>
-              <p className="text-[var(--text-secondary)] text-sm mb-4">Yakında tüm platformlarda</p>
+              <h2 className="font-display font-semibold text-lg text-white mb-2">{t('socialTitle')}</h2>
+              <p className="text-[var(--text-secondary)] text-sm mb-4">{t('socialSoon')}</p>
               <div className="flex gap-3">
                 {[
                   { label: 'IG', name: 'Instagram' },

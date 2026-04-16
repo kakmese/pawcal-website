@@ -128,6 +128,35 @@
     "value3Desc": "Verileriniz yalnızca sizin ve evcil hayvanınızın iyiliği için kullanılır.",
     "location": "Türkiye"
   },
+  "HomePage": {
+    "metaTitle": "PawCal — Evcil Hayvan Sağlık Takibi",
+    "metaDescription": "PawCal, evcil hayvanınızın sağlığını veriyle takip eden modern bir uygulamadır. Beslenme, kilo, ilaç, aktivite ve daha fazlası tek bir yerde."
+  },
+  "ContactPage": {
+    "badge": "📧 İletişim",
+    "title": "Bizimle İletişime Geçin",
+    "description": "Sorularınız, önerileriniz veya iş birliği teklifleriniz için aşağıdaki kanallardan bize ulaşabilirsiniz.",
+    "emailTitle": "E-posta",
+    "emailValue": "info@pawcal.net",
+    "locationTitle": "Konum",
+    "locationValue": "Türkiye",
+    "socialTitle": "Sosyal Medya",
+    "socialSoon": "Yakında tüm platformlarda",
+    "metaTitle": "İletişim | PawCal"
+  },
+  "NotFound": {
+    "title": "Sayfa Bulunamadı",
+    "description": "Aradığınız sayfa mevcut değil veya taşınmış olabilir.",
+    "homeLink": "Ana Sayfaya Dön"
+  },
+  "CookieBanner": {
+    "message": "Deneyiminizi iyileştirmek için çerezleri kullanıyoruz. Detaylar için",
+    "policyLink": "çerez politikamızı",
+    "messageSuffix": "inceleyin.",
+    "accept": "Kabul Et",
+    "reject": "Reddet",
+    "close": "Kapat"
+  },
   "SupportPage": {
     "badge": "💬 Destek",
     "title": "Yardıma mı",
