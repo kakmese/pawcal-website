@@ -12,11 +12,13 @@ interface FeaturesGridProps {
 
 export default function FeaturesGrid({ detailed = false }: FeaturesGridProps) {
   const t = useTranslations('features');
+  const tPage = useTranslations('FeaturesPage');
 
   const translatedFeatures = features.map((f, i) => ({
     ...f,
     title: t(`feature${i + 1}Title` as Parameters<typeof t>[0]),
     shortDesc: t(`feature${i + 1}Desc` as Parameters<typeof t>[0]),
+    longDesc: tPage(`feature${i + 1}LongDesc` as Parameters<typeof tPage>[0]),
   }));
 
   return (

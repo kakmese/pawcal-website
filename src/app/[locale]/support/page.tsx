@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Container from '@/components/ui/Container';
 import Badge from '@/components/ui/Badge';
 import CTASection from '@/components/CTASection';
 import { Mail, HelpCircle, Clock, Send } from 'lucide-react';
 
 export default function SupportPage() {
+  const t = useTranslations('SupportPage');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,23 +29,23 @@ export default function SupportPage() {
   const infoItems = [
     {
       icon: Mail,
-      title: 'E-posta Desteği',
-      desc: 'Genellikle 24 saat içinde yanıt veriyoruz.',
+      title: t('emailSupportTitle'),
+      desc: t('emailSupportDesc'),
       value: 'info@pawcal.net',
       href: 'mailto:info@pawcal.net',
     },
     {
       icon: HelpCircle,
-      title: 'Yardım Merkezi',
-      desc: 'Sık sorulan sorular ve rehberler.',
-      value: 'Yardım Merkezi',
+      title: t('helpCenterTitle'),
+      desc: t('helpCenterDesc'),
+      value: t('helpCenterLink'),
       href: '/help',
     },
     {
       icon: Clock,
-      title: 'Ortalama Yanıt Süresi',
+      title: t('avgResponseTitle'),
       desc: '',
-      value: '24 saat',
+      value: t('avgResponseValue'),
       href: null,
     },
   ];
@@ -53,13 +55,13 @@ export default function SupportPage() {
       <section className="pt-32 pb-16 bg-[var(--bg-secondary)]">
         <Container>
           <div className="text-center max-w-2xl mx-auto">
-            <Badge variant="primary" className="mb-4">💬 Destek</Badge>
+            <Badge variant="primary" className="mb-4">{t('badge')}</Badge>
             <h1 className="font-display font-bold text-4xl md:text-5xl text-white mb-4">
-              Yardıma mı{' '}
-              <span className="text-gradient-primary">İhtiyacınız Var?</span>
+              {t('title')}{' '}
+              <span className="text-gradient-primary">{t('titleHighlight')}</span>
             </h1>
             <p className="text-[var(--text-secondary)] text-lg">
-              Destek ekibimiz size yardımcı olmak için hazır. En kısa sürede dönüş yapıyoruz.
+              {t('description')}
             </p>
           </div>
         </Container>
@@ -98,7 +100,7 @@ export default function SupportPage() {
                 <div className="text-center py-8">
                   <div className="text-5xl mb-4">🎉</div>
                   <h3 className="font-display font-semibold text-xl text-white mb-2">
-                    Mesajınız alındı! En kısa sürede dönüş yapacağız.
+                    {t('successMessage')}
                   </h3>
                 </div>
               ) : (
@@ -106,12 +108,12 @@ export default function SupportPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                        Adınız
+                        {t('nameLabel')}
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="Adınızı girin"
+                        placeholder={t('namePlaceholder')}
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#FF8F6B] transition-colors text-sm"
@@ -119,12 +121,12 @@ export default function SupportPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                        E-posta Adresiniz
+                        {t('emailLabel')}
                       </label>
                       <input
                         type="email"
                         required
-                        placeholder="email@ornek.com"
+                        placeholder={t('emailPlaceholder')}
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#FF8F6B] transition-colors text-sm"
@@ -133,12 +135,12 @@ export default function SupportPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                      Konu
+                      {t('subjectLabel')}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Konuyu kısaca belirtin"
+                      placeholder={t('subjectPlaceholder')}
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#FF8F6B] transition-colors text-sm"
@@ -146,12 +148,12 @@ export default function SupportPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                      Mesajınız
+                      {t('messageLabel')}
                     </label>
                     <textarea
                       required
                       rows={6}
-                      placeholder="Sorununuzu veya geri bildiriminizi detaylı açıklayın..."
+                      placeholder={t('messagePlaceholder')}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#FF8F6B] transition-colors text-sm resize-none"
@@ -163,7 +165,7 @@ export default function SupportPage() {
                     className="w-full flex items-center justify-center gap-2 bg-gradient-primary text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />
-                    {loading ? 'Gönderiliyor...' : 'Gönder'}
+                    {loading ? t('submittingButton') : t('submitButton')}
                   </button>
                 </form>
               )}
