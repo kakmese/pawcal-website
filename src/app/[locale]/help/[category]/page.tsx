@@ -1,32 +1,37 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { faqCategories } from '@/data/faq';
+import { getTranslations } from 'next-intl/server';
+import { getFAQCategories, faqCategoriesByLocale } from '@/data/faq';
+import { Link } from '@/i18n/navigation';
 import Container from '@/components/ui/Container';
 import FAQAccordion from '@/components/FAQAccordion';
 import { ArrowLeft, Mail } from 'lucide-react';
 
 interface PageProps {
-  params: Promise<{ category: string }>;
+  params: Promise<{ locale: string; category: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { category } = await params;
-  const cat = faqCategories.find((c) => c.slug === category);
+  const { locale, category } = await params;
+  const categories = getFAQCategories(locale);
+  const cat = categories.find((c) => c.slug === category);
   if (!cat) return {};
   return {
-    title: cat.title,
-    description: `${cat.title} — PawCal Yardım Merkezi`,
+    title: `${cat.title} | PawCal`,
+    description: `${cat.title} — PawCal Help Center`,
   };
 }
 
 export function generateStaticParams() {
-  return faqCategories.map((cat) => ({ category: cat.slug }));
+  // Slugs are identical in both locales — use TR array as source of truth
+  return faqCategoriesByLocale.tr.map((cat) => ({ category: cat.slug }));
 }
 
 export default async function HelpCategoryPage({ params }: PageProps) {
-  const { category } = await params;
-  const cat = faqCategories.find((c) => c.slug === category);
+  const { locale, category } = await params;
+  const t = await getTranslations({ locale, namespace: 'HelpCategoryPage' });
+  const categories = getFAQCategories(locale);
+  const cat = categories.find((c) => c.slug === category);
 
   if (!cat) notFound();
 
@@ -40,7 +45,7 @@ export default async function HelpCategoryPage({ params }: PageProps) {
               className="inline-flex items-center gap-2 text-[#FF8F6B] text-sm font-semibold mb-6 hover:gap-3 transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
-              Yardım Merkezine Dön
+              {t('backToHelp')}
             </Link>
             <h1 className="font-display font-bold text-3xl md:text-4xl text-white">
               {cat.title}
@@ -56,7 +61,7 @@ export default async function HelpCategoryPage({ params }: PageProps) {
 
             <div className="mt-12 glass rounded-3xl p-8 text-center">
               <h2 className="font-display font-semibold text-xl text-white mb-2">
-                Hâlâ Yardıma mı İhtiyacınız Var?
+                {t('stillNeedHelpTitle')}
               </h2>
               <p className="text-[var(--text-secondary)] text-sm mb-4">
                 info@pawcal.net
@@ -66,7 +71,7 @@ export default async function HelpCategoryPage({ params }: PageProps) {
                 className="inline-flex items-center gap-2 bg-gradient-primary text-white font-semibold px-6 py-3 rounded-full hover:opacity-90 transition-opacity"
               >
                 <Mail className="w-4 h-4" />
-                Destek Ekibiyle İletişime Geçin
+                {t('contactSupport')}
               </a>
             </div>
           </div>

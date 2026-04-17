@@ -128,6 +128,20 @@
     "value3Desc": "Your data is used solely for the well-being of you and your pet.",
     "location": "Turkey"
   },
+  "HelpPage": {
+    "badge": "❓ Help Center",
+    "title": "How Can We",
+    "titleHighlight": "Help You?",
+    "description": "Make the most of PawCal with our FAQs and guides.",
+    "questionCount": "{count} questions",
+    "viewAll": "View All",
+    "metaTitle": "Help Center | PawCal"
+  },
+  "HelpCategoryPage": {
+    "backToHelp": "Back to Help Center",
+    "stillNeedHelpTitle": "Still Need Help?",
+    "contactSupport": "Get in Touch with Support"
+  },
   "HomePage": {
     "metaTitle": "PawCal — Pet Health Tracking",
     "metaDescription": "PawCal is a modern app for tracking your pet's health with data. Nutrition, weight, medications, activity, and more — all in one place."
