@@ -128,6 +128,16 @@
     "value3Desc": "Verileriniz yalnızca sizin ve evcil hayvanınızın iyiliği için kullanılır.",
     "location": "Türkiye"
   },
+  "BlogPage": {
+    "badge": "🐾 Blog",
+    "title": "Evcil Hayvan",
+    "titleHighlight": "Sağlık Rehberi",
+    "description": "Uzman görüşleri, pratik ipuçları ve evcil hayvanınız için veri odaklı öneriler.",
+    "readMore": "Devamını Oku",
+    "backToBlog": "Bloga Dön",
+    "author": "Yazar",
+    "metaTitle": "Blog | PawCal"
+  },
   "HelpPage": {
     "badge": "❓ Yardım Merkezi",
     "title": "Size Nasıl",

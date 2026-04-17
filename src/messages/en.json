@@ -128,6 +128,16 @@
     "value3Desc": "Your data is used solely for the well-being of you and your pet.",
     "location": "Turkey"
   },
+  "BlogPage": {
+    "badge": "🐾 Blog",
+    "title": "Pet Health",
+    "titleHighlight": "Guide",
+    "description": "Expert insights, practical tips, and data-driven advice for your pet.",
+    "readMore": "Read More",
+    "backToBlog": "Back to Blog",
+    "author": "Author",
+    "metaTitle": "Blog | PawCal"
+  },
   "HelpPage": {
     "badge": "❓ Help Center",
     "title": "How Can We",

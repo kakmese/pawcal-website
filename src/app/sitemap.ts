@@ -1,5 +1,5 @@
 import { type MetadataRoute } from 'next';
-import { blogPosts } from '@/data/blog-posts';
+import { blogPostsByLocale } from '@/data/blog-posts';
 
 const BASE_URL = 'https://pawcal.net';
 
@@ -30,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === '' ? 1.0 : 0.8,
   }));
 
-  const blogEntries = blogPosts.map((post) => ({
+  const blogEntries = blogPostsByLocale.tr.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: 'monthly' as const,
