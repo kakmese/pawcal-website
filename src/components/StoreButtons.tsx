@@ -55,7 +55,7 @@ export default function StoreButtons({
         </div>
       </a>
 
-      <a href={GOOGLE_PLAY_URL} className={`${baseBtn} ${padding}`} aria-label="Google Play">
+      <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" className={`${baseBtn} ${padding}`} aria-label="Google Play">
         <PlayCircle className={iconSize} />
         <div className="text-left">
           <div className={`${subSize} opacity-80 leading-none mb-0.5`}>{t('getItOn')}</div>
