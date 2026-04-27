@@ -22,7 +22,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export function generateStaticParams() {
-  return blogPostsByLocale.tr.map((post) => ({ slug: post.slug }));
+  return (['tr', 'en'] as const).flatMap((locale) =>
+    blogPostsByLocale[locale].map((post) => ({ locale, slug: post.slug }))
+  );
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
