@@ -7,7 +7,7 @@
     "about": "Hakkında"
   },
   "hero": {
-    "betaBadge": "🧪 Şu anda beta testi aşamasında — yakında App Store ve Google Play'de",
+    "betaBadge": "🎉 Android uygulamamız yayında! Google Play'den hemen indirin",
     "platformBadge": "🐾 iOS VE ANDROİD İÇİN YAKINDA",
     "titleLine1": "Evcil Hayvanınızın",
     "titleLine2": "Sağlığını",
@@ -172,6 +172,11 @@
     "title": "Sayfa Bulunamadı",
     "description": "Aradığınız sayfa mevcut değil veya taşınmış olabilir.",
     "homeLink": "Ana Sayfaya Dön"
+  },
+  "AndroidLaunch": {
+    "title": "PawCal artık Android'de!",
+    "cta": "Google Play'den İndir",
+    "close": "Kapat"
   },
   "CookieBanner": {
     "message": "Deneyiminizi iyileştirmek için çerezleri kullanıyoruz. Detaylar için",

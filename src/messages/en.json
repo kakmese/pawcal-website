@@ -7,7 +7,7 @@
     "about": "About"
   },
   "hero": {
-    "betaBadge": "🧪 Currently in beta — coming soon to App Store and Google Play",
+    "betaBadge": "🎉 Our Android app is live! Download it now on Google Play",
     "platformBadge": "🐾 COMING SOON FOR iOS AND ANDROID",
     "titleLine1": "Manage Your Pet's",
     "titleLine2": "Health",
@@ -172,6 +172,11 @@
     "title": "Page Not Found",
     "description": "The page you're looking for doesn't exist or has been moved.",
     "homeLink": "Back to Home"
+  },
+  "AndroidLaunch": {
+    "title": "PawCal is now on Android!",
+    "cta": "Get it on Google Play",
+    "close": "Close"
   },
   "CookieBanner": {
     "message": "We use cookies to improve your experience. For details, see our",

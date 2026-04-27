@@ -10,6 +10,7 @@ import { routing } from '@/i18n/routing';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
+import AndroidLaunchPopup from '@/components/AndroidLaunchPopup';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
               <main className="flex-1">{children}</main>
               <Footer />
               <CookieBanner />
+              <AndroidLaunchPopup />
             </div>
           </ThemeProvider>
           <Analytics />

@@ -31,10 +31,15 @@ export default function Hero() {
           {/* Left: Content */}
           <div className="text-center lg:text-left">
 
-            {/* Beta badge */}
-            <div className="inline-flex items-center gap-2 bg-[#FF8F6B]/10 border border-[#FF8F6B]/30 text-[#FF8F6B] px-4 py-2 rounded-full text-xs sm:text-sm font-medium mb-4">
+            {/* Android launch badge */}
+            <a
+              href="https://play.google.com/store/apps/details?id=com.kakmese.pawcal"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#FF8F6B]/10 border border-[#FF8F6B]/30 text-[#FF8F6B] px-4 py-2 rounded-full text-xs sm:text-sm font-medium mb-4 hover:bg-[#FF8F6B]/20 transition-colors"
+            >
               {t('betaBadge')}
-            </div>
+            </a>
 
             {/* Platform badge */}
             <div className="flex justify-center lg:justify-start mb-4 sm:mb-6">
