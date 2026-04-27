@@ -5,11 +5,25 @@ export const metadata: Metadata = {
   title: 'Çerez Politikası',
 };
 
-export default function CookiesPage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function CookiesPage({ params }: PageProps) {
+  const { locale } = await params;
+
   return (
     <section className="pt-32 pb-16">
       <Container>
         <div className="max-w-3xl mx-auto">
+          {locale === 'en' && (
+            <div className="bg-[#FF8F6B]/10 border border-[#FF8F6B]/20 rounded-2xl p-4 mb-8 text-center">
+              <p className="text-sm text-[var(--text-secondary)]">
+                📄 This page is currently available in Turkish only, as PawCal Studio operates from Turkey.
+              </p>
+            </div>
+          )}
+
           <h1 className="font-display font-bold text-3xl md:text-4xl text-white mb-2">
             Çerez Politikası
           </h1>

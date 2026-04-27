@@ -136,7 +136,9 @@
     "readMore": "Devamını Oku",
     "backToBlog": "Bloga Dön",
     "author": "Yazar",
-    "metaTitle": "Blog | PawCal"
+    "metaTitle": "Blog | PawCal",
+    "shareTitle": "Bu yazıyı paylaş",
+    "shareWhatsApp": "WhatsApp ile Paylaş"
   },
   "HelpPage": {
     "badge": "❓ Yardım Merkezi",

@@ -39,6 +39,18 @@ export async function generateMetadata({
       locale: locale === 'tr' ? 'tr_TR' : 'en_US',
       url: 'https://pawcal.net',
       siteName: 'PawCal',
+      images: [
+        {
+          url: '/screenshots/home-dark.png',
+          width: 1200,
+          height: 630,
+          alt: 'PawCal — Pet Health Tracking App',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: ['/screenshots/home-dark.png'],
     },
   };
 }

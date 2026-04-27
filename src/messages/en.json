@@ -136,7 +136,9 @@
     "readMore": "Read More",
     "backToBlog": "Back to Blog",
     "author": "Author",
-    "metaTitle": "Blog | PawCal"
+    "metaTitle": "Blog | PawCal",
+    "shareTitle": "Share this article",
+    "shareWhatsApp": "Share on WhatsApp"
   },
   "HelpPage": {
     "badge": "❓ Help Center",

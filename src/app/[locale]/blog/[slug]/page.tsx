@@ -91,6 +91,18 @@ export default async function BlogPostPage({ params }: PageProps) {
               {slug === 'kopek-kilo-takibi-neden-onemli' && <DogWeightContent locale={locale} />}
               {slug === 'ilk-kedi-eve-getirme-rehberi' && <FirstCatContent locale={locale} />}
             </article>
+
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-sm text-[var(--text-secondary)] mb-3">{t('shareTitle')}</p>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(post.title + ' — https://pawcal.net/' + locale + '/blog/' + post.slug)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+              >
+                💬 {t('shareWhatsApp')}
+              </a>
+            </div>
           </div>
         </Container>
       </section>
