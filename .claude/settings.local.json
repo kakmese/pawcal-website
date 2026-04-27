@@ -25,7 +25,11 @@
       "Bash(cp -r help \"[locale]/help\")",
       "Bash(rm -rf blog help)",
       "Read(//tmp/**)",
-      "Bash(rm -rf .next)"
+      "Bash(rm -rf .next)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit *)"
     ]
   }
 }
