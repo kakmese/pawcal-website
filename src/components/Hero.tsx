@@ -31,11 +31,9 @@ export default function Hero() {
           {/* Left: Content */}
           <div className="text-center lg:text-left">
 
-            {/* Android launch badge */}
+            {/* Dual store launch badge */}
             <a
-              href="https://play.google.com/store/apps/details?id=com.kakmese.pawcal"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#store-buttons"
               className="inline-flex items-center gap-2 bg-[#FF8F6B]/10 border border-[#FF8F6B]/30 text-[#FF8F6B] px-4 py-2 rounded-full text-xs sm:text-sm font-medium mb-4 hover:bg-[#FF8F6B]/20 transition-colors"
             >
               {t('betaBadge')}
@@ -59,7 +57,7 @@ export default function Hero() {
             </p>
 
             {/* Store buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-4">
+            <div id="store-buttons" className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-4">
               <StoreButtons size="lg" direction="row" />
             </div>
 

@@ -47,7 +47,7 @@ export default function StoreButtons({
 
   return (
     <div className={`flex ${flexDir} gap-3 ${className}`}>
-      <a href={APP_STORE_URL} className={`${baseBtn} ${padding}`} aria-label="App Store">
+      <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className={`${baseBtn} ${padding}`} aria-label="App Store">
         <Apple className={iconSize} />
         <div className="text-left">
           <div className={`${subSize} opacity-80 leading-none mb-0.5`}>{t('downloadOn')}</div>
