@@ -42,6 +42,62 @@ export default function OttoAdminPage() {
 
   const [iptalIsleniyor, setIptalIsleniyor] = useState<string | null>(null);
 
+  const [sVersionCode, setSVersionCode] = useState('');
+  const [sVersionName, setSVersionName] = useState('');
+  const [sApkUrl, setSApkUrl] = useState('');
+  const [sNotlar, setSNotlar] = useState('');
+  const [sZorunlu, setSZorunlu] = useState(false);
+  const [sYukleniyor, setSYukleniyor] = useState(false);
+  const [sMesaj, setSMesaj] = useState<string | null>(null);
+  const [sHata, setSHata] = useState<string | null>(null);
+  const [sMevcut, setSMevcut] = useState<{ versionCode: number; versionName: string } | null>(null);
+
+  async function surumYukle() {
+    try {
+      const r = await fetch('/api/otto/surum');
+      const j = await r.json();
+      if (j.ok) {
+        setSVersionCode(String(j.versionCode ?? ''));
+        setSVersionName(j.versionName ?? '');
+        setSApkUrl(j.apkUrl ?? '');
+        setSNotlar(j.notlar ?? '');
+        setSZorunlu(j.zorunlu === true);
+        setSMevcut({ versionCode: j.versionCode, versionName: j.versionName });
+      }
+    } catch {}
+  }
+
+  async function surumKaydet() {
+    setSYukleniyor(true);
+    setSMesaj(null);
+    setSHata(null);
+    try {
+      const r = await fetch('/api/otto/surum-guncelle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminKey,
+          versionCode: parseInt(sVersionCode) || 0,
+          versionName: sVersionName.trim(),
+          apkUrl: sApkUrl.trim() || null,
+          notlar: sNotlar.trim() || null,
+          zorunlu: sZorunlu,
+        }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        setSHata(j.hata === 'yetkisiz' ? 'Yetki hatası.' : j.hata === 'eksik' ? 'Version code ve name zorunlu.' : 'Bir hata oluştu.');
+      } else {
+        setSMesaj('Kaydedildi.');
+        await surumYukle();
+      }
+    } catch {
+      setSHata('Bağlantı hatası.');
+    } finally {
+      setSYukleniyor(false);
+    }
+  }
+
   async function kodIptal(kod: string, yeniDurum: boolean) {
     setIptalIsleniyor(kod);
     try {
@@ -85,7 +141,10 @@ export default function OttoAdminPage() {
   async function girisYap() {
     if (!adminKey) return;
     const ok = await istatistikYukle(adminKey);
-    if (ok) setGiris(true);
+    if (ok) {
+      setGiris(true);
+      surumYukle();
+    }
   }
 
   async function kodUret() {
@@ -205,6 +264,84 @@ export default function OttoAdminPage() {
               </div>
             </div>
           )}
+        </section>
+
+        <section className="bg-white rounded-xl shadow p-5 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">Sürüm Yönetimi</h2>
+            {sMevcut && (
+              <span className="text-xs text-slate-500">
+                Şu anki: <b className="text-slate-700">v{sMevcut.versionName}</b> (code {sMevcut.versionCode})
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Version Code</label>
+              <input
+                type="number"
+                value={sVersionCode}
+                onChange={(e) => setSVersionCode(e.target.value)}
+                placeholder="örn. 42"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={sYukleniyor}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Version Name</label>
+              <input
+                type="text"
+                value={sVersionName}
+                onChange={(e) => setSVersionName(e.target.value)}
+                placeholder="örn. 1.4.2"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={sYukleniyor}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-slate-600 mb-1">APK URL</label>
+              <input
+                type="text"
+                value={sApkUrl}
+                onChange={(e) => setSApkUrl(e.target.value)}
+                placeholder="GitHub release linki (opsiyonel)"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={sYukleniyor}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-slate-600 mb-1">Notlar</label>
+              <textarea
+                value={sNotlar}
+                onChange={(e) => setSNotlar(e.target.value)}
+                rows={3}
+                placeholder="Sürüm notları (opsiyonel)"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={sYukleniyor}
+              />
+            </div>
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={sZorunlu}
+                  onChange={(e) => setSZorunlu(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  disabled={sYukleniyor}
+                />
+                Zorunlu güncelleme
+              </label>
+              <button
+                onClick={surumKaydet}
+                disabled={sYukleniyor || !sVersionCode || !sVersionName}
+                className="ml-auto bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium px-6 py-2 rounded-lg transition-colors"
+              >
+                {sYukleniyor ? 'Kaydediliyor...' : 'Sürümü Kaydet'}
+              </button>
+            </div>
+          </div>
+          {sMesaj && <p className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">{sMesaj}</p>}
+          {sHata && <p className="mt-3 text-sm text-red-600">{sHata}</p>}
         </section>
 
         <section className="bg-white rounded-xl shadow overflow-hidden">
