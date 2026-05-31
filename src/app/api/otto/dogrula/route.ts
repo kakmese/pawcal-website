@@ -6,9 +6,10 @@ export async function POST(req: NextRequest) {
     const sql = getSql();
     const { kod, cihazId, surum } = await req.json();
     if (!kod || !cihazId) return NextResponse.json({ ok:false, hata:'eksik' }, { status:400 });
-    const rows = await sql`SELECT kod, durum, cihaz_id FROM otto_kodlar WHERE kod=${kod}`;
+    const rows = await sql`SELECT kod, durum, cihaz_id, iptal FROM otto_kodlar WHERE kod=${kod}`;
     if (rows.length === 0) return NextResponse.json({ ok:false, hata:'gecersiz' });
     const k = rows[0];
+    if (k.iptal === true) return NextResponse.json({ ok:false, hata:'iptal' });
     // Aynı cihaz daha önce aktive ettiyse tekrar izin ver (yeniden kurulum vb.)
     if (k.durum === 'kullanildi' && k.cihaz_id === cihazId) {
       await sql`UPDATE otto_kodlar SET son_gorulme=now(), uygulama_surumu=${surum||null} WHERE kod=${kod}`;

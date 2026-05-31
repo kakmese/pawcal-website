@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-type Ozet = { toplam: number; aktive: number; bos: number; aktif7: number };
+type Ozet = { toplam: number; aktive: number; bos: number; aktif7: number; iptalli: number };
 type Satir = {
   kod: string;
   durum: string;
@@ -12,6 +12,7 @@ type Satir = {
   aktivasyon_tarihi: string | null;
   son_gorulme: string | null;
   uygulama_surumu: string | null;
+  iptal: boolean;
 };
 
 function kisalt(s: string | null, n = 8): string {
@@ -38,6 +39,23 @@ export default function OttoAdminPage() {
   const [yYukleniyor, setYYukleniyor] = useState(false);
   const [yeniKodlar, setYeniKodlar] = useState<string[]>([]);
   const [yHata, setYHata] = useState<string | null>(null);
+
+  const [iptalIsleniyor, setIptalIsleniyor] = useState<string | null>(null);
+
+  async function kodIptal(kod: string, yeniDurum: boolean) {
+    setIptalIsleniyor(kod);
+    try {
+      const r = await fetch('/api/otto/iptal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminKey, kod, iptal: yeniDurum }),
+      });
+      const j = await r.json();
+      if (j.ok) await istatistikYukle(adminKey);
+    } catch {} finally {
+      setIptalIsleniyor(null);
+    }
+  }
 
   async function istatistikYukle(key: string) {
     setYukleniyor(true);
@@ -141,11 +159,12 @@ export default function OttoAdminPage() {
         </div>
 
         {ozet && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
             <Kutu baslik="Toplam Kod" deger={ozet.toplam} renk="slate" />
             <Kutu baslik="Aktive" deger={ozet.aktive} renk="green" />
             <Kutu baslik="Boş" deger={ozet.bos} renk="blue" />
             <Kutu baslik="Son 7 Günde Aktif" deger={ozet.aktif7} renk="purple" />
+            <Kutu baslik="İptalli" deger={ozet.iptalli} renk="red" />
           </div>
         )}
 
@@ -211,12 +230,22 @@ export default function OttoAdminPage() {
                   <th className="px-3 py-2 font-medium">Aktivasyon</th>
                   <th className="px-3 py-2 font-medium">Son Görülme</th>
                   <th className="px-3 py-2 font-medium">Sürüm</th>
+                  <th className="px-3 py-2 font-medium">İşlem</th>
                 </tr>
               </thead>
               <tbody>
                 {liste.map((s) => (
-                  <tr key={s.kod} className="border-t border-slate-100 text-slate-900">
-                    <td className="px-3 py-2 font-mono text-xs">{s.kod}</td>
+                  <tr key={s.kod} className={
+                    s.iptal
+                      ? 'border-t border-slate-100 text-slate-900 bg-red-50'
+                      : 'border-t border-slate-100 text-slate-900'
+                  }>
+                    <td className="px-3 py-2 font-mono text-xs">
+                      {s.kod}
+                      {s.iptal && (
+                        <span className="ml-2 inline-block px-1.5 py-0.5 text-[10px] rounded bg-red-600 text-white font-sans font-semibold">İPTAL</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2">
                       <span className={
                         s.durum === 'kullanildi'
@@ -232,10 +261,23 @@ export default function OttoAdminPage() {
                     <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.aktivasyon_tarihi)}</td>
                     <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.son_gorulme)}</td>
                     <td className="px-3 py-2 text-xs text-slate-600">{s.uygulama_surumu || '—'}</td>
+                    <td className="px-3 py-2">
+                      <button
+                        onClick={() => kodIptal(s.kod, !s.iptal)}
+                        disabled={iptalIsleniyor === s.kod}
+                        className={
+                          s.iptal
+                            ? 'text-xs px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 disabled:opacity-50'
+                            : 'text-xs px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
+                        }
+                      >
+                        {iptalIsleniyor === s.kod ? '...' : (s.iptal ? 'Geri Al' : 'İptal Et')}
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {liste.length === 0 && (
-                  <tr><td colSpan={8} className="px-3 py-8 text-center text-slate-500">Henüz kod yok.</td></tr>
+                  <tr><td colSpan={9} className="px-3 py-8 text-center text-slate-500">Henüz kod yok.</td></tr>
                 )}
               </tbody>
             </table>
@@ -246,12 +288,13 @@ export default function OttoAdminPage() {
   );
 }
 
-function Kutu({ baslik, deger, renk }: { baslik: string; deger: number; renk: 'slate' | 'green' | 'blue' | 'purple' }) {
+function Kutu({ baslik, deger, renk }: { baslik: string; deger: number; renk: 'slate' | 'green' | 'blue' | 'purple' | 'red' }) {
   const renkler: Record<string, string> = {
     slate: 'text-slate-900',
     green: 'text-green-600',
     blue: 'text-blue-600',
     purple: 'text-purple-600',
+    red: 'text-red-600',
   };
   return (
     <div className="bg-white rounded-xl shadow p-4">
