@@ -23,50 +23,114 @@ export default function OttoIndirPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <p className="text-sm font-medium text-slate-500 tracking-widest lowercase">otto</p>
-        </div>
+    <main
+      className="relative min-h-screen w-full overflow-hidden"
+      style={{ backgroundColor: '#0E1419' }}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "url('/otto-genel.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.35,
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(14,20,25,0.55) 0%, rgba(14,20,25,0.9) 100%)',
+        }}
+      />
 
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-1 text-center">otto&apos;yu İndir</h1>
-          <p className="text-sm text-slate-500 text-center mb-6">
-            {versionName ? `Sürüm ${versionName}` : 'Sürüm bilgisi yükleniyor...'}
-          </p>
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-2xl">
+          <div className="flex flex-col items-center text-center">
+            <div
+              className="flex items-center justify-center overflow-hidden"
+              style={{
+                width: 96,
+                height: 96,
+                borderRadius: 22,
+                backgroundColor: '#f1ede3',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.3)',
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/otto-logo.svg"
+                alt="Otto"
+                width={96}
+                height={96}
+                style={{ display: 'block' }}
+              />
+            </div>
 
-          <button
-            onClick={indir}
-            disabled={indiriliyor}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-semibold py-3.5 rounded-lg transition-colors text-base"
-          >
-            {indiriliyor ? 'İndiriliyor...' : 'İndir'}
-          </button>
+            <h1
+              className="mt-6 text-white font-bold lowercase tracking-tight"
+              style={{ fontSize: 40, lineHeight: 1.1 }}
+            >
+              otto
+            </h1>
 
-          <div className="mt-8">
-            <h2 className="text-sm font-semibold text-slate-700 mb-3">Kurulum</h2>
-            <ol className="space-y-3 text-sm text-slate-600">
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-semibold text-xs flex items-center justify-center">1</span>
-                <span><strong className="text-slate-800">İndir</strong> — APK dosyası inecek.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-semibold text-xs flex items-center justify-center">2</span>
-                <span><strong className="text-slate-800">Kur</strong> — &ldquo;Bilinmeyen kaynaklara izin ver&rdquo; uyarısı çıkarsa onayla.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-semibold text-xs flex items-center justify-center">3</span>
-                <span>
-                  <strong className="text-slate-800">Aç ve kodunu gir</strong> — kodun yoksa{' '}
-                  <a href="/otto" className="text-blue-600 hover:underline">pawcal.net/otto</a> adresinden al.
-                </span>
-              </li>
-            </ol>
+            <p className="mt-2 text-slate-300 text-sm sm:text-base">
+              BYD Sealion 7 için akıllı yol bilgisayarı
+            </p>
+
+            {versionName && (
+              <p className="mt-1 text-slate-400 text-xs sm:text-sm">
+                Sürüm {versionName}
+              </p>
+            )}
+
+            <button
+              onClick={indir}
+              disabled={indiriliyor}
+              className="mt-8 w-full sm:w-auto sm:px-12 py-3.5 rounded-xl text-white font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-70"
+              style={{
+                backgroundColor: '#2B6FFF',
+                boxShadow:
+                  '0 14px 32px rgba(43,111,255,0.45), 0 2px 6px rgba(43,111,255,0.3)',
+                minWidth: 220,
+              }}
+            >
+              {indiriliyor ? 'İndiriliyor...' : 'İndir'}
+            </button>
           </div>
 
-          <p className="mt-8 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3 leading-relaxed">
-            Otto, BYD Sealion 7 ve uyumlu BYD araçların ekranı için tasarlanmıştır.
-          </p>
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {[
+              { n: '1', t: 'İndir', d: 'APK dosyası inecek' },
+              { n: '2', t: 'Kur', d: '"Bilinmeyen kaynak" çıkarsa onayla' },
+              { n: '3', t: 'Aç ve kodunu gir', d: 'Kodun yoksa pawcal.net/otto' },
+            ].map((a) => (
+              <div
+                key={a.n}
+                className="rounded-xl p-4"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  backdropFilter: 'blur(6px)',
+                }}
+              >
+                <div
+                  className="font-bold text-2xl mb-1"
+                  style={{ color: '#5AA9FF' }}
+                >
+                  {a.n}
+                </div>
+                <div className="text-white font-semibold text-sm mb-1">
+                  {a.t}
+                </div>
+                <div className="text-slate-400 text-xs leading-relaxed">
+                  {a.d}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </main>
