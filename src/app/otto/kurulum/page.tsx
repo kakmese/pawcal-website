@@ -91,6 +91,43 @@ export default function OttoKurulumPage() {
           </div>
 
           <div className="mt-8 flex flex-col gap-4">
+            <div
+              className="p-5 sm:p-6"
+              style={{
+                backgroundColor: 'rgba(43,111,255,0.08)',
+                border: '1px solid rgba(43,111,255,0.35)',
+                borderLeft: '3px solid #2B6FFF',
+                borderRadius: 14,
+              }}
+            >
+              <div
+                className="text-white font-bold mb-2"
+                style={{ fontSize: 15 }}
+              >
+                Neden bu kurulum gerekli?
+              </div>
+              <p
+                className="text-slate-300"
+                style={{ fontSize: 13, lineHeight: 1.5 }}
+              >
+                Otto&apos;nun bazı araç verilerini (tüketim ve sürüş
+                istatistikleri, vites bilgisi, kapı/cam gibi gövde durumu)
+                okuyabilmesi için BYD&apos;nin özel izinlerini bir kez
+                onaylamanız gerekir. BYD araçları bu verileri güvenlik
+                nedeniyle uygulamalara kapalı tutar.
+              </p>
+              <p
+                className="text-slate-300 mt-2"
+                style={{ fontSize: 13, lineHeight: 1.5 }}
+              >
+                İzinleri vermezseniz Otto çalışır ve birçok veriyi gösterir,
+                ancak izne bağlı olan bazı bilgiler (örneğin tüketim hesabı,
+                vites veya kapı/cam durumu) eksik kalır. İzinleri verdikten
+                sonra bu veriler de görünür ve bir daha bu adımları
+                tekrarlamanız gerekmez.
+              </p>
+            </div>
+
             <StepCard number="1" title="Aynı ağa bağlanın">
               <p className="text-slate-300 text-sm leading-relaxed">
                 Bilgisayarınız ve aracınız aynı Wi-Fi ağında olmalı. Aracın IP
