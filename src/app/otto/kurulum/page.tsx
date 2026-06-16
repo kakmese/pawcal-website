@@ -215,7 +215,7 @@ function CommandBox({
       }}
     >
       <div
-        className="flex-1 min-w-0 px-3 py-2.5 overflow-x-auto"
+        className="flex-1 min-w-0 px-3 py-2.5 overflow-x-auto scrollbar-hide"
         style={{
           fontFamily:
             'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
