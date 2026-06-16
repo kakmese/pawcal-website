@@ -99,6 +99,14 @@ export default function OttoIndirPage() {
             >
               {indiriliyor ? 'İndiriliyor...' : 'İndir'}
             </button>
+
+            <a
+              href="/otto/kurulum"
+              className="mt-3 text-xs hover:underline"
+              style={{ color: '#5AA9FF' }}
+            >
+              İndirdikten sonra → Araç verisi kurulumu
+            </a>
           </div>
 
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
