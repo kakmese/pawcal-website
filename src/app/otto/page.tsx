@@ -1,6 +1,137 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
+
+const EKRAN_SAYISI = 4;
+
+function Galeri() {
+  const [aktif, setAktif] = useState(0);
+
+  const onceki = () => setAktif((a) => (a - 1 + EKRAN_SAYISI) % EKRAN_SAYISI);
+  const sonraki = () => setAktif((a) => (a + 1) % EKRAN_SAYISI);
+
+  return (
+    <div style={{ maxWidth: 820, margin: '0 auto' }}>
+      {/* Büyük görsel + yan oklar */}
+      <div
+        style={{
+          position: 'relative',
+          borderRadius: 20,
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.12)',
+          background: 'rgba(255,255,255,0.04)',
+          boxShadow: '0 22px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`/otto-ekran-${aktif + 1}.png`}
+          alt={`Otto ekran görüntüsü ${aktif + 1}`}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
+        />
+
+        {/* Sol ok */}
+        <button
+          onClick={onceki}
+          aria-label="Önceki"
+          style={{
+            position: 'absolute',
+            left: 14,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            border: 'none',
+            background: 'rgba(0,0,0,0.55)',
+            color: '#fff',
+            fontSize: 22,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          ‹
+        </button>
+
+        {/* Sağ ok */}
+        <button
+          onClick={sonraki}
+          aria-label="Sonraki"
+          style={{
+            position: 'absolute',
+            right: 14,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            border: 'none',
+            background: 'rgba(0,0,0,0.55)',
+            color: '#fff',
+            fontSize: 22,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          ›
+        </button>
+
+        {/* Sayaç (1/4) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 14,
+            right: 14,
+            background: 'rgba(0,0,0,0.55)',
+            color: '#fff',
+            padding: '5px 12px',
+            borderRadius: 20,
+            fontSize: 13,
+            fontWeight: 600,
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          {aktif + 1} / {EKRAN_SAYISI}
+        </div>
+      </div>
+
+      {/* Noktalar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 10,
+          marginTop: 20,
+        }}
+      >
+        {Array.from({ length: EKRAN_SAYISI }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setAktif(i)}
+            aria-label={`Görsel ${i + 1}`}
+            style={{
+              width: i === aktif ? 28 : 10,
+              height: 10,
+              borderRadius: 5,
+              border: 'none',
+              background: i === aktif ? '#2B6FFF' : 'rgba(255,255,255,0.25)',
+              cursor: 'pointer',
+              transition: 'all 0.25s',
+              padding: 0,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function OttoTanitim() {
   return (
@@ -217,7 +348,7 @@ export default function OttoTanitim() {
           </div>
         </section>
 
-        {/* EKRAN GÖRÜNTÜLERİ - büyük kaydırmalı galeri */}
+        {/* EKRAN GÖRÜNTÜLERİ - carousel (tek büyük + noktalar) */}
         <section style={{ paddingBottom: 56 }}>
           <h2
             style={{
@@ -237,57 +368,10 @@ export default function OttoTanitim() {
               fontSize: 14,
             }}
           >
-            Kaydırarak tüm ekranları inceleyin.
+            Otto&apos;nun ekranlarına göz atın.
           </p>
 
-          <div
-            style={{
-              display: 'flex',
-              gap: 20,
-              overflowX: 'auto',
-              scrollSnapType: 'x mandatory',
-              paddingBottom: 18,
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'thin',
-            }}
-          >
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                style={{
-                  flex: '0 0 auto',
-                  width: 'min(88%, 720px)',
-                  scrollSnapAlign: 'center',
-                  borderRadius: 18,
-                  overflow: 'hidden',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  background: 'rgba(255,255,255,0.04)',
-                  boxShadow: '0 18px 48px rgba(0,0,0,0.45)',
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/otto-ekran-${i}.png`}
-                  alt={`Otto ekran görüntüsü ${i}`}
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    display: 'block',
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-          <p
-            style={{
-              textAlign: 'center',
-              color: '#5A6470',
-              margin: '12px 0 0',
-              fontSize: 13,
-            }}
-          >
-            ← yana kaydırın →
-          </p>
+          <Galeri />
         </section>
 
         {/* KURULUM ÖZETİ */}
