@@ -1,37 +1,4 @@
-'use client';
-
-import { useState } from 'react';
-
-const COMMANDS = {
-  connect: 'adb connect 192.168.0.205:5555',
-  perm1:
-    'adb shell pm grant com.wildcardstudio.aracveri android.permission.BYDAUTO_STATISTIC_COMMON',
-  perm2:
-    'adb shell pm grant com.wildcardstudio.aracveri android.permission.BYDAUTO_GEARBOX_COMMON',
-  perm3:
-    'adb shell pm grant com.wildcardstudio.aracveri android.permission.BYDAUTO_BODYWORK_COMMON',
-} as const;
-
-type CmdKey = keyof typeof COMMANDS;
-
 export default function OttoKurulumPage() {
-  const [copied, setCopied] = useState<Record<CmdKey, boolean>>({
-    connect: false,
-    perm1: false,
-    perm2: false,
-    perm3: false,
-  });
-
-  async function kopyala(key: CmdKey) {
-    try {
-      await navigator.clipboard.writeText(COMMANDS[key]);
-      setCopied((s) => ({ ...s, [key]: true }));
-      setTimeout(() => {
-        setCopied((s) => ({ ...s, [key]: false }));
-      }, 1500);
-    } catch {}
-  }
-
   return (
     <main
       className="relative min-h-screen w-full"
@@ -104,75 +71,51 @@ export default function OttoKurulumPage() {
                 className="text-white font-bold mb-2"
                 style={{ fontSize: 15 }}
               >
-                Neden bu kurulum gerekli?
+                Neden bu izinler gerekli?
               </div>
               <p
                 className="text-slate-300"
                 style={{ fontSize: 13, lineHeight: 1.5 }}
               >
-                Otto&apos;nun bazı araç verilerini (tüketim ve sürüş
-                istatistikleri, vites bilgisi, kapı/cam gibi gövde durumu)
-                okuyabilmesi için BYD&apos;nin özel izinlerini bir kez
-                onaylamanız gerekir. BYD araçları bu verileri güvenlik
-                nedeniyle uygulamalara kapalı tutar.
-              </p>
-              <p
-                className="text-slate-300 mt-2"
-                style={{ fontSize: 13, lineHeight: 1.5 }}
-              >
-                İzinleri vermezseniz Otto çalışır ve birçok veriyi gösterir,
-                ancak izne bağlı olan bazı bilgiler (örneğin tüketim hesabı,
-                vites veya kapı/cam durumu) eksik kalır. İzinleri verdikten
-                sonra bu veriler de görünür ve bir daha bu adımları
-                tekrarlamanız gerekmez.
+                Otto&apos;nun aracınızın verilerini (menzil, hız, tüketim, şarj
+                durumu, vites ve daha fazlası) gösterebilmesi için araç
+                ayarlarından gerekli izinleri vermeniz gerekir. İzin verilmezse
+                uygulama çalışır ancak bazı veriler eksik kalır.
               </p>
             </div>
 
-            <StepCard number="1" title="Aynı ağa bağlanın">
+            <StepCard number="1" title="Araç ayarlarını açın">
               <p className="text-slate-300 text-sm leading-relaxed">
-                Bilgisayarınız ve aracınız aynı Wi-Fi ağında olmalı. Aracın IP
-                adresini ekrandan öğrenin: Ayarlar → Wi-Fi → bağlı ağ → IP
-                adresi (örn. 192.168.0.205).
+                Araç ekranında ayarlar menüsüne (araç ikonu) girin.
               </p>
             </StepCard>
 
-            <StepCard number="2" title="Araca bağlanın">
+            <StepCard number="2" title="Uygulamalar bölümüne girin">
               <p className="text-slate-300 text-sm leading-relaxed">
-                Bilgisayarda komut penceresi açın ve aracın IP&apos;siyle
-                bağlanın:
+                Ayarlar içinden uygulama yönetimi / uygulamalar menüsüne girin.
               </p>
-              <CommandBox
-                command={COMMANDS.connect}
-                copied={copied.connect}
-                onCopy={() => kopyala('connect')}
-              />
             </StepCard>
 
-            <StepCard number="3" title="İzinleri verin">
+            <StepCard number="3" title="İzinler bölümüne girin">
               <p className="text-slate-300 text-sm leading-relaxed">
-                Aşağıdaki üç komutu sırayla çalıştırın:
+                İzinler (yetkiler) bölümünü açın. Burada her veri türü için
+                hangi uygulamaların erişebileceği listelenir.
               </p>
-              <CommandBox
-                command={COMMANDS.perm1}
-                copied={copied.perm1}
-                onCopy={() => kopyala('perm1')}
-              />
-              <CommandBox
-                command={COMMANDS.perm2}
-                copied={copied.perm2}
-                onCopy={() => kopyala('perm2')}
-              />
-              <CommandBox
-                command={COMMANDS.perm3}
-                copied={copied.perm3}
-                onCopy={() => kopyala('perm3')}
-              />
+            </StepCard>
+
+            <StepCard number="4" title="Tüm izinleri Otto'ya açın">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Listedeki izinleri tek tek açıp Otto uygulamasını aktif edin:
+                gösterge bilgileri, şarj bilgileri, motor bilgileri, şanzıman
+                bilgileri, konum, mikrofon ve sistem ayarları gibi tüm izinler.
+                Her birinde Otto&apos;yu işaretleyin.
+              </p>
             </StepCard>
 
             <StepCard number="✓" title="Uygulamayı yeniden başlatın" success>
               <p className="text-slate-300 text-sm leading-relaxed">
-                Otto&apos;yu kapatıp tekrar açın. Araç verileri artık görünmeye
-                başlayacak.
+                İzinleri verdikten sonra Otto&apos;yu kapatıp tekrar açın. Tüm
+                araç verileri artık görünecektir.
               </p>
             </StepCard>
           </div>
@@ -230,54 +173,6 @@ function StepCard({
         <div className="text-white font-semibold text-base">{title}</div>
       </div>
       <div className="flex flex-col gap-3">{children}</div>
-    </div>
-  );
-}
-
-function CommandBox({
-  command,
-  copied,
-  onCopy,
-}: {
-  command: string;
-  copied: boolean;
-  onCopy: () => void;
-}) {
-  return (
-    <div
-      className="flex items-stretch gap-2 rounded-lg overflow-hidden"
-      style={{
-        backgroundColor: '#05080B',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}
-    >
-      <div
-        className="flex-1 min-w-0 px-3 py-2.5 overflow-x-auto scrollbar-hide"
-        style={{
-          fontFamily:
-            'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-          color: '#7CFFB2',
-          fontSize: 12.5,
-          lineHeight: 1.5,
-          whiteSpace: 'pre',
-        }}
-      >
-        {command}
-      </div>
-      <button
-        onClick={onCopy}
-        className="flex-shrink-0 px-3 text-xs font-medium transition-colors"
-        style={{
-          backgroundColor: copied
-            ? 'rgba(34,197,94,0.18)'
-            : 'rgba(43,111,255,0.18)',
-          color: copied ? '#7CFFB2' : '#5AA9FF',
-          borderLeft: '1px solid rgba(255,255,255,0.08)',
-          minWidth: 92,
-        }}
-      >
-        {copied ? 'Kopyalandı ✓' : 'Kopyala'}
-      </button>
     </div>
   );
 }

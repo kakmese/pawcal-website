@@ -113,7 +113,7 @@ export default function OttoIndirPage() {
             {[
               { n: '1', t: 'İndir', d: 'APK dosyası inecek' },
               { n: '2', t: 'Kur', d: '"Bilinmeyen kaynak" çıkarsa onayla' },
-              { n: '3', t: 'Aç ve kodunu gir', d: 'Kodun yoksa pawcal.net/otto' },
+              { n: '3', t: 'Aç ve kodunu gir', d: 'Kodun yoksa pawcal.net/otto/kod' },
             ].map((a) => (
               <div
                 key={a.n}
