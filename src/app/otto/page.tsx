@@ -217,36 +217,52 @@ export default function OttoTanitim() {
           </div>
         </section>
 
-        {/* EKRAN GÖRÜNTÜLERİ */}
+        {/* EKRAN GÖRÜNTÜLERİ - büyük kaydırmalı galeri */}
         <section style={{ paddingBottom: 56 }}>
           <h2
             style={{
               fontSize: 28,
               fontWeight: 700,
               textAlign: 'center',
-              margin: '0 0 36px',
+              margin: '0 0 8px',
             }}
           >
             Uygulamadan Görünümler
           </h2>
+          <p
+            style={{
+              textAlign: 'center',
+              color: '#8A94A0',
+              margin: '0 0 28px',
+              fontSize: 14,
+            }}
+          >
+            Kaydırarak tüm ekranları inceleyin.
+          </p>
+
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-              gap: 18,
-              maxWidth: 760,
-              margin: '0 auto',
+              display: 'flex',
+              gap: 20,
+              overflowX: 'auto',
+              scrollSnapType: 'x mandatory',
+              paddingBottom: 18,
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
             }}
           >
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
                 style={{
-                  borderRadius: 16,
+                  flex: '0 0 auto',
+                  width: 'min(88%, 720px)',
+                  scrollSnapAlign: 'center',
+                  borderRadius: 18,
                   overflow: 'hidden',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.12)',
                   background: 'rgba(255,255,255,0.04)',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.35)',
+                  boxShadow: '0 18px 48px rgba(0,0,0,0.45)',
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -262,6 +278,16 @@ export default function OttoTanitim() {
               </div>
             ))}
           </div>
+          <p
+            style={{
+              textAlign: 'center',
+              color: '#5A6470',
+              margin: '12px 0 0',
+              fontSize: 13,
+            }}
+          >
+            ← yana kaydırın →
+          </p>
         </section>
 
         {/* KURULUM ÖZETİ */}
