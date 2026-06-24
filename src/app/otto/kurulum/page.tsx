@@ -120,6 +120,202 @@ export default function OttoKurulumPage() {
             </StepCard>
           </div>
 
+          <div className="mt-14 flex flex-col items-center text-center">
+            <h2
+              className="text-white font-semibold"
+              style={{ fontSize: 20 }}
+            >
+              Sealion 7 APK Kurulum Rehberi
+            </h2>
+            <p className="mt-2 text-slate-400 text-sm sm:text-base max-w-lg">
+              Sealion 7 araçlarda uygulama mağazaları çalışmadığı için Otto ve
+              diğer uygulamaları USB bellek üzerinden APK olarak yüklemeniz
+              gerekir.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4">
+            <div
+              className="p-5 sm:p-6"
+              style={{
+                backgroundColor: 'rgba(43,111,255,0.08)',
+                border: '1px solid rgba(43,111,255,0.35)',
+                borderLeft: '3px solid #2B6FFF',
+                borderRadius: 14,
+              }}
+            >
+              <div
+                className="text-white font-bold mb-2"
+                style={{ fontSize: 15 }}
+              >
+                Gereksinimler
+              </div>
+              <ul
+                className="text-slate-300 list-disc pl-5 space-y-1"
+                style={{ fontSize: 13, lineHeight: 1.6 }}
+              >
+                <li>Type-C&apos;li USB bellek veya Type-C çevirici</li>
+                <li>16 GB veya 32 GB USB bellek</li>
+                <li>
+                  Kurulum şifresi:{' '}
+                  <code
+                    className="font-mono"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.10)',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: 6,
+                      padding: '2px 8px',
+                      color: '#5AA9FF',
+                      fontSize: 12,
+                    }}
+                  >
+                    BYD8155F
+                  </code>
+                </li>
+              </ul>
+            </div>
+
+            <StepCard number="1" title="USB belleğe klasör oluşturun">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                USB belleğinizde{' '}
+                <code
+                  className="font-mono"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.10)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: 6,
+                    padding: '2px 6px',
+                    color: '#5AA9FF',
+                    fontSize: 12,
+                  }}
+                >
+                  Third Party Apps 90
+                </code>{' '}
+                adında bir klasör oluşturun.
+              </p>
+            </StepCard>
+
+            <StepCard number="2" title="APK dosyalarını indirin">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Yüklemek istediğiniz APK dosyalarını PC&apos;nize indirin.
+              </p>
+            </StepCard>
+
+            <StepCard number="3" title="APK'ları klasöre kopyalayın">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                İndirdiğiniz tüm APK&apos;ları{' '}
+                <code
+                  className="font-mono"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.10)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: 6,
+                    padding: '2px 6px',
+                    color: '#5AA9FF',
+                    fontSize: 12,
+                  }}
+                >
+                  Third Party Apps 90
+                </code>{' '}
+                klasörünün içine kopyalayın.
+              </p>
+            </StepCard>
+
+            <StepCard number="4" title="USB belleği araca takın">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Hazırladığınız USB belleği aracın Type-C girişine takın.
+              </p>
+            </StepCard>
+
+            <StepCard number="5" title="Şifreyi girin">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Araç sizden kurulum şifresini isteyecek. Aşağıdaki şifreyi
+                girin:
+              </p>
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  backgroundColor: 'rgba(43,111,255,0.10)',
+                  border: '1px solid rgba(43,111,255,0.35)',
+                  borderRadius: 10,
+                  padding: '10px 14px',
+                }}
+              >
+                <code
+                  className="font-mono text-white font-bold tracking-widest"
+                  style={{ fontSize: 18 }}
+                >
+                  BYD8155F
+                </code>
+              </div>
+            </StepCard>
+
+            <StepCard number="6" title="Tüm dosyaları seçip yükleyin">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Şifreden sonra çıkan dosyaları seçip yükleyin.
+              </p>
+              <div
+                className="p-3"
+                style={{
+                  backgroundColor: 'rgba(245,158,11,0.10)',
+                  border: '1px solid rgba(245,158,11,0.35)',
+                  borderLeft: '3px solid #F59E0B',
+                  borderRadius: 10,
+                }}
+              >
+                <p
+                  className="text-amber-200"
+                  style={{ fontSize: 13, lineHeight: 1.5 }}
+                >
+                  <strong className="text-amber-100">ÖNEMLİ:</strong> Ekranı
+                  aşağı kaydırıp TÜM dosyaları seçmeyi unutmayın!
+                </p>
+              </div>
+            </StepCard>
+
+            <div
+              className="p-5 sm:p-6"
+              style={{
+                backgroundColor: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.35)',
+                borderLeft: '3px solid #F59E0B',
+                borderRadius: 14,
+              }}
+            >
+              <div
+                className="text-white font-bold mb-2"
+                style={{ fontSize: 15 }}
+              >
+                Önemli Notlar
+              </div>
+              <ul
+                className="text-slate-300 list-disc pl-5 space-y-1"
+                style={{ fontSize: 13, lineHeight: 1.6 }}
+              >
+                <li>
+                  <code
+                    className="font-mono"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.10)',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: 6,
+                      padding: '1px 6px',
+                      color: '#5AA9FF',
+                      fontSize: 12,
+                    }}
+                  >
+                    PackageInstaller Unlock
+                  </code>{' '}
+                  APK&apos;sını yüklemenize gerek yok.
+                </li>
+                <li>
+                  Uygulama mağazaları çalışmaz — APK&apos;ları mutlaka USB ile
+                  yüklemeniz gerekir.
+                </li>
+              </ul>
+            </div>
+          </div>
+
           <p className="mt-10 text-center text-slate-400 text-sm">
             Sorun mu yaşıyorsunuz?{' '}
             <a
