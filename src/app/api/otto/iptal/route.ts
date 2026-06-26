@@ -9,5 +9,8 @@ export async function POST(req: NextRequest) {
     const sql = getSql();
     await sql`UPDATE otto_kodlar SET iptal=${iptal === true} WHERE kod=${kod}`;
     return NextResponse.json({ ok:true });
-  } catch(e) { return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 }); }
+  } catch(error) {
+    console.error("OTTO API ERROR:", error);
+    return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
+  }
 }

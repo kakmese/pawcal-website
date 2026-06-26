@@ -10,5 +10,8 @@ export async function POST(req: NextRequest) {
     const sql = getSql();
     await sql`UPDATE otto_surum SET version_code=${vc}, version_name=${versionName}, apk_url=${apkUrl||null}, notlar=${notlar||null}, zorunlu=${zorunlu===true}, guncelleme_tarihi=now() WHERE id=1`;
     return NextResponse.json({ ok:true });
-  } catch(e) { return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 }); }
+  } catch(error) {
+    console.error("OTTO API ERROR:", error);
+    return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
+  }
 }

@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
       uretilen.push(kod);
     }
     return NextResponse.json({ ok:true, kodlar: uretilen });
-  } catch(e) {
+  } catch(error) {
+    console.error("OTTO API ERROR:", error);
     return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
   }
 }

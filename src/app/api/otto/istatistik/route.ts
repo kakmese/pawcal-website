@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
       SELECT kod, durum, not_alan, cihaz_id, olusturma_tarihi, aktivasyon_tarihi, son_gorulme, uygulama_surumu, iptal
       FROM otto_kodlar ORDER BY olusturma_tarihi DESC LIMIT 200`;
     return NextResponse.json({ ok:true, ozet: ozet[0], liste });
-  } catch(e) {
+  } catch(error) {
+    console.error("OTTO API ERROR:", error);
     return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
   }
 }
