@@ -209,12 +209,22 @@ export default function OttoAdminPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-slate-900">Otto Admin</h1>
-          <button
-            onClick={() => { setGiris(false); setAdminKey(''); setOzet(null); setListe([]); setYeniKodlar([]); }}
-            className="text-sm text-slate-600 hover:text-slate-900"
-          >
-            Çıkış
-          </button>
+          <div className="flex items-center gap-3">
+            <a
+              href={`/otto/telemetry?key=${encodeURIComponent(adminKey)}`}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg transition-colors"
+            >
+              📊 Telemetri Paneli
+            </a>
+            <button
+              onClick={() => { setGiris(false); setAdminKey(''); setOzet(null); setListe([]); setYeniKodlar([]); }}
+              className="text-sm text-slate-600 hover:text-slate-900"
+            >
+              Çıkış
+            </button>
+          </div>
         </div>
 
         {ozet && (
