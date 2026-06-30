@@ -16,40 +16,43 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ k
       app_version TEXT, raw JSONB, providers JSONB)`;
     rows = (await sql`SELECT created_at, model, model_raw, platform, app_version, raw, providers
       FROM otto_telemetry ORDER BY created_at DESC LIMIT 300`) as any[];
-  } catch (e: any) {
-    hata = String(e?.message ?? e);
-  }
+  } catch (e: any) { hata = String(e?.message ?? e); }
+  if (hata) return <div style={{ padding: 24, fontFamily: 'system-ui' }}><h1>Telemetri</h1><p style={{color:'crimson'}}>DB hatası: {hata}</p></div>;
 
-  if (hata) return <div style={{ padding: 24, fontFamily: 'system-ui' }}>
-    <h1>Telemetri</h1><p style={{color:'crimson'}}>DB hatası: {hata}</p></div>;
-
-  const byModel: Record<string, { count: number; signals: Record<string, number>; providers: any }> = {};
+  const byModel: Record<string, { count: number; probes: Record<string, {ok:number,total:number}>; providers: any; platform: string }> = {};
   for (const r of rows) {
     const m = r.model || r.model_raw || 'bilinmiyor';
-    byModel[m] ??= { count: 0, signals: {}, providers: r.providers };
+    byModel[m] ??= { count: 0, probes: {}, providers: r.providers, platform: r.platform };
     byModel[m].count++;
     const raw = typeof r.raw === 'string' ? JSON.parse(r.raw) : (r.raw || {});
-    for (const k of Object.keys(raw)) {
-      const v = raw[k];
-      if (v !== null && v !== undefined && v !== '' && v !== '-') byModel[m].signals[k] = (byModel[m].signals[k] || 0) + 1;
+    const methods = raw.methods || {};
+    for (const k of Object.keys(methods)) {
+      const e = methods[k] || {};
+      (byModel[m].probes[k] ??= { ok: 0, total: 0 }).total++;
+      if (e.ok === true) byModel[m].probes[k].ok++;
     }
   }
-  const td: any = { border: '1px solid #ddd', padding: '6px 10px', fontSize: 13, textAlign: 'left' };
+
+  const box: any = { border: '1px solid #ddd', borderRadius: 8, padding: 14, marginBottom: 22 };
+  const chip = (ok: boolean): any => ({ display:'inline-block', margin:'2px 4px', padding:'2px 8px', borderRadius:6, fontSize:12,
+    background: ok ? '#e6f6e6' : '#fbe6e6', color: ok ? '#176a17' : '#a11', border:`1px solid ${ok?'#bde5bd':'#eebcbc'}` });
+
   return (
     <div style={{ padding: 24, fontFamily: 'system-ui', maxWidth: 1100, margin: '0 auto' }}>
       <h1>Otto Telemetri</h1>
       <p>{rows.length} rapor · {Object.keys(byModel).length} model</p>
       {Object.entries(byModel).map(([model, d]) => {
-        const sigs = Object.entries(d.signals).sort((a, b) => b[1] - a[1]);
+        const probes = Object.entries(d.probes).sort((a,b) => (b[1].ok>0?1:0)-(a[1].ok>0?1:0) || a[0].localeCompare(b[0]));
+        const okCount = probes.filter(([,s]) => s.ok>0).length;
         return (
-          <div key={model} style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 6 }}>{model} <small style={{ color: '#888', fontWeight: 400 }}>({d.count} rapor)</small></h2>
-            <table style={{ borderCollapse: 'collapse', width: '100%' }}><tbody>
-              <tr><td style={{ ...td, fontWeight: 700, width: 160 }}>Gelen sinyaller ({sigs.length})</td>
-                <td style={td}>{sigs.length ? sigs.map(([k, n]) => `${k} (${n}/${d.count})`).join(' · ') : '— veri yok —'}</td></tr>
-              <tr><td style={{ ...td, fontWeight: 700 }}>Content provider</td>
-                <td style={td}><pre style={{ margin: 0, fontSize: 11, whiteSpace: 'pre-wrap' }}>{JSON.stringify(d.providers ?? {}, null, 1)}</pre></td></tr>
-            </tbody></table>
+          <div key={model} style={box}>
+            <h2 style={{ margin:'0 0 4px' }}>{model} <small style={{ color:'#888', fontWeight:400 }}>· {d.count} rapor · platform: {d.platform || '?'}</small></h2>
+            <p style={{ margin:'4px 0 8px', fontSize:13 }}><b>{okCount}</b> / {probes.length} getter veri döndürdü</p>
+            <div>{probes.map(([k,s]) => <span key={k} style={chip(s.ok>0)}>{k} {s.ok}/{s.total}</span>)}</div>
+            <details style={{ marginTop:10 }}>
+              <summary style={{ cursor:'pointer', fontSize:13 }}>Content provider</summary>
+              <pre style={{ fontSize:11, whiteSpace:'pre-wrap' }}>{JSON.stringify(d.providers ?? {}, null, 1)}</pre>
+            </details>
           </div>
         );
       })}
