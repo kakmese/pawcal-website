@@ -7,8 +7,21 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ k
     return <div style={{ padding: 24, fontFamily: 'system-ui' }}>Yetkisiz. ?key=… gerekli.</div>;
   }
   const sql = neon(process.env.DATABASE_URL!);
-  const rows = (await sql`SELECT created_at, model, model_raw, platform, app_version, raw, providers
-    FROM otto_telemetry ORDER BY created_at DESC LIMIT 300`) as any[];
+  let rows: any[] = [];
+  let hata = '';
+  try {
+    await sql`CREATE TABLE IF NOT EXISTS otto_telemetry (
+      id BIGSERIAL PRIMARY KEY, created_at TIMESTAMPTZ DEFAULT now(),
+      device_id TEXT, model TEXT, model_raw TEXT, platform TEXT,
+      app_version TEXT, raw JSONB, providers JSONB)`;
+    rows = (await sql`SELECT created_at, model, model_raw, platform, app_version, raw, providers
+      FROM otto_telemetry ORDER BY created_at DESC LIMIT 300`) as any[];
+  } catch (e: any) {
+    hata = String(e?.message ?? e);
+  }
+
+  if (hata) return <div style={{ padding: 24, fontFamily: 'system-ui' }}>
+    <h1>Telemetri</h1><p style={{color:'crimson'}}>DB hatası: {hata}</p></div>;
 
   const byModel: Record<string, { count: number; signals: Record<string, number>; providers: any }> = {};
   for (const r of rows) {
