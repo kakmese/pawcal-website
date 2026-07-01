@@ -19,10 +19,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ k
   } catch (e: any) { hata = String(e?.message ?? e); }
   if (hata) return <div style={{ padding: 24, fontFamily: 'system-ui' }}><h1>Telemetri</h1><p style={{color:'crimson'}}>DB hatası: {hata}</p></div>;
 
-  const byModel: Record<string, { count: number; probes: Record<string, {ok:number,total:number}>; providers: any; platform: string }> = {};
+  const byModel: Record<string, { count: number; probes: Record<string, {ok:number,total:number}>; providers: any; platform: string; model_raw: string; app_version: string }> = {};
   for (const r of rows) {
     const m = r.model || r.model_raw || 'bilinmiyor';
-    byModel[m] ??= { count: 0, probes: {}, providers: r.providers, platform: r.platform };
+    byModel[m] ??= { count: 0, probes: {}, providers: r.providers, platform: r.platform, model_raw: r.model_raw, app_version: r.app_version };
     byModel[m].count++;
     const raw = typeof r.raw === 'string' ? JSON.parse(r.raw) : (r.raw || {});
     const methods = raw.methods || {};
@@ -47,6 +47,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ k
         return (
           <div key={model} style={box}>
             <h2 style={{ margin:'0 0 4px' }}>{model} <small style={{ color:'#888', fontWeight:400 }}>· {d.count} rapor · platform: {d.platform || '?'}</small></h2>
+            <p style={{ margin:'2px 0 6px', fontSize:12, color:'#555' }}>app: {d.app_version || '?'} · platform: {d.platform || '(boş)'}</p>
+            <details style={{ marginBottom:8 }}>
+              <summary style={{ cursor:'pointer', fontSize:13 }}>Ham getprop (model_raw)</summary>
+              <pre style={{ fontSize:11, whiteSpace:'pre-wrap', wordBreak:'break-all' }}>{d.model_raw || '(boş)'}</pre>
+            </details>
             <p style={{ margin:'4px 0 8px', fontSize:13 }}><b>{okCount}</b> / {probes.length} getter veri döndürdü</p>
             <div>{probes.map(([k,s]) => <span key={k} style={chip(s.ok>0)}>{k} {s.ok}/{s.total}</span>)}</div>
             <details style={{ marginTop:10 }}>
