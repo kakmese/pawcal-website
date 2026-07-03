@@ -35,9 +35,22 @@ export async function POST(req: NextRequest) {
     // otto_kodlar.cihaz_id kolonu keşifte mevcut (dogrula route'u yazıyor); yine de defansif garanti:
     await sql`ALTER TABLE otto_kodlar ADD COLUMN IF NOT EXISTS cihaz_id text`;
 
+    // ABRP fiyat/detay cache (istasyon-fiyat proxy için)
+    await sql`CREATE TABLE IF NOT EXISTS abrp_cache (
+      coord_key text PRIMARY KEY,
+      card_id   bigint,
+      guc       real,
+      konektor  text,
+      operator  text,
+      soket     int,
+      price     real,
+      vat       real,
+      card_ts   timestamptz,
+      price_ts  timestamptz)`;
+
     return NextResponse.json({
       ok:true,
-      tablolar:['vehicle_state','vehicle_events','mobile_tokens'],
+      tablolar:['vehicle_state','vehicle_events','mobile_tokens','abrp_cache'],
     });
   } catch (e) {
     console.error('OTTO MIGRATE ERROR:', e);
