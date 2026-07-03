@@ -691,11 +691,12 @@
           </div>
           <div class="sortsw">
             <button class="on" data-s="near">En yakın</button>
+            <button data-s="fast">En hızlı</button>
             <button data-s="cheap">En ucuz</button>
           </div>
         </div>
         <div id="stList"></div>
-        <div class="note">Müsaitlik EPDK canlı verisinden (Otto ile aynı kaynak, 15 dk'da bir). Fiyatlar operatör tarife tablosundan — örnek değerler.</div>
+        <div class="note">Fiyat ve güç, araç uygulamasıyla aynı kaynaktan (ABRP) canlı çekilir; ABRP'de kaydı olmayan istasyonda fiyat gösterilmez. Müsaitlik ŞarjTR/EPDK'dan.</div>
       </div>
       <div class="foot" id="stFoot">Otto Mobil · pawcal.net</div>
     </section>
@@ -1427,29 +1428,121 @@
 
   /* ── İSTASYON MOTORU ── */
   var CAR=null, ST=null, stLoaded=false, stLoading=false, fMode='all', sMode='near';
-  var AC_BRANDS={'VOLTUP':7.9,'wat mobilite':7.5,'ADZE':7.2,'solarşarj':7.9,'ECOCONNECT':7.4,'SHARZ.NET':7.9,'RSŞARJ':7.6,'Electrise':7.9,'MINUS ENERGY':8.2,'EKOS':7.8,'ŞS ŞARJSTOP Güvenli Şarj Noktası':7.6,'enertürk rhg enerji':8.4,'CATEC':7.9,'BOLT & GO':7.9,'POINTO':7.9,'BEYAZ ŞARJ':7.9};
-  var DC_PRICE={'TESLA':9.4,'Trugo':8.6,'zes':10.9,'Eşarj':10.4,'VOLTRUN':9.9,'Astor':9.8,'ASTOR':9.8,'CHARGING VEHICLES CV':9.2,'BEEFULL':9.9,'ONLIFE ŞARJ':10.2,'D-Şarj':9.9,'Otojet':9.6,'Aksa Şarj':10.1,'multiforce':9.9,'OTOWATT':9.7,'petrol ofisi e-po':10.8,'biogreen':9.5};
-  function kwOf(s){
-    var m=(s.t||'').match(/(\d{2,3})\s*K\s*W/i);
-    if(m){var v=+m[1]; if(v>=22) return v}
-    var b=s.b||'';
-    if(b in AC_BRANDS) return 22;
-    if(/tesla/i.test(b)) return 250;
-    if(/trugo|astor/i.test(b)) return 180;
-    if(/zes|e-po|eşarj|esarj/i.test(b)) return 120;
+  var stFetchErr=false;
+
+  // Marka → kW tahmini (araç index.html'den birebir)
+  var _BRAND_KW = {
+    'zes':130,'Trugo':120,'wat mobilite':120,'VOLTRUN':120,'Otopriz':120,
+    'ASTOR':180,'EN YAKIT':90,'Otojet':90,'oncharge':120,'5 şarj':120,
+    'ovolt':90,'D-Charge':90,'SHELL':90,'AKSA ŞARJ':90,'MİGGO':90,
+    'beefull':90,'POWERŞARJ':90,'Tesla':250,'EVC CHARGE':90,'evbee':60,
+    'SHARZ.NET':60,'ŞARJON':60,'AUTOVOLT':60,'AOSTECHNOLOGY':60,
+    'CHARGING VEHICLES CV':60,'MYPOWER':60,'GSM CHARGE':60,
+    'oğultürk PANO':60,'PETRODEM':90,'fixcharge':60,'ŞARJTAK':60,
+    'NEVA ŞARJ':60,'QC QUIKŞARJ':60,
+    // AC (22 kW)
+    'eşarj':22,'TOGER':22,'MKS-ŞARJ':22,'otoWATT':22,'tunçmatik':22,
+    'K-ŞARJ':22,'ZEPLİN CAR rental':22,'solinved':22,'AARCONA':22,
+    'AUTOLL':22,'GREENWATT':22,'spectrum girişimcilik':22,'VALE':22,
+    'GERİLİM ENERJİ':22,'LUMİCLE':22,
+    '_default_dc':60,'_default_ac':22
+  };
+  function kwTahmin(brand){
+    if(!brand) return 60;
+    if(_BRAND_KW[brand]) return _BRAND_KW[brand];
+    var b = brand.toLowerCase();
+    if(b.indexOf('tesla') >= 0) return 250;
+    if(b.indexOf('astor') >= 0) return 180;
+    if(b.indexOf('zes') >= 0 || b.indexOf('trugo') >= 0) return 120;
     return 60;
   }
-  function priceOf(s,kw){
-    if(kw<=22) return AC_BRANDS[s.b]||7.9;
-    for(var k in DC_PRICE){if((s.b||'').toLowerCase().indexOf(k.toLowerCase())>=0) return DC_PRICE[k]}
-    return kw>=150?9.9:9.5;
-  }
+  function tipHesap(kw){return kw>=150?'HY':(kw>=50?'DC':'AC')}
+
+  // ABRP proxy — oturum cache (per-page)
+  var _fiyatCache = {};
+  var _fiyatCekBusy = false;
+  function coordKey(la,ln){return Number(la).toFixed(4)+'_'+Number(ln).toFixed(4)}
+
   function distKm(a,b,c,d){
     var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;
     var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);
     return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
   }
-  var stFetchErr=false;
+
+  // Tek satırdaki fiyat/kW hücrelerini yerinden güncelle
+  function guncelleSatir(la, ln, ent){
+    var k = coordKey(la, ln);
+    var rows = document.querySelectorAll('#stList .lrow.tap');
+    var row = null;
+    for(var i=0;i<rows.length;i++){
+      var r=rows[i];
+      if(coordKey(r.getAttribute('data-la'), r.getAttribute('data-ln'))===k){row=r;break}
+    }
+    if(!row) return;
+    var pv = row.querySelector('.le .lv');
+    if(pv){
+      if(ent && typeof ent.price==='number' && isFinite(ent.price)){
+        pv.innerHTML = trN(ent.price,2)+'<small>₺/kWh</small>';
+      } else {
+        pv.innerHTML = '—<small></small>';
+      }
+    }
+    if(ent && typeof ent.guc==='number' && isFinite(ent.guc)){
+      var kw = Math.round(ent.guc);
+      var tip = tipHesap(kw);
+      var kwb = row.querySelector('.kwb');
+      if(kwb){
+        kwb.classList.remove('hy','dc');
+        if(tip==='HY') kwb.classList.add('hy');
+        else if(tip==='DC') kwb.classList.add('dc');
+        kwb.innerHTML = kw + '<small>'+(tip==='HY'?'HİPER':tip)+'</small>';
+      }
+    }
+  }
+
+  // En yakın ~15, 5'erli sıralı ABRP çağrısı
+  function fiyatCek(noktalar){
+    if(_fiyatCekBusy) return;
+    var eksik = noktalar.filter(function(n){return !_fiyatCache[coordKey(n.la,n.ln)]}).slice(0, 15);
+    if(eksik.length===0) return;
+    _fiyatCekBusy = true;
+    var i = 0;
+    function sonraki(){
+      if(i >= eksik.length){
+        _fiyatCekBusy = false;
+        if(sMode==='cheap') renderStations();
+        return;
+      }
+      var grup = eksik.slice(i, i+5);
+      i += 5;
+      fetch('/api/mobil/istasyon-fiyat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ noktalar: grup.map(function(g){return {la:g.la, ln:g.ln}}) })
+      }).then(function(r){return r.ok ? r.json() : null}).then(function(j){
+        if(j && Array.isArray(j.fiyatlar)){
+          j.fiyatlar.forEach(function(fy){
+            var la = Number(fy.la), ln = Number(fy.ln);
+            var k = coordKey(la, ln);
+            _fiyatCache[k] = fy;
+            guncelleSatir(la, ln, fy);
+          });
+        }
+        // Cevap gelmeyenleri '—' olarak damgala
+        grup.forEach(function(g){
+          var k = coordKey(g.la, g.ln);
+          if(!_fiyatCache[k]){
+            _fiyatCache[k] = { price:null, guc:null, konektor:null, operator:null, soket:null, kaynak:'yok' };
+            guncelleSatir(g.la, g.ln, _fiyatCache[k]);
+          }
+        });
+        sonraki();
+      }).catch(function(){
+        // grup atlanır; diğerleri sürer
+        sonraki();
+      });
+    }
+    sonraki();
+  }
   function ensureStations(){
     if(stLoaded||stLoading) { renderStations(); return }
     stLoading=true; stFetchErr=false;
@@ -1503,21 +1596,38 @@
     if(mapCard) mapCard.style.display = (readCarFromDurum() ? '' : 'none');
 
     var enriched=ST.filter(function(s){return s && isFinite(Number(s.la)) && isFinite(Number(s.ln))}).map(function(s){
-      var kw=kwOf(s);
+      var la=Number(s.la), ln=Number(s.ln);
+      var k = coordKey(la, ln);
+      var cached = _fiyatCache[k] || null;
+      var kw = (cached && typeof cached.guc==='number' && isFinite(cached.guc))
+        ? Math.round(cached.guc)
+        : kwTahmin(s.b);
+      var price = (cached && typeof cached.price==='number' && isFinite(cached.price)) ? cached.price : null;
       return {
-        t:s.t, b:s.b, la:Number(s.la), ln:Number(s.ln), n:s.n, a:s.a,
-        kw:kw, tip:kw>=150?'HY':(kw>=50?'DC':'AC'), pr:priceOf(s,kw),
-        d: center ? distKm(center.la,center.ln,Number(s.la),Number(s.ln)) : null
+        t:s.t, b:s.b, la:la, ln:ln, n:s.n, a:s.a,
+        kw:kw, tip:tipHesap(kw),
+        price: price, hasCached: !!cached,
+        d: center ? distKm(center.la,center.ln,la,ln) : null
       };
     });
 
     // Filtre → tip
     var list=enriched.filter(function(s){return fMode==='all'||s.tip===fMode});
-    // Sıralama: merkez varsa near/cheap seçimi; yoksa marka/isim
+    // Sıralama
     if(center){
-      list.sort(sMode==='cheap'
-        ? function(a,b){return a.pr-b.pr || (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)}
-        : function(a,b){return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)});
+      if(sMode==='fast'){
+        list.sort(function(a,b){return (b.kw||0)-(a.kw||0) || (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)});
+      } else if(sMode==='cheap'){
+        list.sort(function(a,b){
+          var ap=(typeof a.price==='number'), bp=(typeof b.price==='number');
+          if(ap && bp) return a.price - b.price;
+          if(ap) return -1;
+          if(bp) return 1;
+          return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d);
+        });
+      } else {
+        list.sort(function(a,b){return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)});
+      }
     } else {
       list.sort(function(a,b){
         var A=(a.b||'').toLocaleLowerCase('tr'), B=(b.b||'').toLocaleLowerCase('tr');
@@ -1531,25 +1641,32 @@
     // Sayı + kaynak
     var srcLbl = center ? (center.src==='user' ? 'senin konumun' : 'aracın konumu') : 'konum bekleniyor';
     $('#stCount').textContent = top.length+' istasyon · '+srcLbl;
-    // Alt bilgi (toplam kayıt)
     var footTxt = ST.length? ST.length.toLocaleString('tr-TR')+' kayıtlı nokta' : '';
     if(center) footTxt += ' · en yakın '+top.length+'\u2019u gösteriliyor';
     else footTxt += ' · isim/marka sırası';
     $('#stFoot').textContent = footTxt;
 
-    $('#stList').innerHTML=top.map(function(s){
+    $('#stList').innerHTML=top.map(function(s, idx){
       var tip=s.tip==='HY'?'HİPER':s.tip;
       var cls=s.tip==='HY'?' hy':(s.tip==='DC'?' dc':'');
       var dTxt = (s.d==null) ? '—' : trN(s.d,1)+' km';
+      var priceHtml;
+      if(s.hasCached){
+        priceHtml = (s.price!=null) ? (trN(s.price,2)+'<small>₺/kWh</small>') : '—<small></small>';
+      } else if(center && idx<15){
+        priceHtml = '…<small></small>';
+      } else {
+        priceHtml = '—<small></small>';
+      }
       return '<div class="lrow tap" data-la="'+s.la+'" data-ln="'+s.ln+'" data-isim="'+esc(s.t||s.b||'İstasyon')+'">'+
         '<div class="kwb'+cls+'">'+s.kw+'<small>'+esc(tip)+'</small></div>'+
         '<div class="lb"><div class="lt">'+esc(s.t||'')+'</div>'+
         '<div class="ls">'+esc(s.b||'')+' · '+(s.n||'?')+' soket · '+dTxt+'</div></div>'+
-        '<div class="le"><div class="lv">'+trN(s.pr,2)+'<small>₺/kWh</small></div>'+
+        '<div class="le"><div class="lv">'+priceHtml+'</div>'+
         '<div class="lvs"><span class="avdot'+(s.a?'':' full')+'"></span>'+(s.a?'müsait':'dolu')+'</div></div></div>';
     }).join('');
 
-    // harita — yalnızca aracın gerçek konumu varsa çizilir
+    // harita — yalnızca aracın gerçek konumu varsa
     if(readCarFromDurum() && center){
       var LA0m=center.la-0.015, LA1m=center.la+0.015, LN0m=center.ln-0.015, LN1m=center.ln+0.015;
       var nearby=enriched.filter(function(s){return s.la>=LA0m && s.la<=LA1m && s.ln>=LN0m && s.ln<=LN1m});
@@ -1562,6 +1679,11 @@
         return '<span class="sdot'+(s.tip==='HY'?' hy':'')+(s.a?'':' full')+(show?'':' hide')+'" style="left:'+p.x+'%;top:'+p.y+'%" title="'+esc(s.b||'')+' · '+esc(s.t||'')+'"></span>';
       }).join('');
       var pin=$('#carpin'); if(pin){pin.style.left='50%'; pin.style.top='50%'}
+    }
+
+    // Görünen top-15 için ABRP fiyatını arka planda çek
+    if(center){
+      fiyatCek(top.slice(0,15));
     }
   }
   // İstasyon satırlarına delegated click
