@@ -221,6 +221,12 @@
   }
   .stStatBtn:active{transform:scale(.96)}
 
+  /* ── "Konumumu kullan" satırı ── */
+  .locRow{display:flex;margin-bottom:10px}
+  .locBtn{padding:8px 14px;background:var(--card);border:1.5px solid var(--brd2);color:var(--tx);cursor:pointer}
+  .locBtn.on{background:var(--accS);border-color:var(--accB);color:var(--acc)}
+  .locBtn:active{transform:scale(.97)}
+
   /* ── tıklanabilir istasyon satırı ── */
   .lrow.tap{cursor:pointer;position:relative;padding-right:22px;transition:transform .1s,opacity .15s}
   .lrow.tap:active{transform:scale(.99);opacity:.85}
@@ -682,6 +688,7 @@
       <div class="card">
         <div class="sechd">Şarj noktaları<span class="cnt" id="stCount"></span></div>
         <div id="stStatus" style="display:none"></div>
+        <div class="locRow"><button class="chip locBtn" id="useLocBtn" type="button">📍 Konumumu kullan</button></div>
         <div class="fwrap">
           <div class="chiprow">
             <button class="chip on" data-f="all">Tümü</button>
@@ -1352,14 +1359,18 @@
     haritaAc(c.la, c.ln, 'Aracım');
   });
   function askLocation(silent){
+    var btn = document.getElementById('useLocBtn');
     if(!navigator.geolocation){ if(!silent) toast('Tarayıcı konum vermiyor'); return }
     navigator.geolocation.getCurrentPosition(function(pos){
       var la=pos.coords.latitude, ln=pos.coords.longitude;
       if(!isFinite(la)||!isFinite(ln)) return;
       USER_LOC={la:la, ln:ln};
       try{localStorage.setItem('om_geo', JSON.stringify(USER_LOC))}catch(e){}
+      if(btn){ btn.textContent='📍 Konum alındı'; btn.classList.add('on'); }
       renderStations();
-    }, function(){/* reddi sessiz */}, {enableHighAccuracy:false, timeout:8000, maximumAge:5*60*1000});
+    }, function(){
+      if(!silent) toast('Konum izni verilmedi');
+    }, {enableHighAccuracy:false, timeout:8000, maximumAge:5*60*1000});
   }
 
   /* ── LASTİK ── */
@@ -1546,27 +1557,29 @@
   function ensureStations(){
     if(stLoaded||stLoading) { renderStations(); return }
     stLoading=true; stFetchErr=false;
-    fetch('sarjtr_stations.json',{cache:'force-cache'}).then(function(r){
+    console.log('[OM] sarjtr fetch başladı');
+    fetch('/otto/mobil/sarjtr_stations.json',{cache:'force-cache'}).then(function(r){
+      console.log('[OM] sarjtr HTTP', r.status);
       if(!r.ok) throw new Error('http '+r.status);
       return r.json();
     }).then(function(js){
       ST=Array.isArray(js)?js:[]; stLoaded=true; stLoading=false;
+      console.log('[OM] sarjtr yüklendi:', ST.length, 'kayıt');
       renderStations();
     }).catch(function(e){
       stLoading=false; stFetchErr=true; ST=[]; stLoaded=true;
+      console.error('[OM] sarjtr fetch hatası:', e && e.message);
       renderStations();
     });
   }
   function statusMsg(){
-    if(stFetchErr) return {ic:'⚠️', t:'İstasyon listesi yüklenemedi', s:'Ağ hatası — sayfayı yenilemeyi dene.', act:false};
+    if(stFetchErr) return {ic:'⚠️', t:'İstasyon listesi yüklenemedi', s:'Ağ hatası — sayfayı yenilemeyi dene.'};
     var center=effectiveCenter();
     if(!center){
-      var t = 'Mesafe için araç konumu bekleniyor';
-      var s = 'Aracın konumu geldiğinde en yakın istasyonlar burada sıralanır.';
-      return {ic:'📍', t:t, s:s, act:true};
+      return {ic:'📍', t:'Merkez yok — liste isim sırasıyla', s:'Konum bekleniyor; yukarıdan "Konumumu kullan"a basabilirsin.'};
     }
     if(center.src==='user'){
-      return {ic:'📍', t:'Konumun civarı gösteriliyor', s:'Araç konumu gelince otomatik geçer.', act:false};
+      return {ic:'📍', t:'Konumun civarı gösteriliyor', s:'Araç konumu gelince otomatik geçer.'};
     }
     return null;
   }
@@ -1581,16 +1594,21 @@
           '<div class="stStatTitle">'+esc(m.ic+' '+m.t)+'</div>'+
           '<div class="stStatSub">'+esc(m.s)+'</div>'+
         '</div>'+
-        (m.act?'<button class="stStatBtn" id="useLocBtn" type="button">Konumumu kullan</button>':'')+
       '</div>';
-    var b=document.getElementById('useLocBtn');
-    if(b) b.addEventListener('click', function(){ askLocation(false) });
   }
   function renderStations(){
+    console.log('[OM] renderStations · ST?', !!ST, 'stLoaded?', stLoaded, 'err?', stFetchErr, 'ST.len', ST && ST.length);
     if(!ST){ return }
     var listCard=$('#s-ist .card:nth-child(2)');
     if(listCard) listCard.style.display='';
     renderStStatus();
+    // Fetch hatası → satır dolduramayız, açıklayıcı satır
+    if(stFetchErr){
+      $('#stList').innerHTML='<div class="lrow"><div class="lb"><div class="lt">İstasyon verisi yüklenemedi</div><div class="ls">Ağ hatası — sayfayı yenilemeyi dene.</div></div></div>';
+      $('#stCount').textContent = '—';
+      $('#stFoot').textContent = '';
+      return;
+    }
     var center=effectiveCenter();
     var mapCard=$('#s-ist .card:first-child');
     if(mapCard) mapCard.style.display = (readCarFromDurum() ? '' : 'none');
@@ -1702,6 +1720,12 @@
     $$('.sortsw button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
     sMode=b.dataset.s; renderStations();
   })});
+  // Kalıcı "Konumumu kullan" düğmesi
+  var _useLocBtnEl = document.getElementById('useLocBtn');
+  if(_useLocBtnEl){
+    if(USER_LOC){ _useLocBtnEl.textContent='📍 Konum alındı'; _useLocBtnEl.classList.add('on'); }
+    _useLocBtnEl.addEventListener('click', function(){ askLocation(false) });
+  }
 
   /* ── DÖNEM SHEET ── */
   var DONEM_KEYS=[{k:'bugun',t:'Bugün'},{k:'hafta',t:'Hafta'},{k:'ay',t:'Ay'},{k:'manuel',t:'Manuel'},{k:'gezi1',t:'Gezi 1'},{k:'gezi2',t:'Gezi 2'}];
