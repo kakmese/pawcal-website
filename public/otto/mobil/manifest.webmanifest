@@ -1,0 +1,14 @@
+{
+  "name": "Otto Mobil",
+  "short_name": "Otto",
+  "start_url": "/otto/mobil/",
+  "scope": "/otto/mobil/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1189FF",
+  "background_color": "#F4F6F8",
+  "icons": [
+    { "src": "/otto-logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/otto-logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
