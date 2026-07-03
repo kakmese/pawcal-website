@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Otto Mobil</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1189FF">
+<meta name="theme-color" content="#F4F6F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C0F12" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -41,16 +42,20 @@
     --map0:#12181D; --map1:#1D262D; --map2:#171F26; --sea:#0E1B24; --sealn:#23404F;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  button,input{font-family:var(--font);color:inherit}
+  html,body{height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+  button,input{font-family:var(--font);color:inherit;font-size:16px}
   button{cursor:pointer;background:none;border:none}
   button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
   body{
-    background:#dfe3e7;min-height:100vh;display:grid;place-items:center;
+    background:#dfe3e7;min-height:100vh;min-height:-webkit-fill-available;
+    display:grid;place-items:center;
     padding:24px 16px;font-family:var(--font);-webkit-font-smoothing:antialiased;
   }
   .phone{
-    width:min(392px,100%);height:min(852px,calc(100dvh - 40px));
+    width:min(392px,100%);
+    height:min(852px,calc(100dvh - 40px));
+    max-height:-webkit-fill-available;
     border-radius:46px;overflow:hidden;position:relative;
     display:flex;flex-direction:column;color:var(--tx);background:var(--bg);
     box-shadow:0 0 0 2px rgba(255,255,255,.5),0 0 0 11px #22262a,0 0 0 12px #33383d,0 40px 80px -18px rgba(10,14,18,.55);
@@ -124,22 +129,97 @@
   .cell .cvv small{font-size:11.5px;font-weight:700;color:var(--dim);margin-left:3px;letter-spacing:0}
   .cvv.g{color:var(--grn)} .cvv.o{color:var(--orn)}
 
-  /* ── hero ── */
-  .hero{display:flex;align-items:center;gap:16px;padding:20px 18px}
-  .ring{position:relative;width:118px;height:118px;flex:none}
-  .ring svg{transform:rotate(-90deg)}
-  .ring .tr{stroke:var(--pill)}
-  .ring .in{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
-  .ring .pc{font-size:31px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-  .ring .pc small{font-size:15px;font-weight:700;color:var(--dim)}
-  .ring .kwh{margin-top:1px;font-size:10px;font-weight:600;color:var(--dim)}
-  .hb{flex:1;min-width:0}
-  .hb .rng{font-size:31px;font-weight:800;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums}
-  .hb .rng small{font-size:14px;font-weight:700;color:var(--dim);margin-left:4px;letter-spacing:0}
-  .hb .rl{margin-top:3px;font-size:11.5px;font-weight:600;color:var(--dim)}
-  .hb .chg{margin-top:11px;font-size:14px;font-weight:800;color:var(--grn)}
-  .hb .chg small{display:block;margin-top:2px;font-size:11px;font-weight:600;color:var(--dim)}
-  .hb .zz{margin-top:9px;font-size:10.5px;font-weight:500;color:var(--dim2);line-height:1.45}
+  /* ── hero (v12) ── */
+  .hero{padding:16px 18px 20px;position:relative;overflow:hidden}
+  .hero::before{
+    content:'';position:absolute;left:50%;top:44px;width:78%;height:170px;
+    transform:translateX(-50%);pointer-events:none;z-index:0;
+    background:radial-gradient(closest-side,var(--accS),transparent 72%);
+    filter:blur(2px);
+  }
+  .heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:relative;z-index:1}
+  .heroTitles{min-width:0}
+  .heroTitle{font-size:15px;font-weight:800;letter-spacing:-.2px;color:var(--tx)}
+  .heroSub{margin-top:2px;font-size:11px;color:var(--dim);font-weight:600}
+  .heroChip{
+    flex:none;padding:6px 12px;border-radius:100px;background:var(--pill);
+    font-size:11px;font-weight:800;color:var(--dim);
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .heroChip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--dim2)}
+  .heroChip.ok{color:var(--grn);background:var(--grnS)}
+  .heroChip.ok::before{background:var(--grn)}
+  .heroChip.warn{color:var(--orn);background:rgba(245,165,36,.14)}
+  .heroChip.warn::before{background:var(--orn)}
+  .heroImg{
+    display:block;margin:8px auto 12px;width:93%;max-width:344px;height:auto;
+    position:relative;z-index:1;
+    filter:drop-shadow(0 22px 22px rgba(16,24,32,.16));
+  }
+  [data-theme=dark] .heroImg{filter:drop-shadow(0 22px 22px rgba(0,0,0,.55))}
+  .heroStats{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;position:relative;z-index:1}
+  .heroSoc{
+    font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1;
+    font-variant-numeric:tabular-nums;color:var(--tx);
+  }
+  .heroSoc small{font-size:22px;font-weight:800;color:var(--dim);margin-left:2px;letter-spacing:0}
+  .heroSocL{margin-top:2px;font-size:11px;color:var(--dim);font-weight:600}
+  .heroRng2{text-align:right}
+  .heroRng2 .rv{font-size:22px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:var(--tx)}
+  .heroRng2 .rv small{font-size:11px;font-weight:700;color:var(--dim);margin-left:3px;letter-spacing:0}
+  .heroRng2 .rl{margin-top:2px;font-size:11px;color:var(--dim);font-weight:600}
+  .heroBar{
+    margin-top:14px;height:6px;border-radius:100px;background:var(--pill);
+    position:relative;z-index:1;overflow:hidden;
+  }
+  .heroBar>i{
+    display:block;height:100%;border-radius:100px;width:0%;
+    background:linear-gradient(90deg,var(--grn),var(--acc));
+    transition:width 1s cubic-bezier(.2,.7,.2,1);
+  }
+  .heroFoot{
+    margin-top:10px;font-size:11px;color:var(--dim2);font-weight:500;
+    position:relative;z-index:1;line-height:1.45;
+  }
+
+  /* ── hızlı butonlar ── */
+  .qkbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:13px}
+  .qkb{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:14px 4px 12px;border-radius:20px;
+    background:var(--card);border:1px solid var(--brd);box-shadow:var(--sh);
+    color:var(--tx);font-size:11px;font-weight:750;letter-spacing:-.1px;
+    transition:.15s;
+  }
+  .qkb:active{transform:scale(.96)}
+  .qkb svg{color:var(--acc)}
+
+  /* ── dönem seçici ── */
+  .selbtn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 12px;border-radius:100px;background:var(--pill);
+    color:var(--tx);font-size:12px;font-weight:800;letter-spacing:-.1px;
+  }
+  .selbtn svg{opacity:.6}
+  .selrow{display:flex;align-items:center;padding:12px 4px;font-size:14px;font-weight:750;color:var(--tx);cursor:pointer}
+  .selrow+.selrow{border-top:1px solid var(--brd)}
+  .selrow .sk{width:20px;color:var(--acc);text-align:center;margin-right:8px;font-weight:800}
+  .selrow.on{color:var(--acc)}
+
+  /* ── istasyon durum satırı ── */
+  .stStat{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 12px;margin-bottom:12px;
+    background:var(--pill);border-radius:16px;
+  }
+  .stStatBody{flex:1;min-width:0}
+  .stStatTitle{font-size:12.5px;font-weight:800;color:var(--tx);letter-spacing:-.1px}
+  .stStatSub{margin-top:2px;font-size:11px;color:var(--dim);font-weight:600;line-height:1.4}
+  .stStatBtn{
+    flex:none;padding:8px 12px;border-radius:100px;background:var(--acc);color:#fff;
+    font-size:11.5px;font-weight:800;letter-spacing:-.1px;box-shadow:0 4px 12px rgba(17,137,255,.28);
+  }
+  .stStatBtn:active{transform:scale(.96)}
 
   /* ── çipler (görseldeki hap dili) ── */
   .chiprow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
@@ -318,11 +398,28 @@
   .toast.on{opacity:1;transform:translate(-50%,0)}
 
   @media (max-width:520px){
-    body{padding:0;place-items:stretch}
-    .phone{width:100%;height:100dvh;border-radius:0;box-shadow:none}
+    body{padding:0;place-items:stretch;background:var(--bg)}
+    .phone{
+      width:100%;height:100dvh;height:-webkit-fill-available;
+      max-height:none;
+      border-radius:0;box-shadow:none;
+    }
+    [data-theme=dark] .phone{box-shadow:none}
     .statusbar{display:none}
-    .top{padding-top:calc(12px + env(safe-area-inset-top))}
-    .nav{bottom:calc(10px + env(safe-area-inset-bottom))}
+    .top{padding-top:calc(12px + env(safe-area-inset-top));padding-left:calc(22px + env(safe-area-inset-left));padding-right:calc(18px + env(safe-area-inset-right))}
+    .screen{padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right));padding-bottom:calc(106px + env(safe-area-inset-bottom))}
+    .nav{
+      left:calc(12px + env(safe-area-inset-left));
+      right:calc(12px + env(safe-area-inset-right));
+      bottom:calc(10px + env(safe-area-inset-bottom));
+    }
+    .pair{padding-left:calc(28px + env(safe-area-inset-left));padding-right:calc(28px + env(safe-area-inset-right));padding-top:calc(32px + env(safe-area-inset-top));padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+    .empty{left:calc(16px + env(safe-area-inset-left));right:calc(16px + env(safe-area-inset-right));top:calc(96px + env(safe-area-inset-top))}
+    .sheet{
+      left:calc(10px + env(safe-area-inset-left));
+      right:calc(10px + env(safe-area-inset-right));
+      bottom:calc(10px + env(safe-area-inset-bottom));
+    }
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -418,42 +515,50 @@
     <!-- ═══ ANA ═══ -->
     <section class="screen on" id="s-ana">
       <div class="card hero">
-        <div class="ring">
-          <svg width="118" height="118" viewBox="0 0 118 118">
-            <circle class="tr" cx="59" cy="59" r="51" fill="none" stroke-width="10"/>
-            <circle id="heroRingC" cx="59" cy="59" r="51" fill="none" stroke="var(--grn)" stroke-width="10"
-              stroke-linecap="round" stroke-dasharray="320.4" stroke-dashoffset="320.4"/>
-          </svg>
-          <div class="in"><div>
-            <div class="pc" id="heroPc">—<small>%</small></div>
-            <div class="kwh" id="heroKwh">—</div>
-          </div></div>
+        <div class="heroTop">
+          <div class="heroTitles">
+            <div class="heroTitle">BYD Sealion 7</div>
+            <div class="heroSub">Son bilinen durum</div>
+          </div>
+          <div class="heroChip" id="heroChip">—</div>
         </div>
-        <div class="hb">
-          <div class="rng" id="heroRng">—<small>km</small></div>
-          <div class="rl" id="heroRl">menzil</div>
-          <div class="chg" id="heroChg">—<small>durum bilinmiyor</small></div>
-          <div class="zz" id="heroZz">Araç son verisi bekleniyor…</div>
+        <img class="heroImg" id="heroImg" src="sealion.png" alt="Sealion 7" width="1600" height="800" draggable="false">
+        <div class="heroStats">
+          <div>
+            <div class="heroSoc"><span id="heroSocN">0</span><small>%</small></div>
+            <div class="heroSocL" id="heroSocL">—</div>
+          </div>
+          <div class="heroRng2">
+            <div class="rv"><span id="heroRngN">—</span><small>km</small></div>
+            <div class="rl">menzil</div>
+          </div>
         </div>
+        <div class="heroBar"><i id="heroBar"></i></div>
+        <div class="heroFoot" id="heroFoot">Araç son verisi bekleniyor…</div>
+      </div>
+
+      <div class="qkbar">
+        <button class="qkb" id="qkNav" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 3 3 9.2l6.8 2 2 6.8L17 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span>Yol tarifi</span>
+        </button>
+        <button class="qkb" data-go="s-ist" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1 2 10h5l-1 8 9-10h-5l1-7Z" fill="currentColor"/></svg>
+          <span>İstasyon</span>
+        </button>
+        <button class="qkb" data-go="s-surus" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.1" stroke="currentColor" stroke-width="1.8"/><path d="M10 10 13.6 6.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/></svg>
+          <span>Sürüş</span>
+        </button>
+        <button class="qkb" id="qkBell" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2c-3 0-5 2.2-5 5.2v3.1L3.3 13c-.4.6 0 1.4.8 1.4h11.8c.8 0 1.2-.8.8-1.4L15 10.3V7.2C15 4.2 13 2 10 2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 16.8a2.1 2.1 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span>Bildirim</span>
+        </button>
       </div>
 
       <div class="card">
-        <div class="sechd">Yetişir mi?</div>
-        <div class="reach">
-          <input id="rkm" type="number" inputmode="numeric" min="1" max="999" placeholder="Gidilecek mesafe">
-          <span class="unit">km</span>
-        </div>
-        <div class="chipgrid c2" style="margin:11px 0 0">
-          <button class="chip" data-km="18">Havalimanı · 18</button>
-          <button class="chip" data-km="75">Side · 75</button>
-          <button class="chip" data-km="132">Alanya · 132</button>
-          <button class="chip" data-km="190">Kaş · 190</button>
-        </div>
-        <div class="rres" id="rres">
-          <div class="rline"><span>Tek yön · varışta</span><b id="rOne">—</b></div>
-          <div class="rline"><span>Gidiş–dönüş · varışta</span><b id="rTwo">—</b></div>
-          <div class="rnote" id="rNote">Ortalama tüketiminle hesaplandı.</div>
-        </div>
+        <div class="sechd">Bugün özeti<button class="act" data-go="s-surus">Sürüş →</button></div>
+        <div class="grid2" id="bugunGrid"></div>
       </div>
 
       <div class="card">
@@ -462,8 +567,8 @@
       </div>
 
       <div class="card">
-        <div class="sechd">Bugün<button class="act" data-go="s-surus">Sürüş →</button></div>
-        <div class="grid2" id="bugunGrid"></div>
+        <div class="sechd">Son yolculuk<button class="act" data-go="s-surus">Defter →</button></div>
+        <div id="lastTrip"></div>
       </div>
       <div class="foot">Otto Mobil · pawcal.net</div>
     </section>
@@ -514,15 +619,7 @@
     <!-- ═══ SÜRÜŞ ═══ -->
     <section class="screen" id="s-surus">
       <div class="card">
-        <div class="sechd">Sürüş<span class="cnt">sıfırlanabilir tüketim</span></div>
-        <div class="chipgrid c3" id="pSeg">
-          <button class="chip on" data-k="bugun">Bugün</button>
-          <button class="chip" data-k="hafta">Hafta</button>
-          <button class="chip" data-k="ay">Ay</button>
-          <button class="chip" data-k="manuel">Manuel</button>
-          <button class="chip" data-k="gezi1">Gezi 1</button>
-          <button class="chip" data-k="gezi2">Gezi 2</button>
-        </div>
+        <div class="sechd">Sürüş<button class="selbtn" id="donemBtn" type="button"><span id="donemLbl">Bugün</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 7l3-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
         <div class="grid2" id="pGrid"></div>
         <div class="chart" id="chart"></div>
         <div class="chx" id="chx"></div>
@@ -576,6 +673,7 @@
 
       <div class="card">
         <div class="sechd">Şarj noktaları<span class="cnt" id="stCount"></span></div>
+        <div id="stStatus" style="display:none"></div>
         <div class="fwrap">
           <div class="chiprow">
             <button class="chip on" data-f="all">Tümü</button>
@@ -682,6 +780,12 @@
     <h3>Bildirimler</h3>
     <div id="notifList"></div>
     <div class="note">Araç uykudayken bildirim üretilemez; bunlar araç açıkken yakalanan olaylar.</div>
+  </div>
+  <div class="sheet" id="sheetDonem">
+    <div class="grab"></div>
+    <h3>Dönem seç</h3>
+    <div id="donemList"></div>
+    <div class="note">Sayaçlar araçta birikir; sıfırlama araç ekranından yapılır.</div>
   </div>
   <div class="toast" id="toast"></div>
 </div>
@@ -844,35 +948,54 @@
   }
 
   /* ── RENDER: HERO ── */
+  var socShown=0, socRafT=null;
+  function countUpSoc(target){
+    if(socRafT){cancelAnimationFrame(socRafT); socRafT=null}
+    var el=$('#heroSocN'); if(!el) return;
+    var t0=performance.now(), from=socShown, to=Math.max(0,Math.min(100,Math.round(target)));
+    var dur=Math.min(1200, 300+Math.abs(to-from)*18);
+    function tick(now){
+      var p=Math.min(1,(now-t0)/dur); var ease=1-Math.pow(1-p,3);
+      var v=Math.round(from+(to-from)*ease);
+      el.textContent=v;
+      if(p<1) socRafT=requestAnimationFrame(tick); else {socShown=to; socRafT=null}
+    }
+    socRafT=requestAnimationFrame(tick);
+  }
   function renderHero(){
     var d=lastDurum||{};
     var soc=Number(d.soc);
-    var pc=$('#heroPc'), kwh=$('#heroKwh'), rng=$('#heroRng'), rl=$('#heroRl'), chg=$('#heroChg'), zz=$('#heroZz'), ring=$('#heroRingC');
-    pc.innerHTML=(isFinite(soc)?Math.round(soc):'—')+'<small>%</small>';
+    // SOC + label
     if(isFinite(soc)){
-      var off=320.4*(1-Math.max(0,Math.min(100,soc))/100);
-      ring.setAttribute('stroke-dashoffset', off.toFixed(1));
-      ring.setAttribute('stroke', soc<20?'var(--red)':(soc<40?'var(--orn)':'var(--grn)'));
+      countUpSoc(soc);
+      $('#heroSocL').textContent = has(d.kalanKwh) ? (trN(d.kalanKwh,1)+' kWh kalan') : 'soc';
     } else {
-      ring.setAttribute('stroke-dashoffset','320.4');
+      $('#heroSocN').textContent='—';
+      $('#heroSocL').textContent='—';
     }
-    kwh.textContent = has(d.kalanKwh) ? (trN(d.kalanKwh,1)+' kWh kalan') : '— kWh kalan';
-    rng.innerHTML   = (has(d.menzil)?trI(d.menzil):'—')+'<small>km</small>';
-    rl.textContent  = 'menzil';
-    // durum metni: gear + hiz
+    // menzil
+    $('#heroRngN').textContent = has(d.menzil)?trI(d.menzil):'—';
+    // bar
+    var bar=$('#heroBar');
+    var pct = isFinite(soc)?Math.max(0,Math.min(100,soc)):0;
+    bar.style.width = pct+'%';
+    // chip
+    var chip=$('#heroChip');
+    var charging=isCharging();
     var gear=d.gear, hiz=Number(d.hiz);
-    var main='—', sub='—';
-    var charging = isCharging();
-    if(charging){ main='Şarjda'; sub='son bilinen seans devam ediyor'; }
-    else if(gear==='P' || (isFinite(hiz)&&hiz===0)){ main='Şarjda değil'; sub='Park halinde'; }
-    else if(gear==='D'||gear==='R'||gear==='N'){ main='Şarjda değil'; sub='Sürüş halinde'; }
-    else { main='Şarjda değil'; sub='durum bilinmiyor'; }
-    chg.innerHTML=esc(main)+'<small>'+esc(sub)+'</small>';
+    chip.classList.remove('ok','warn');
+    if(charging){ chip.textContent='Şarjda'; chip.classList.add('ok'); }
+    else if(gear==='D'||gear==='R'||gear==='N' || (isFinite(hiz)&&hiz>0)){ chip.textContent='Sürüş halinde'; chip.classList.add('ok'); }
+    else if(gear==='P' || (isFinite(hiz)&&hiz===0)){ chip.textContent='Park halinde'; }
+    else { chip.textContent='Durum bilinmiyor'; }
+    // foot (honest line)
     var m=ageMin(lastUpd);
-    zz.textContent = m==null ? 'Araç son verisi bekleniyor…' :
-      (m<10 ? 'Canlı — son veri '+Math.max(1,Math.round(m))+' dk önce' :
-      (m<120 ? 'Son veri '+Math.round(m)+' dk önce' :
-      'Araç uykuda — son bilinen durum'));
+    var foot;
+    if(m==null) foot='Araç son verisi bekleniyor…';
+    else if(m<10) foot='Canlı — son veri '+Math.max(1,Math.round(m))+' dk önce';
+    else if(m<120) foot='Son veri '+Math.round(m)+' dk önce';
+    else foot='Araç uykuda — son bilinen durum ('+Math.round(m/60)+' sa önce)';
+    $('#heroFoot').textContent=foot;
   }
   function isCharging(){
     if(!lastOlaylar||!lastOlaylar.length) return false;
@@ -890,9 +1013,28 @@
     var d=lastDurum||{}, s=d.son50||{};
     $('#araVerGrid').innerHTML=
       cellHtml('Son 50 km tüketim', fmtCell(s.tuketim,1), 'kWh/100')+
-      cellHtml('Anlık hız', has(d.hiz)?trN(d.hiz,0):'—', 'km/h')+
+      cellHtml('Son 50 km ort. hız', has(s.hiz)?trN(s.hiz,0):(has(d.hiz)?trN(d.hiz,0):'—'), 'km/h')+
       cellHtml('Toplam tüketim', has(d.totalCons)?trI(d.totalCons):'—', 'kWh')+
-      cellHtml('Toplam yol (odo)', has(d.odo)?trI(d.odo):'—', 'km');
+      cellHtml('Toplam yol', has(d.odo)?trI(d.odo):'—', 'km');
+  }
+  function renderLastTrip(){
+    var evs=lastOlaylar.filter(function(e){return e.tip==='yolculuk'});
+    var el=$('#lastTrip'); if(!el) return;
+    if(!evs.length){
+      el.innerHTML='<div class="lrow"><div class="lb"><div class="lt">Henüz yolculuk kaydı yok</div><div class="ls">Aracı çalıştırınca ilk yolculuk buraya düşecek.</div></div></div>';
+      return;
+    }
+    var e=evs[0], v=e.veri||{};
+    var baslik=v.baslik||v.rota||v.yer||v.konum||'Yolculuk';
+    var km=Number(v.km)||0, kwh=Number(v.kwh)||0;
+    var c100=has(v.cons100)?Number(v.cons100):(km?kwh/km*100:0);
+    var skor=Number(v.skor)||0;
+    var skorCls=skor>=80?'':(skor>=60?'a':'');
+    el.innerHTML='<div class="lrow" style="border:none;padding-top:2px">'+
+      '<div class="lb"><div class="lt">'+esc(baslik)+'</div>'+
+      '<div class="ls">'+esc(dateTr(e.ts,false))+' · '+(km?trN(km,1)+' km':'—')+' · '+(c100?trN(c100,1)+' kWh/100':'—')+'</div></div>'+
+      '<div class="le"><div class="lv">'+(kwh?trN(kwh,1):'—')+'<small>kWh</small></div>'+
+      '<div class="lvs">'+(skor?'<span class="scorep '+skorCls+'">'+skor+'</span>':'—')+'</div></div></div>';
   }
   function renderBugun(){
     var d=lastDurum||{}, b=(d.donem&&d.donem.bugun)||{};
@@ -959,30 +1101,43 @@
     return short ? pref : (pref+' '+hh+':'+mm);
   }
   function renderChargeHistory(){
-    var evs=lastOlaylar.filter(function(e){return e.tip==='sarj_bitti'});
-    $('#chCnt').textContent = evs.length ? evs.length+' seans' : '';
-    if(!evs.length){
-      $('#chList').innerHTML='<div class="lrow"><div class="lb"><div class="lt">Henüz şarj kaydı yok</div><div class="ls">İlk seanstan sonra burada birikecek.</div></div></div>';
+    // 1) durum.sarjGecmis
+    var d=lastDurum||{};
+    var arr=Array.isArray(d.sarjGecmis)?d.sarjGecmis.slice():null;
+    var kaynak='durum';
+    if(!arr || !arr.length){
+      // 2) olaylar.sarj_bitti
+      arr=lastOlaylar.filter(function(e){return e.tip==='sarj_bitti'});
+      kaynak='olay';
+    }
+    $('#chCnt').textContent = (arr && arr.length) ? arr.length+' seans' : '';
+    if(!arr || !arr.length){
+      // 3) honest waiting message
+      $('#chList').innerHTML='<div class="lrow"><div class="lb"><div class="lt">Geçmiş henüz yok</div><div class="ls">Araç uygulamasının sıradaki güncellemesiyle buraya akacak.</div></div></div>';
       return;
     }
-    $('#chList').innerHTML=evs.slice(0,6).map(function(e){
-      var v=e.veri||{};
+    $('#chList').innerHTML=arr.slice(0,6).map(function(item){
+      // sarjGecmis şeması: {tarih,basSoc,bitSoc,kwh,sure,maliyet,ts,tur,kw,konum,tarife}
+      // olay şeması: {tip:'sarj_bitti', ts, veri:{...}}
+      var v = (kaynak==='olay') ? (item.veri||{}) : (item||{});
+      var ts = (kaynak==='olay') ? item.ts : (v.ts || v.tarih);
       var kw = Number(v.kw)||Number(v.guc)||0;
       var tip = v.tur || v.tip || (kw>=150?'HY':(kw>=50?'DC':'AC'));
       var tipLbl = tip==='HY'?'HİPER':tip;
       var cls = tip==='HY'?' hy':(tip==='DC'?' dc':'');
       var kwLbl = kw ? Math.round(kw) : (tip==='AC'?7:(tip==='DC'?60:(tip==='HY'?150:'—')));
       var kwhVal = Number(v.kwh)||Number(v.enerji)||0;
-      var socS=v.socS!=null?v.socS:(v.socStart!=null?v.socStart:null);
-      var socB=v.socB!=null?v.socB:(v.socEnd!=null?v.socEnd:null);
+      var socS=v.basSoc!=null?v.basSoc:(v.socS!=null?v.socS:v.socStart);
+      var socB=v.bitSoc!=null?v.bitSoc:(v.socB!=null?v.socB:v.socEnd);
       var tarife=Number(v.tarife)||Number(v.pr)||kwhB;
       var yer = v.konum || v.baslik || v.yer || (tip==='AC'?'Ev':'Şarj noktası');
       var soc = (socS!=null&&socB!=null)?('%'+Math.round(socS)+' → %'+Math.round(socB)+' · '):'';
-      var mal = kwhVal ? ('~'+trI(kwhVal*tarife)) : '—';
+      var malRaw = has(v.maliyet)?Number(v.maliyet):(kwhVal?kwhVal*tarife:null);
+      var mal = has(malRaw) ? ('~'+trI(malRaw)) : '—';
       return '<div class="lrow">'+
         '<div class="kwb'+cls+'">'+kwLbl+'<small>'+esc(tipLbl)+'</small></div>'+
         '<div class="lb"><div class="lt">'+esc(yer)+'</div>'+
-        '<div class="ls">'+esc(dateTr(e.ts,false))+' · '+esc(soc)+(kwhVal?trN(kwhVal,1)+' kWh':'—')+'</div></div>'+
+        '<div class="ls">'+esc(dateTr(ts,false))+' · '+esc(soc)+(kwhVal?trN(kwhVal,1)+' kWh':'—')+'</div></div>'+
         '<div class="le"><div class="lv">'+mal+'<small>₺</small></div>'+
         '<div class="lvs">'+trN(tarife,2)+' ₺/kWh</div></div></div>';
     }).join('');
@@ -1144,28 +1299,51 @@
   }
 
   /* ── ARAÇ NEREDE + carpin + lokasyon ── */
-  function renderCar(){
+  var USER_LOC=null;
+  try{var g=localStorage.getItem('om_geo'); if(g){var pg=JSON.parse(g); if(pg && isFinite(pg.la) && isFinite(pg.ln)) USER_LOC=pg}}catch(e){}
+  function readCarFromDurum(){
     var d=lastDurum||{}, g=d.gps||d.konum||null;
+    if(!g) return null;
+    var la=Number(g.la!=null?g.la:g.lat), ln=Number(g.ln!=null?g.ln:(g.lng!=null?g.lng:g.lon));
+    if(!isFinite(la)||!isFinite(ln)) return null;
+    return {la:la, ln:ln, yer: g.yer||g.name||d.yer||null};
+  }
+  function effectiveCenter(){
+    var c=readCarFromDurum();
+    if(c) return {src:'durum', la:c.la, ln:c.ln, yer:c.yer||'Aracın konumu'};
+    if(USER_LOC) return {src:'user', la:USER_LOC.la, ln:USER_LOC.ln, yer:'Konumun civarı'};
+    return null;
+  }
+  function renderCar(){
+    var d=lastDurum||{};
+    var car=readCarFromDurum();
     var mapCard=$('#s-ist .card:first-child');
-    if(!g || !has(g.la) || !has(g.ln)){
+    if(!car){
       if(mapCard) mapCard.style.display='none';
       CAR=null;
       return;
     }
     if(mapCard) mapCard.style.display='';
-    CAR={la:Number(g.la), ln:Number(g.ln)};
-    // konum adı
-    var yer = g.yer || g.name || d.yer || 'Konum';
-    $('#carLoc').textContent=yer;
-    // durum
+    CAR={la:car.la, ln:car.ln};
+    $('#carLoc').textContent = car.yer || 'Aracın konumu';
     var gear=d.gear, hiz=Number(d.hiz);
     var st = (gear==='P'||(isFinite(hiz)&&hiz===0)) ? 'park halinde' : 'hareket halinde';
     $('#carState').textContent = st+' · '+timeAgoText(lastUpd);
   }
   $('#navBtn').addEventListener('click',function(){
-    if(!CAR){toast('Konum bilinmiyor');return}
+    if(!CAR){toast('Aracın konumu henüz bilinmiyor');return}
     window.open('https://www.google.com/maps/dir/?api=1&destination='+CAR.la+','+CAR.ln,'_blank');
   });
+  function askLocation(silent){
+    if(!navigator.geolocation){ if(!silent) toast('Tarayıcı konum vermiyor'); return }
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var la=pos.coords.latitude, ln=pos.coords.longitude;
+      if(!isFinite(la)||!isFinite(ln)) return;
+      USER_LOC={la:la, ln:ln};
+      try{localStorage.setItem('om_geo', JSON.stringify(USER_LOC))}catch(e){}
+      renderStations();
+    }, function(){/* reddi sessiz */}, {enableHighAccuracy:false, timeout:8000, maximumAge:5*60*1000});
+  }
 
   /* ── LASTİK ── */
   function tCell(el,val,rec){
@@ -1231,36 +1409,6 @@
     }).join('');
   }
 
-  /* ── YETİŞİR Mİ ── */
-  function reachCalc(km){
-    var d=lastDurum||{};
-    var kalan=Number(d.kalanKwh), soc=Number(d.soc), avg=Number(d.son50&&d.son50.tuketim)||16.8;
-    if(!isFinite(kalan) || !isFinite(soc) || kalan<=0){
-      $('#rres').classList.remove('on'); return;
-    }
-    var drop=km*avg/100/kalan*soc;
-    function fmt(v){
-      if(v>=15)return '<b class="ok">~%'+Math.round(v)+' kalır ✓</b>';
-      if(v>=5)return '<b class="risk">~%'+Math.round(v)+' kalır · riskli</b>';
-      if(v>=0)return '<b class="no">~%'+Math.round(v)+' — çok riskli</b>';
-      return '<b class="no">yetmez ✗</b>';
-    }
-    $('#rOne').outerHTML='<span id="rOne">'+fmt(soc-drop)+'</span>';
-    $('#rTwo').outerHTML='<span id="rTwo">'+fmt(soc-2*drop)+'</span>';
-    $('#rNote').textContent='Kalan '+trN(kalan,1)+' kWh ve senin gerçek ortalamanla ('+trN(avg,1)+' kWh/100km) hesaplandı.';
-    $('#rres').classList.add('on');
-  }
-  function renderReach(){
-    var v=parseFloat($('#rkm').value);
-    if(v>0) reachCalc(v);
-  }
-  $('#rkm').addEventListener('input',function(){
-    var v=parseFloat(this.value);
-    if(!v||v<=0){$('#rres').classList.remove('on'); return}
-    reachCalc(v);
-  });
-  $$('.chip[data-km]').forEach(function(b){b.addEventListener('click',function(){$('#rkm').value=b.dataset.km; reachCalc(parseFloat(b.dataset.km))})});
-
   /* ── İSTASYON MOTORU ── */
   var CAR=null, ST=null, stLoaded=false, stLoading=false, fMode='all', sMode='near';
   var AC_BRANDS={'VOLTUP':7.9,'wat mobilite':7.5,'ADZE':7.2,'solarşarj':7.9,'ECOCONNECT':7.4,'SHARZ.NET':7.9,'RSŞARJ':7.6,'Electrise':7.9,'MINUS ENERGY':8.2,'EKOS':7.8,'ŞS ŞARJSTOP Güvenli Şarj Noktası':7.6,'enertürk rhg enerji':8.4,'CATEC':7.9,'BOLT & GO':7.9,'POINTO':7.9,'BEYAZ ŞARJ':7.9};
@@ -1285,53 +1433,115 @@
     var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);
     return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
   }
+  var stFetchErr=false;
   function ensureStations(){
     if(stLoaded||stLoading) { renderStations(); return }
-    stLoading=true;
-    fetch('sarjtr_stations.json',{cache:'force-cache'}).then(function(r){return r.json()}).then(function(js){
+    stLoading=true; stFetchErr=false;
+    fetch('sarjtr_stations.json',{cache:'force-cache'}).then(function(r){
+      if(!r.ok) throw new Error('http '+r.status);
+      return r.json();
+    }).then(function(js){
       ST=Array.isArray(js)?js:[]; stLoaded=true; stLoading=false;
       renderStations();
-    }).catch(function(){stLoading=false; toast('İstasyon listesi yüklenemedi')});
+    }).catch(function(e){
+      stLoading=false; stFetchErr=true; ST=[]; stLoaded=true;
+      renderStations();
+    });
+  }
+  function statusMsg(){
+    if(stFetchErr) return {ic:'⚠️', t:'İstasyon listesi yüklenemedi', s:'Ağ hatası — sayfayı yenilemeyi dene.', act:false};
+    var center=effectiveCenter();
+    if(!center){
+      var t = 'Mesafe için araç konumu bekleniyor';
+      var s = 'Aracın konumu geldiğinde en yakın istasyonlar burada sıralanır.';
+      return {ic:'📍', t:t, s:s, act:true};
+    }
+    if(center.src==='user'){
+      return {ic:'📍', t:'Konumun civarı gösteriliyor', s:'Araç konumu gelince otomatik geçer.', act:false};
+    }
+    return null;
+  }
+  function renderStStatus(){
+    var el=$('#stStatus'); if(!el) return;
+    var m=statusMsg();
+    if(!m){ el.style.display='none'; el.innerHTML=''; return; }
+    el.style.display='block';
+    el.innerHTML =
+      '<div class="stStat">'+
+        '<div class="stStatBody">'+
+          '<div class="stStatTitle">'+esc(m.ic+' '+m.t)+'</div>'+
+          '<div class="stStatSub">'+esc(m.s)+'</div>'+
+        '</div>'+
+        (m.act?'<button class="stStatBtn" id="useLocBtn" type="button">Konumumu kullan</button>':'')+
+      '</div>';
+    var b=document.getElementById('useLocBtn');
+    if(b) b.addEventListener('click', function(){ askLocation(false) });
   }
   function renderStations(){
-    if(!ST){return}
-    var card=$('#s-ist .card:nth-child(2)');
-    if(!CAR){
-      if(card) card.style.display='none';
-      return;
-    }
-    if(card) card.style.display='';
-    // filtre penceresi: ±0.015°
-    var LA0=CAR.la-0.015, LA1=CAR.la+0.015, LN0=CAR.ln-0.015, LN1=CAR.ln+0.015;
-    var nearby=ST.filter(function(s){return s && has(s.la) && has(s.ln) && s.la>=LA0 && s.la<=LA1 && s.ln>=LN0 && s.ln<=LN1});
-    nearby.forEach(function(s){
-      s.kw=kwOf(s); s.tip=s.kw>=150?'HY':(s.kw>=50?'DC':'AC');
-      s.pr=priceOf(s,s.kw); s.d=distKm(CAR.la,CAR.ln,s.la,s.ln);
+    if(!ST){ return }
+    var listCard=$('#s-ist .card:nth-child(2)');
+    if(listCard) listCard.style.display='';
+    renderStStatus();
+    var center=effectiveCenter();
+    var mapCard=$('#s-ist .card:first-child');
+    if(mapCard) mapCard.style.display = (readCarFromDurum() ? '' : 'none');
+
+    var enriched=ST.filter(function(s){return s && isFinite(Number(s.la)) && isFinite(Number(s.ln))}).map(function(s){
+      var kw=kwOf(s);
+      return {
+        t:s.t, b:s.b, la:Number(s.la), ln:Number(s.ln), n:s.n, a:s.a,
+        kw:kw, tip:kw>=150?'HY':(kw>=50?'DC':'AC'), pr:priceOf(s,kw),
+        d: center ? distKm(center.la,center.ln,Number(s.la),Number(s.ln)) : null
+      };
     });
-    var list=nearby.filter(function(s){return fMode==='all'||s.tip===fMode});
-    list.sort(sMode==='near'?function(a,b){return a.d-b.d}:function(a,b){return a.pr-b.pr||a.d-b.d});
+    var pool;
+    if(center){
+      var LA0=center.la-0.015, LA1=center.la+0.015, LN0=center.ln-0.015, LN1=center.ln+0.015;
+      pool = enriched.filter(function(s){return s.la>=LA0 && s.la<=LA1 && s.ln>=LN0 && s.ln<=LN1});
+      // eğer çerçevede yoksa ülke geneline yay
+      if(!pool.length) pool = enriched.slice();
+    } else {
+      pool = enriched.slice();
+    }
+    var list=pool.filter(function(s){return fMode==='all'||s.tip===fMode});
+    // sıralama: konum yoksa fiyat, varsa mevcut seçim
+    var effSort = center ? sMode : 'cheap';
+    list.sort(effSort==='near'
+      ? function(a,b){return (a.d||0)-(b.d||0)}
+      : function(a,b){return a.pr-b.pr || (a.d||0)-(b.d||0)});
+
     $('#stCount').textContent=list.length+' nokta';
-    $('#stFoot').textContent = (ST.length? ST.length.toLocaleString('tr-TR')+' kayıtlı nokta · gösterilen: 1,5 km çevresi' : '');
+    var footTxt = ST.length? ST.length.toLocaleString('tr-TR')+' kayıtlı nokta' : '';
+    if(center) footTxt += ' · gösterilen: '+(center.src==='user'?'konumun':'aracın')+' 1,5 km çevresi';
+    else footTxt += ' · tüm ülke · fiyata göre';
+    $('#stFoot').textContent=footTxt;
+
     $('#stList').innerHTML=list.slice(0,8).map(function(s){
       var tip=s.tip==='HY'?'HİPER':s.tip;
       var cls=s.tip==='HY'?' hy':(s.tip==='DC'?' dc':'');
+      var dTxt = (s.d==null) ? '—' : trN(s.d,1)+' km';
       return '<div class="lrow">'+
         '<div class="kwb'+cls+'">'+s.kw+'<small>'+esc(tip)+'</small></div>'+
         '<div class="lb"><div class="lt">'+esc(s.t||'')+'</div>'+
-        '<div class="ls">'+esc(s.b||'')+' · '+(s.n||'?')+' soket · '+trN(s.d,1)+' km</div></div>'+
+        '<div class="ls">'+esc(s.b||'')+' · '+(s.n||'?')+' soket · '+dTxt+'</div></div>'+
         '<div class="le"><div class="lv">'+trN(s.pr,2)+'<small>₺/kWh</small></div>'+
         '<div class="lvs"><span class="avdot'+(s.a?'':' full')+'"></span>'+(s.a?'müsait':'dolu')+'</div></div></div>';
     }).join('');
-    function mapXY(s){
-      var x=(s.ln-LN0)/(LN1-LN0)*100, y=(1-(s.la-LA0)/(LA1-LA0))*100;
-      return {x:Math.max(2,Math.min(98,x)), y:Math.max(3,Math.min(92,y))};
+
+    // harita — yalnızca aracın gerçek konumu varsa çizilir
+    if(readCarFromDurum() && center){
+      var LA0m=center.la-0.015, LA1m=center.la+0.015, LN0m=center.ln-0.015, LN1m=center.ln+0.015;
+      var nearby=enriched.filter(function(s){return s.la>=LA0m && s.la<=LA1m && s.ln>=LN0m && s.ln<=LN1m});
+      function mapXY(s){
+        var x=(s.ln-LN0m)/(LN1m-LN0m)*100, y=(1-(s.la-LA0m)/(LA1m-LA0m))*100;
+        return {x:Math.max(2,Math.min(98,x)), y:Math.max(3,Math.min(92,y))};
+      }
+      $('#mapDots').innerHTML=nearby.map(function(s){
+        var p=mapXY(s), show=fMode==='all'||s.tip===fMode;
+        return '<span class="sdot'+(s.tip==='HY'?' hy':'')+(s.a?'':' full')+(show?'':' hide')+'" style="left:'+p.x+'%;top:'+p.y+'%" title="'+esc(s.b||'')+' · '+esc(s.t||'')+'"></span>';
+      }).join('');
+      var pin=$('#carpin'); if(pin){pin.style.left='50%'; pin.style.top='50%'}
     }
-    $('#mapDots').innerHTML=nearby.map(function(s){
-      var p=mapXY(s), show=fMode==='all'||s.tip===fMode;
-      return '<span class="sdot'+(s.tip==='HY'?' hy':'')+(s.a?'':' full')+(show?'':' hide')+'" style="left:'+p.x+'%;top:'+p.y+'%" title="'+esc(s.b||'')+' · '+esc(s.t||'')+'"></span>';
-    }).join('');
-    // araç pini merkezde
-    var pin=$('#carpin'); if(pin){pin.style.left='50%'; pin.style.top='50%'}
   }
   $$('.chip[data-f]').forEach(function(b){b.addEventListener('click',function(){
     $$('.chip[data-f]').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
@@ -1341,6 +1551,40 @@
     $$('.sortsw button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
     sMode=b.dataset.s; renderStations();
   })});
+
+  /* ── DÖNEM SHEET ── */
+  var DONEM_KEYS=[{k:'bugun',t:'Bugün'},{k:'hafta',t:'Hafta'},{k:'ay',t:'Ay'},{k:'manuel',t:'Manuel'},{k:'gezi1',t:'Gezi 1'},{k:'gezi2',t:'Gezi 2'}];
+  function openDonem(){
+    $('#donemList').innerHTML = DONEM_KEYS.map(function(o){
+      return '<div class="selrow'+(o.k===curP?' on':'')+'" data-k="'+o.k+'"><span class="sk">'+(o.k===curP?'✓':'')+'</span>'+esc(o.t)+'</div>';
+    }).join('');
+    $$('#donemList .selrow').forEach(function(r){
+      r.addEventListener('click', function(){
+        curP=r.dataset.k;
+        var lbl=DONEM_KEYS.find?DONEM_KEYS.find(function(o){return o.k===curP}):null;
+        if(!lbl) for(var i=0;i<DONEM_KEYS.length;i++){if(DONEM_KEYS[i].k===curP){lbl=DONEM_KEYS[i]; break}}
+        $('#donemLbl').textContent = lbl ? lbl.t : 'Dönem';
+        renderPeriodSel();
+        closeSheets();
+      });
+    });
+    $('#veil').classList.add('on');
+    $('#sheetDonem').classList.add('on');
+  }
+  function closeSheets(){
+    $('#veil').classList.remove('on');
+    $$('.sheet').forEach(function(s){s.classList.remove('on')});
+  }
+  $('#donemBtn').addEventListener('click', openDonem);
+
+  /* ── HIZLI BUTONLAR ── */
+  $('#qkNav').addEventListener('click', function(){
+    if(!CAR){toast('Aracın konumu henüz bilinmiyor'); return}
+    window.open('https://www.google.com/maps/dir/?api=1&destination='+CAR.la+','+CAR.ln,'_blank');
+  });
+  $('#qkBell').addEventListener('click', function(){
+    $('#veil').classList.add('on'); $('#sheetNotif').classList.add('on');
+  });
 
   /* ── TOP RENDER ── */
   function renderAll(){
@@ -1353,6 +1597,7 @@
     renderHero();
     renderVer();
     renderBugun();
+    renderLastTrip();
     renderBat();
     renderCharge();
     renderChargeHistory();
@@ -1363,7 +1608,6 @@
     renderCar();
     renderTires();
     renderNotif();
-    renderReach();
     if(stLoaded) renderStations();
   }
 
