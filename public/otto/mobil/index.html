@@ -340,6 +340,16 @@
   .pairBtn:disabled{opacity:.55;box-shadow:none}
   .pairHelp{margin-top:18px;font-size:11px;color:var(--dim2);max-width:280px;line-height:1.5}
 
+  /* ── tehlikeli buton (bağlantıyı kes) ── */
+  .dangerBtn{
+    width:100%;margin-top:8px;padding:12px 18px;border-radius:100px;
+    background:transparent;color:var(--red);border:1.5px solid var(--red);
+    font-family:var(--font);font-size:13.5px;font-weight:800;letter-spacing:.1px;
+    cursor:pointer;transition:.15s;
+  }
+  .dangerBtn:active{transform:scale(.97)}
+  .dangerBtn:hover{background:rgba(244,89,91,.08)}
+
   /* ── boş durum (durum=null) ── */
   .empty{
     position:absolute;left:16px;right:16px;top:96px;
@@ -626,6 +636,18 @@
         </label>
         <div class="note">Bildirimler araç açıkken üretilir. Araç uykudayken gecikebilir ya da hiç gelmeyebilir — bu bir kısıt, hata değil.</div>
       </div>
+
+      <div class="card">
+        <div class="sechd">Bağlantı</div>
+        <div class="lrow" style="border:none;padding:2px 0 10px">
+          <div class="lb">
+            <div class="lt">Bu araçla eşleşme</div>
+            <div class="ls">Kod ile oluşturulan güvenli bağ. Farklı bir araca geçmek için kes.</div>
+          </div>
+        </div>
+        <button class="dangerBtn" id="disconnectBtn" type="button">Bağlantıyı kes</button>
+        <div class="note">Bağlantıyı kestikten sonra tekrar bağlanmak için Otto kodu gerekir.</div>
+      </div>
       <div class="foot">Otto Mobil · açık/koyu tema sağ üstten</div>
     </section>
   </div>
@@ -714,7 +736,9 @@
   var pairEl=$('#pair'), pairErr=$('#pairErr'), pairBtn=$('#pairBtn'), pairKod=$('#pairKod');
   function showPair(msg){pairEl.classList.add('on'); if(msg) pairErr.textContent=msg; pairBtn.disabled=false}
   function hidePair(){pairEl.classList.remove('on'); pairErr.textContent=''}
-  try{var qKod=new URL(location.href).searchParams.get('kod'); if(qKod) pairKod.value=qKod.toUpperCase();}catch(e){}
+  var qKod=null;
+  try{qKod=new URL(location.href).searchParams.get('kod');}catch(e){}
+  if(qKod) pairKod.value=String(qKod).toUpperCase();
   function doPair(){
     var kod=(pairKod.value||'').trim();
     if(!kod){pairErr.textContent='Kod gerekli';return}
@@ -732,8 +756,10 @@
       if(!j.ok || !j.token){pairErr.textContent=j.hata||'Bir hata oluştu';pairBtn.disabled=false;return}
       localStorage.setItem(LS.tok, j.token);
       localStorage.removeItem(LS.upd);
+      lastDurum=null; lastOlaylar=[]; lastUpd=null;
+      try{var u=new URL(location.href); u.searchParams.delete('kod'); history.replaceState(null,'',u.toString());}catch(e){}
       hidePair();
-      startApp();
+      if(appOn) fetchAll(false); else startApp();
     }).catch(function(){
       pairErr.textContent='Ağ hatası'; pairBtn.disabled=false;
     });
@@ -1341,9 +1367,19 @@
     if(stLoaded) renderStations();
   }
 
+  /* ── BAĞLANTIYI KES ── */
+  $('#disconnectBtn').addEventListener('click', function(){
+    if(!window.confirm('Bu araçla eşleşme kesilecek. Devam edilsin mi?')) return;
+    localStorage.removeItem(LS.tok);
+    localStorage.removeItem(LS.upd);
+    location.reload();
+  });
+
   /* ── BAŞLANGIÇ ── */
   renderCost(); // ilk yükte kwhB/bnzF göster
-  if(localStorage.getItem(LS.tok)){
+  if(qKod){
+    showPair();
+  } else if(localStorage.getItem(LS.tok)){
     hidePair();
     startApp();
   } else {
