@@ -221,6 +221,14 @@
   }
   .stStatBtn:active{transform:scale(.96)}
 
+  /* ── tıklanabilir istasyon satırı ── */
+  .lrow.tap{cursor:pointer;position:relative;padding-right:22px;transition:transform .1s,opacity .15s}
+  .lrow.tap:active{transform:scale(.99);opacity:.85}
+  .lrow.tap::after{
+    content:'›';position:absolute;right:4px;top:50%;transform:translateY(-50%);
+    color:var(--dim2);font-size:24px;font-weight:600;line-height:1;pointer-events:none;
+  }
+
   /* ── çipler (görseldeki hap dili) ── */
   .chiprow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
   .chiprow::-webkit-scrollbar{display:none}
@@ -540,7 +548,7 @@
       <div class="qkbar">
         <button class="qkb" id="qkNav" type="button">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 3 3 9.2l6.8 2 2 6.8L17 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-          <span>Yol tarifi</span>
+          <span>Aracıma yol tarifi</span>
         </button>
         <button class="qkb" data-go="s-ist" type="button">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1 2 10h5l-1 8 9-10h-5l1-7Z" fill="currentColor"/></svg>
@@ -806,6 +814,13 @@
   var LS={tok:'om_token',kwh:'om_kwh',bnz:'om_bnz',notif:'om_notif',upd:'om_last_upd'};
   var toastT;
   function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on')},2400)}
+  function haritaAc(la, ln, etiket){
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    var url = ios
+      ? 'maps://?daddr=' + la + ',' + ln + (etiket ? '&q=' + encodeURIComponent(etiket) : '')
+      : 'https://www.google.com/maps/dir/?api=1&destination=' + la + ',' + ln;
+    window.open(url, '_blank');
+  }
 
   /* ── tema ── */
   var root=document.documentElement;
@@ -1331,8 +1346,9 @@
     $('#carState').textContent = st+' · '+timeAgoText(lastUpd);
   }
   $('#navBtn').addEventListener('click',function(){
-    if(!CAR){toast('Aracın konumu henüz bilinmiyor');return}
-    window.open('https://www.google.com/maps/dir/?api=1&destination='+CAR.la+','+CAR.ln,'_blank');
+    var c=readCarFromDurum();
+    if(!c){toast('Araç konumu henüz gelmedi — araç bir sonraki güncellemeyle konum gönderecek.');return}
+    haritaAc(c.la, c.ln, 'Aracım');
   });
   function askLocation(silent){
     if(!navigator.geolocation){ if(!silent) toast('Tarayıcı konum vermiyor'); return }
@@ -1494,33 +1510,38 @@
         d: center ? distKm(center.la,center.ln,Number(s.la),Number(s.ln)) : null
       };
     });
-    var pool;
+
+    // Filtre → tip
+    var list=enriched.filter(function(s){return fMode==='all'||s.tip===fMode});
+    // Sıralama: merkez varsa near/cheap seçimi; yoksa marka/isim
     if(center){
-      var LA0=center.la-0.015, LA1=center.la+0.015, LN0=center.ln-0.015, LN1=center.ln+0.015;
-      pool = enriched.filter(function(s){return s.la>=LA0 && s.la<=LA1 && s.ln>=LN0 && s.ln<=LN1});
-      // eğer çerçevede yoksa ülke geneline yay
-      if(!pool.length) pool = enriched.slice();
+      list.sort(sMode==='cheap'
+        ? function(a,b){return a.pr-b.pr || (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)}
+        : function(a,b){return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)});
     } else {
-      pool = enriched.slice();
+      list.sort(function(a,b){
+        var A=(a.b||'').toLocaleLowerCase('tr'), B=(b.b||'').toLocaleLowerCase('tr');
+        if(A<B) return -1; if(A>B) return 1;
+        var C=(a.t||'').toLocaleLowerCase('tr'), D=(b.t||'').toLocaleLowerCase('tr');
+        return C<D?-1:(C>D?1:0);
+      });
     }
-    var list=pool.filter(function(s){return fMode==='all'||s.tip===fMode});
-    // sıralama: konum yoksa fiyat, varsa mevcut seçim
-    var effSort = center ? sMode : 'cheap';
-    list.sort(effSort==='near'
-      ? function(a,b){return (a.d||0)-(b.d||0)}
-      : function(a,b){return a.pr-b.pr || (a.d||0)-(b.d||0)});
+    var top=list.slice(0,30);
 
-    $('#stCount').textContent=list.length+' nokta';
+    // Sayı + kaynak
+    var srcLbl = center ? (center.src==='user' ? 'senin konumun' : 'aracın konumu') : 'konum bekleniyor';
+    $('#stCount').textContent = top.length+' istasyon · '+srcLbl;
+    // Alt bilgi (toplam kayıt)
     var footTxt = ST.length? ST.length.toLocaleString('tr-TR')+' kayıtlı nokta' : '';
-    if(center) footTxt += ' · gösterilen: '+(center.src==='user'?'konumun':'aracın')+' 1,5 km çevresi';
-    else footTxt += ' · tüm ülke · fiyata göre';
-    $('#stFoot').textContent=footTxt;
+    if(center) footTxt += ' · en yakın '+top.length+'\u2019u gösteriliyor';
+    else footTxt += ' · isim/marka sırası';
+    $('#stFoot').textContent = footTxt;
 
-    $('#stList').innerHTML=list.slice(0,8).map(function(s){
+    $('#stList').innerHTML=top.map(function(s){
       var tip=s.tip==='HY'?'HİPER':s.tip;
       var cls=s.tip==='HY'?' hy':(s.tip==='DC'?' dc':'');
       var dTxt = (s.d==null) ? '—' : trN(s.d,1)+' km';
-      return '<div class="lrow">'+
+      return '<div class="lrow tap" data-la="'+s.la+'" data-ln="'+s.ln+'" data-isim="'+esc(s.t||s.b||'İstasyon')+'">'+
         '<div class="kwb'+cls+'">'+s.kw+'<small>'+esc(tip)+'</small></div>'+
         '<div class="lb"><div class="lt">'+esc(s.t||'')+'</div>'+
         '<div class="ls">'+esc(s.b||'')+' · '+(s.n||'?')+' soket · '+dTxt+'</div></div>'+
@@ -1543,6 +1564,14 @@
       var pin=$('#carpin'); if(pin){pin.style.left='50%'; pin.style.top='50%'}
     }
   }
+  // İstasyon satırlarına delegated click
+  document.getElementById('stList').addEventListener('click', function(ev){
+    var row = ev.target.closest ? ev.target.closest('.lrow.tap') : null;
+    if(!row) return;
+    var la=parseFloat(row.getAttribute('data-la')), ln=parseFloat(row.getAttribute('data-ln'));
+    if(!isFinite(la) || !isFinite(ln)) return;
+    haritaAc(la, ln, row.getAttribute('data-isim') || 'İstasyon');
+  });
   $$('.chip[data-f]').forEach(function(b){b.addEventListener('click',function(){
     $$('.chip[data-f]').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
     fMode=b.dataset.f; renderStations();
@@ -1579,8 +1608,9 @@
 
   /* ── HIZLI BUTONLAR ── */
   $('#qkNav').addEventListener('click', function(){
-    if(!CAR){toast('Aracın konumu henüz bilinmiyor'); return}
-    window.open('https://www.google.com/maps/dir/?api=1&destination='+CAR.la+','+CAR.ln,'_blank');
+    var c=readCarFromDurum();
+    if(!c){toast('Araç konumu henüz gelmedi — araç bir sonraki güncellemeyle konum gönderecek.'); return}
+    haritaAc(c.la, c.ln, 'Aracım');
   });
   $('#qkBell').addEventListener('click', function(){
     $('#veil').classList.add('on'); $('#sheetNotif').classList.add('on');
