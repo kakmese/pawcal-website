@@ -405,7 +405,8 @@
     padding:32px 28px;text-align:center;
   }
   .pair.on{display:flex}
-  .pairLogo{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;box-shadow:0 8px 22px rgba(17,137,255,.35);margin-bottom:22px;font-size:20px;font-weight:800;color:#04121F}
+  .pairLogo{width:72px;height:72px;margin-bottom:22px;filter:drop-shadow(0 10px 22px rgba(17,137,255,.38)) drop-shadow(0 0 14px rgba(34,211,255,.28))}
+  .pairLogo svg,.pairLogo img{display:block;width:100%;height:100%;border-radius:22px}
   .pairTitle{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;color:var(--tx)}
   .pairSub{font-size:13px;color:var(--dim);margin-bottom:22px;line-height:1.5;max-width:280px}
   .pairInput{width:100%;max-width:300px;background:var(--card);border:1.5px solid transparent;border-radius:16px;padding:14px 18px;font-size:18px;font-weight:800;letter-spacing:2px;text-align:center;text-transform:uppercase;font-variant-numeric:tabular-nums;color:var(--tx);box-shadow:var(--shCardSm);transition:.15s}
@@ -452,7 +453,18 @@
 <body>
 
 <div class="pair" id="pair">
-  <div class="pairLogo">oT</div>
+  <div class="pairLogo" aria-label="Otto">
+    <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+      <defs>
+        <linearGradient id="ottoPairG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1189FF"/>
+          <stop offset="1" stop-color="#22D3FF"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="72" height="72" rx="22" ry="22" fill="url(#ottoPairG)"/>
+      <text x="36" y="47" text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="28" letter-spacing="1.2" fill="#fff">oT</text>
+    </svg>
+  </div>
   <div class="pairTitle">Otto Mobil</div>
   <div class="pairSub">Aracınızla eşleşmek için Otto kodunu girin.</div>
   <input class="pairInput" id="pairKod" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD 1234" maxlength="20">
@@ -836,8 +848,49 @@
 
   /* ── EŞLEŞME ── */
   var pairEl=$('#pair'), pairErr=$('#pairErr'), pairBtn=$('#pairBtn'), pairKod=$('#pairKod');
-  function showPair(msg){pairEl.classList.add('on'); if(msg) pairErr.textContent=msg; pairBtn.disabled=false}
-  function hidePair(){pairEl.classList.remove('on'); pairErr.textContent=''}
+  var TW_CODES=['OTTO-XSWR-CVTY','OTTO-4K7P-9QMZ','OTTO-BD12-SEAL'];
+  var twT=null, twI=0, twP=0, twMode='typing', twBlink=true, twHold=0;
+  function twRender(){
+    var code=TW_CODES[twI]||'';
+    pairKod.placeholder = code.slice(0,twP) + (twBlink ? '|' : '\u00A0');
+  }
+  function twStop(){
+    if(twT){clearTimeout(twT); twT=null;}
+    pairKod.placeholder='';
+  }
+  function twStep(){
+    var code=TW_CODES[twI]||'';
+    var delay=140;
+    if(twMode==='typing'){
+      if(twP<code.length){
+        twP++; twBlink=true; delay=140;
+        if(twP>=code.length){twMode='hold'; twHold=0; delay=420}
+      }
+    } else if(twMode==='hold'){
+      twBlink=!twBlink; twHold++; delay=520;
+      if(twHold>=3){twMode='deleting'; twBlink=true; delay=340}
+    } else if(twMode==='deleting'){
+      if(twP>0){twP--; twBlink=true; delay=70}
+      else{twMode='typing'; twI=(twI+1)%TW_CODES.length; delay=520}
+    }
+    twRender();
+    twT=setTimeout(twStep, delay);
+  }
+  function twStart(){
+    if(twT) return;
+    if(pairKod.value) return;
+    if(document.activeElement===pairKod) return;
+    twI=0; twP=0; twMode='typing'; twBlink=true; twHold=0;
+    twRender();
+    twT=setTimeout(twStep, 520);
+  }
+  function showPair(msg){pairEl.classList.add('on'); if(msg) pairErr.textContent=msg; pairBtn.disabled=false; twStart()}
+  function hidePair(){pairEl.classList.remove('on'); pairErr.textContent=''; twStop()}
+  pairKod.addEventListener('focus', twStop);
+  pairKod.addEventListener('input', function(){if(pairKod.value) twStop()});
+  pairKod.addEventListener('blur', function(){
+    if(!pairKod.value && pairEl.classList.contains('on')) twStart();
+  });
   var qKod=null;
   try{qKod=new URL(location.href).searchParams.get('kod');}catch(e){}
   if(qKod) pairKod.value=String(qKod).toUpperCase();
