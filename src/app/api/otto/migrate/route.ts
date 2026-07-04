@@ -32,13 +32,52 @@ export async function POST(req: NextRequest) {
 
     await sql`CREATE INDEX IF NOT EXISTS mobile_tokens_cihaz ON mobile_tokens (cihaz_id)`;
 
-    // otto_kodlar.cihaz_id kolonu keşifte mevcut (dogrula route'u yazıyor); yine de defansif garanti:
+    // otto_kodlar.cihaz_id kolonu keşifte mevcut; yine de defansif garanti:
     await sql`ALTER TABLE otto_kodlar ADD COLUMN IF NOT EXISTS cihaz_id text`;
 
-    // Kod tipi: 'otto' (ücretsiz/eski) veya 'otto+' (premium/ücretli). Mevcut tüm kodlar 'otto' kalır.
-    await sql`ALTER TABLE otto_kodlar ADD COLUMN IF NOT EXISTS tip text NOT NULL DEFAULT 'otto'`;
+    // otto_kodlar gerçekten mevcut mu ve şeması ne? Öncesinde diagnostiği topla.
+    const tablo_bilgisi = await sql`
+      SELECT table_schema, table_name
+      FROM information_schema.tables
+      WHERE table_name = 'otto_kodlar'`;
 
-    // ABRP fiyat/detay cache (istasyon-fiyat proxy için)
+    // Kod tipi: 'otto' (ücretsiz) veya 'otto+' (premium). Kendi try/catch'i — patlarsa 500 döner.
+    let tip_alter_ok = false;
+    let tip_alter_detay: string | null = null;
+    try {
+      await sql`ALTER TABLE otto_kodlar ADD COLUMN IF NOT EXISTS tip text NOT NULL DEFAULT 'otto'`;
+      tip_alter_ok = true;
+    } catch (e: unknown) {
+      const err = e as { message?: string; code?: string };
+      tip_alter_detay = String(err?.message || e);
+      console.error('OTTO MIGRATE tip ALTER hata:', e);
+      return NextResponse.json(
+        {
+          ok: false,
+          hata: 'tip_alter_basarisiz',
+          detay: tip_alter_detay,
+          kod: err?.code || null,
+          tablo_bilgisi,
+        },
+        { status: 500 },
+      );
+    }
+
+    // Yedek/eski satırlar için tip NULL kalmışsa 'otto' yap (idempotent).
+    try {
+      await sql`UPDATE otto_kodlar SET tip='otto' WHERE tip IS NULL`;
+    } catch (e) {
+      console.error('OTTO MIGRATE tip backfill hata (yoksayıldı):', e);
+    }
+
+    // DOĞRULAMA: tip kolonu gerçekten var mı?
+    const tip_kolon_satirlari = await sql`
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns
+      WHERE table_name='otto_kodlar' AND column_name='tip'`;
+    const tip_kolonu_var = tip_kolon_satirlari.length > 0;
+
+    // ABRP fiyat/detay cache
     await sql`CREATE TABLE IF NOT EXISTS abrp_cache (
       coord_key text PRIMARY KEY,
       card_id   bigint,
@@ -51,7 +90,7 @@ export async function POST(req: NextRequest) {
       card_ts   timestamptz,
       price_ts  timestamptz)`;
 
-    // Otto Mobil kurulum/kullanım takibi (her cihaz = bir telefon; cihaz_id ARAÇ'a bağlı)
+    // Otto Mobil kurulum/kullanım takibi
     await sql`CREATE TABLE IF NOT EXISTS mobil_kurulum (
       cihaz_kimlik text PRIMARY KEY,
       cihaz_id text,
@@ -62,7 +101,7 @@ export async function POST(req: NextRequest) {
       acilis_sayisi int DEFAULT 1)`;
     await sql`CREATE INDEX IF NOT EXISTS mobil_kurulum_arac ON mobil_kurulum (cihaz_id)`;
 
-    // Site geneli ayarlar (anahtar/deger). Otto Mobil aç/kapa gibi bayraklar.
+    // Site geneli ayarlar
     await sql`CREATE TABLE IF NOT EXISTS site_ayar (
       anahtar text PRIMARY KEY,
       deger text,
@@ -72,11 +111,19 @@ export async function POST(req: NextRequest) {
       ON CONFLICT (anahtar) DO NOTHING`;
 
     return NextResponse.json({
-      ok:true,
-      tablolar:['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum','site_ayar'],
+      ok: true,
+      tablolar: ['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum','site_ayar'],
+      tip_alter_ok,
+      tip_kolonu_var,
+      tip_kolon_detay: tip_kolon_satirlari[0] || null,
+      tablo_bilgisi,
     });
-  } catch (e) {
+  } catch (e: unknown) {
+    const err = e as { message?: string; code?: string };
     console.error('OTTO MIGRATE ERROR:', e);
-    return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
+    return NextResponse.json(
+      { ok:false, hata:'sunucu', detay: String(err?.message || e), kod: err?.code || null },
+      { status:500 },
+    );
   }
 }
