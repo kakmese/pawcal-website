@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
+const OTTO_MOBIL_APK_URL =
+  'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1/otto-mobil.apk';
+
 export default function OttoIndirPage() {
   const [versionName, setVersionName] = useState<string | null>(null);
   const [indiriliyor, setIndiriliyor] = useState(false);
+  const [mobilIndiriliyor, setMobilIndiriliyor] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -20,6 +24,12 @@ export default function OttoIndirPage() {
     setIndiriliyor(true);
     window.location.href = '/api/otto/indir';
     setTimeout(() => setIndiriliyor(false), 4000);
+  }
+
+  function indirMobil() {
+    setMobilIndiriliyor(true);
+    window.location.href = OTTO_MOBIL_APK_URL;
+    setTimeout(() => setMobilIndiriliyor(false), 4000);
   }
 
   return (
@@ -138,6 +148,75 @@ export default function OttoIndirPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div
+            className="mt-10 rounded-2xl p-6 sm:p-7"
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(6px)',
+            }}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: 18,
+                  boxShadow: '0 8px 24px rgba(17,137,255,0.25)',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/otto/mobil/otto_icon.png"
+                  alt="Otto Mobil"
+                  width={72}
+                  height={72}
+                  style={{ display: 'block', width: '100%', height: '100%' }}
+                />
+              </div>
+
+              <div className="flex-1 text-center sm:text-left">
+                <div className="text-white font-bold text-lg">Otto Mobil</div>
+                <div className="mt-1 text-slate-300 text-sm">
+                  Telefonunda aracını takip et (Android)
+                </div>
+              </div>
+
+              <button
+                onClick={indirMobil}
+                disabled={mobilIndiriliyor}
+                className="w-full sm:w-auto sm:px-8 py-3 rounded-xl text-white font-semibold text-sm transition-transform active:scale-[0.98] disabled:opacity-70"
+                style={{
+                  backgroundColor: '#1189FF',
+                  boxShadow:
+                    '0 10px 24px rgba(17,137,255,0.40), 0 2px 6px rgba(17,137,255,0.28)',
+                  minWidth: 180,
+                }}
+              >
+                {mobilIndiriliyor ? 'İndiriliyor...' : 'Android için indir'}
+              </button>
+            </div>
+
+            <div
+              className="mt-5 pt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <div className="text-slate-400 text-xs sm:text-sm leading-relaxed text-center sm:text-left">
+                <span className="text-slate-200 font-semibold">iPhone:</span>{' '}
+                Safari&apos;de aç → Paylaş → Ana Ekrana Ekle
+              </div>
+              <a
+                href="/otto/mobil"
+                className="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap"
+                style={{ color: '#5AA9FF' }}
+              >
+                pawcal.net/otto/mobil →
+              </a>
+            </div>
           </div>
         </div>
       </div>
