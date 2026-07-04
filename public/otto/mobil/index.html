@@ -83,10 +83,15 @@
   button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
   .num{font-family:var(--num);font-variant-numeric:tabular-nums;letter-spacing:-.4px}
 
-  .app{max-width:440px;margin:0 auto;padding:14px 15px calc(96px + env(safe-area-inset-bottom));min-height:100vh}
+  .app{max-width:440px;margin:0 auto;padding:0 15px calc(96px + env(safe-area-inset-bottom));min-height:100vh}
 
-  /* ── üst bar ── */
-  .topbar{display:flex;align-items:center;gap:9px;margin-bottom:14px;padding-top:env(safe-area-inset-top)}
+  /* ── üst bar (sayfaya gömülü şeffaf şerit) ── */
+  .topbar{
+    display:flex;align-items:center;gap:9px;
+    background:transparent;border:none;box-shadow:none;
+    padding:calc(env(safe-area-inset-top) + 12px) 2px 12px;
+    margin-bottom:6px;
+  }
   .lg{
     width:34px;height:34px;border-radius:11px;flex:none;
     background:linear-gradient(135deg,var(--acc),var(--acc2));
@@ -108,10 +113,11 @@
   .hst i{width:6px;height:6px;border-radius:50%;background:var(--dim2);flex:none;animation:pl 2.4s ease-out infinite}
   @keyframes pl{0%{box-shadow:0 0 0 0 rgba(52,168,83,.45)}70%{box-shadow:0 0 0 6px rgba(52,168,83,0)}100%{box-shadow:0 0 0 0 rgba(52,168,83,0)}}
   .icobtn{
-    width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;
-    background:var(--card);color:var(--dim);box-shadow:var(--stampSh);position:relative;
+    width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;
+    background:transparent;color:var(--tx2);position:relative;
   }
-  .icobtn .bd{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--acc)}
+  .icobtn:active{transform:scale(.94)}
+  .icobtn .bd{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--acc)}
 
   /* ── ekranlar ── */
   .screen{display:none}
@@ -360,7 +366,7 @@
   .dangerBtn:hover{background:rgba(239,68,68,.08)}
   .note{margin-top:12px;font-size:10.5px;font-weight:500;line-height:1.55;color:var(--dim2)}
 
-  /* ── TABBAR (B — alta oturan) ── */
+  /* ── TABBAR (B — alta oturan, üst köşeler yumuşak) ── */
   .tabbar{
     position:fixed;left:0;right:0;bottom:0;
     background:var(--card);
@@ -368,6 +374,8 @@
     display:flex;justify-content:space-around;
     box-shadow:var(--shTab);
     max-width:440px;margin:0 auto;z-index:20;
+    border-radius:26px 26px 0 0;
+    overflow:hidden;
   }
   .tab{
     display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -891,20 +899,26 @@
     var h=m/60; if(h<24) return Math.round(h)+' sa önce';
     return Math.round(h/24)+' gün önce';
   }
+  function isFresh(){var m=ageMin(lastUpd); return m!=null && m<3}
   function renderStamp(){
     var st=$('#stampTxt'), meta=$('#stampMeta'), dot=$('#stamp i');
     var m=ageMin(lastUpd);
-    var col='var(--dim2)', sleeping=false;
+    var col='var(--dim2)';
     if(m!=null){
-      if(m<10) col='var(--grn)';
+      if(m<3) col='var(--grn)';
       else if(m<120) col='var(--orn)';
-      else {col='var(--dim2)'; sleeping=true}
+      else col='var(--dim2)';
     }
     dot.style.background=col;
     var d=lastDurum||{};
     var soc=has(d.soc)?Math.round(d.soc)+'%':'—';
     var menzil=has(d.menzil)?Math.round(d.menzil)+'km':'—';
-    var durumTxt = m==null ? '—' : (sleeping ? 'Araç uykuda' : (isCharging()?'Şarjda':(isDriving()?'Sürüş':'Park')));
+    var durumTxt;
+    if(m==null) durumTxt='—';
+    else if(!isFresh()) durumTxt='Uykuda';
+    else if(isCharging()) durumTxt='Şarjda';
+    else if(isDriving()) durumTxt='Sürüş';
+    else durumTxt='Park';
     st.textContent = durumTxt;
     meta.textContent = ' · '+soc+' · '+menzil;
   }
@@ -953,14 +967,14 @@
     // Range label with "≈X gün"
     var days = estimateDaysLeft();
     $('#heroRngL').textContent = days ? ('menzil · ≈'+days+' gün') : 'menzil';
-    // chip
+    // chip — canlılığa bağlı (uyandığı andan itibaren geçerli)
     var chip=$('#heroChip');
-    var charging=isCharging();
     chip.classList.remove('ok','warn');
-    if(charging){ chip.textContent='Şarjda'; chip.classList.add('ok'); }
+    if(lastUpd==null){ chip.textContent='Durum bilinmiyor'; }
+    else if(!isFresh()){ chip.textContent='Araç uykuda'; chip.classList.add('warn'); }
+    else if(isCharging()){ chip.textContent='Şarjda'; chip.classList.add('ok'); }
     else if(isDriving()){ chip.textContent='Sürüş halinde'; chip.classList.add('ok'); }
-    else if(d.gear==='P' || (isFinite(Number(d.hiz))&&Number(d.hiz)===0)){ chip.textContent='Park halinde'; }
-    else { chip.textContent='Durum bilinmiyor'; }
+    else { chip.textContent='Park halinde'; chip.classList.add('ok'); }
     // foot
     var m=ageMin(lastUpd);
     var foot;
@@ -975,14 +989,16 @@
     var menzil=Number(d.menzil);
     if(!isFinite(menzil)||menzil<=0) return null;
     var daily=null;
-    if(dn.ay && isFinite(Number(dn.ay.km)) && Number(dn.ay.km)>0){
-      daily = Number(dn.ay.km)/30;
-    } else if(dn.hafta && isFinite(Number(dn.hafta.km)) && Number(dn.hafta.km)>0){
+    // Hafta önce (7 günün toplam km'si), yoksa ay (30 gün)
+    if(dn.hafta && isFinite(Number(dn.hafta.km)) && Number(dn.hafta.km)>0){
       daily = Number(dn.hafta.km)/7;
+    } else if(dn.ay && isFinite(Number(dn.ay.km)) && Number(dn.ay.km)>0){
+      daily = Number(dn.ay.km)/30;
     }
     if(!daily) return null;
     var days=Math.round(menzil/daily);
-    if(days<=0) return null;
+    // Mantık kontrolü: 1-14 gün dışında ise gizle (saçma değer gösterme)
+    if(days<1 || days>14) return null;
     return days;
   }
 
