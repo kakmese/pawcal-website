@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 
-type Ozet = { toplam: number; aktive: number; bos: number; aktif7: number; iptalli: number };
+type Ozet = { toplam: number; aktive: number; bos: number; aktif7: number; iptalli: number; otto_plus: number };
+type KodTip = 'otto' | 'otto+';
 type Satir = {
   kod: string;
   durum: string;
@@ -13,6 +14,7 @@ type Satir = {
   son_gorulme: string | null;
   uygulama_surumu: string | null;
   iptal: boolean;
+  tip: KodTip;
 };
 type KullOzet = { toplam_arac: number; otto_kullanan: number; mobil_kuran: number; ikisi: number };
 type KullSatir = {
@@ -48,8 +50,9 @@ export default function OttoAdminPage() {
 
   const [yEtiket, setYEtiket] = useState('');
   const [yAdet, setYAdet] = useState('1');
-  const [yYukleniyor, setYYukleniyor] = useState(false);
+  const [yYukleniyor, setYYukleniyor] = useState<KodTip | null>(null);
   const [yeniKodlar, setYeniKodlar] = useState<string[]>([]);
+  const [yeniKodlarTip, setYeniKodlarTip] = useState<KodTip>('otto');
   const [yHata, setYHata] = useState<string | null>(null);
 
   const [iptalIsleniyor, setIptalIsleniyor] = useState<string | null>(null);
@@ -83,6 +86,7 @@ export default function OttoAdminPage() {
   const [kodAcik, setKodAcik] = useState(false);
   const [kodArama, setKodArama] = useState('');
   const [kodSayfa, setKodSayfa] = useState(1);
+  const [kodTipFiltre, setKodTipFiltre] = useState<'hepsi' | KodTip>('hepsi');
 
   async function surumYukle() {
     try {
@@ -231,8 +235,8 @@ export default function OttoAdminPage() {
     }
   }
 
-  async function kodUret() {
-    setYYukleniyor(true);
+  async function kodUret(tip: KodTip) {
+    setYYukleniyor(tip);
     setYHata(null);
     setYeniKodlar([]);
     try {
@@ -243,6 +247,7 @@ export default function OttoAdminPage() {
           adminKey,
           etiket: yEtiket.trim() || null,
           adet: parseInt(yAdet) || 1,
+          tip,
         }),
       });
       const j = await r.json();
@@ -250,12 +255,13 @@ export default function OttoAdminPage() {
         setYHata(j.hata === 'yetkisiz' ? 'Yetki hatası.' : 'Bir hata oluştu.');
       } else {
         setYeniKodlar(j.kodlar);
+        setYeniKodlarTip(tip);
         await istatistikYukle(adminKey);
       }
     } catch {
       setYHata('Bağlantı hatası.');
     } finally {
-      setYYukleniyor(false);
+      setYYukleniyor(null);
     }
   }
 
@@ -282,14 +288,17 @@ export default function OttoAdminPage() {
 
   const kodFiltre = useMemo(() => {
     const q = kodArama.trim().toLowerCase();
-    if (!q) return liste;
-    return liste.filter(
-      (s) =>
+    const tipe = kodTipFiltre;
+    return liste.filter((s) => {
+      if (tipe !== 'hepsi' && (s.tip || 'otto') !== tipe) return false;
+      if (!q) return true;
+      return (
         s.kod.toLowerCase().includes(q) ||
         (s.cihaz_id || '').toLowerCase().includes(q) ||
-        (s.not_alan || '').toLowerCase().includes(q),
-    );
-  }, [liste, kodArama]);
+        (s.not_alan || '').toLowerCase().includes(q)
+      );
+    });
+  }, [liste, kodArama, kodTipFiltre]);
 
   if (!giris) {
     return (
@@ -405,14 +414,14 @@ export default function OttoAdminPage() {
 
         <section className="bg-white rounded-xl shadow p-5 mb-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Yeni Kod Üret</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto] gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto_auto] gap-3">
             <input
               type="text"
               value={yEtiket}
               onChange={(e) => setYEtiket(e.target.value)}
               placeholder="Etiket / not (opsiyonel)"
               className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-              disabled={yYukleniyor}
+              disabled={yYukleniyor !== null}
             />
             <input
               type="number"
@@ -421,20 +430,40 @@ export default function OttoAdminPage() {
               min={1}
               max={50}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-              disabled={yYukleniyor}
+              disabled={yYukleniyor !== null}
             />
             <button
-              onClick={kodUret}
-              disabled={yYukleniyor}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium px-6 py-2 rounded-lg transition-colors"
+              onClick={() => kodUret('otto')}
+              disabled={yYukleniyor !== null}
+              className="bg-slate-700 hover:bg-slate-800 disabled:bg-slate-400 text-white font-medium px-5 py-2 rounded-lg transition-colors"
             >
-              {yYukleniyor ? 'Üretiliyor...' : 'Üret'}
+              {yYukleniyor === 'otto' ? 'Üretiliyor...' : 'Otto Üret'}
+            </button>
+            <button
+              onClick={() => kodUret('otto+')}
+              disabled={yYukleniyor !== null}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium px-5 py-2 rounded-lg transition-colors inline-flex items-center gap-1.5"
+            >
+              {yYukleniyor === 'otto+' ? 'Üretiliyor...' : (<><span>Otto+ Üret</span></>)}
             </button>
           </div>
+          <p className="mt-2 text-xs text-slate-500">
+            <b>Otto</b> = ücretsiz sürüm. <b className="text-blue-700">Otto+</b> = premium/ücretli sürüm.
+          </p>
           {yHata && <p className="mt-3 text-sm text-red-600">{yHata}</p>}
           {yeniKodlar.length > 0 && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm font-medium text-green-900 mb-2">{yeniKodlar.length} kod üretildi:</p>
+            <div className={
+              yeniKodlarTip === 'otto+'
+                ? 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'
+                : 'mt-4 p-4 bg-green-50 border border-green-200 rounded-lg'
+            }>
+              <p className={
+                yeniKodlarTip === 'otto+'
+                  ? 'text-sm font-medium text-blue-900 mb-2'
+                  : 'text-sm font-medium text-green-900 mb-2'
+              }>
+                {yeniKodlar.length} {yeniKodlarTip === 'otto+' ? 'Otto+' : 'Otto'} kod üretildi:
+              </p>
               <div className="font-mono text-sm text-slate-900 space-y-1">
                 {yeniKodlar.map((k) => <div key={k}>{k}</div>)}
               </div>
@@ -646,6 +675,7 @@ export default function OttoAdminPage() {
           onToggle={() => setKodAcik((v) => !v)}
           yenile={() => istatistikYukle(adminKey)}
           yenileniyor={yukleniyor}
+          ekBilgi={ozet && ozet.otto_plus > 0 ? `${ozet.otto_plus} Otto+` : null}
         />
         {kodAcik && (
           <section className="bg-white rounded-xl shadow overflow-hidden mb-4">
@@ -655,11 +685,32 @@ export default function OttoAdminPage() {
               placeholder="Kod / cihaz / etikette ara..."
               sayilar={{ toplam: liste.length, filtre: kodFiltre.length }}
             />
+            <div className="px-4 pt-3 pb-1 flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-slate-500">Tip:</span>
+              {(['hepsi','otto','otto+'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => { setKodTipFiltre(t); setKodSayfa(1); }}
+                  className={
+                    kodTipFiltre === t
+                      ? (t === 'otto+'
+                          ? 'text-[11px] px-2.5 py-1 rounded-full bg-blue-600 text-white font-semibold'
+                          : t === 'otto'
+                            ? 'text-[11px] px-2.5 py-1 rounded-full bg-slate-700 text-white font-semibold'
+                            : 'text-[11px] px-2.5 py-1 rounded-full bg-slate-900 text-white font-semibold')
+                      : 'text-[11px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }
+                >
+                  {t === 'hepsi' ? 'Tümü' : t === 'otto+' ? 'Otto+' : 'Otto'}
+                </button>
+              ))}
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm">
                 <thead className="bg-slate-50 text-slate-600 text-left">
                   <tr>
                     <th className="px-3 py-1.5 font-medium">Kod</th>
+                    <th className="px-3 py-1.5 font-medium">Tip</th>
                     <th className="px-3 py-1.5 font-medium">Durum</th>
                     <th className="px-3 py-1.5 font-medium">Etiket</th>
                     <th className="px-3 py-1.5 font-medium">Cihaz</th>
@@ -682,6 +733,9 @@ export default function OttoAdminPage() {
                         {s.iptal && (
                           <span className="ml-2 inline-block px-1.5 py-0.5 text-[10px] rounded bg-red-600 text-white font-sans font-semibold">İPTAL</span>
                         )}
+                      </td>
+                      <td className="px-3 py-1.5">
+                        <TipRozet tip={s.tip} />
                       </td>
                       <td className="px-3 py-1.5">
                         <span className={
@@ -715,8 +769,8 @@ export default function OttoAdminPage() {
                   ))}
                   {kodFiltre.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-3 py-6 text-center text-slate-500">
-                        {kodArama ? 'Aramaya uyan kod yok.' : 'Henüz kod yok.'}
+                      <td colSpan={10} className="px-3 py-6 text-center text-slate-500">
+                        {kodArama || kodTipFiltre !== 'hepsi' ? 'Aramaya uyan kod yok.' : 'Henüz kod yok.'}
                       </td>
                     </tr>
                   )}
@@ -808,6 +862,7 @@ function KatlanirBaslik({
   onToggle,
   yenile,
   yenileniyor,
+  ekBilgi,
 }: {
   baslik: string;
   adet: number;
@@ -815,6 +870,7 @@ function KatlanirBaslik({
   onToggle: () => void;
   yenile?: () => void;
   yenileniyor?: boolean;
+  ekBilgi?: string | null;
 }) {
   return (
     <div className="bg-white rounded-xl shadow px-4 py-2.5 mb-2 flex items-center justify-between">
@@ -830,6 +886,11 @@ function KatlanirBaslik({
         </span>
         <span className="text-base font-semibold text-slate-900">{baslik}</span>
         <span className="text-sm text-slate-500">({adet})</span>
+        {ekBilgi && (
+          <span className="text-[11px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+            {ekBilgi}
+          </span>
+        )}
       </button>
       {yenile && (
         <button
@@ -841,6 +902,22 @@ function KatlanirBaslik({
         </button>
       )}
     </div>
+  );
+}
+
+function TipRozet({ tip }: { tip: KodTip | null | undefined }) {
+  const t: KodTip = tip === 'otto+' ? 'otto+' : 'otto';
+  if (t === 'otto+') {
+    return (
+      <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-blue-600 text-white font-semibold">
+        Otto+
+      </span>
+    );
+  }
+  return (
+    <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-slate-200 text-slate-700 font-medium">
+      Otto
+    </span>
   );
 }
 

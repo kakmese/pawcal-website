@@ -14,10 +14,11 @@ export async function POST(req: NextRequest) {
         COUNT(*) FILTER (WHERE durum='kullanildi')::int AS aktive,
         COUNT(*) FILTER (WHERE durum='bos')::int AS bos,
         COUNT(*) FILTER (WHERE son_gorulme > now() - interval '7 days')::int AS aktif7,
-        COUNT(*) FILTER (WHERE iptal=true)::int AS iptalli
+        COUNT(*) FILTER (WHERE iptal=true)::int AS iptalli,
+        COUNT(*) FILTER (WHERE tip='otto+')::int AS otto_plus
       FROM otto_kodlar`;
     const liste = await sql`
-      SELECT kod, durum, not_alan, cihaz_id, olusturma_tarihi, aktivasyon_tarihi, son_gorulme, uygulama_surumu, iptal
+      SELECT kod, durum, not_alan, cihaz_id, olusturma_tarihi, aktivasyon_tarihi, son_gorulme, uygulama_surumu, iptal, tip
       FROM otto_kodlar ORDER BY olusturma_tarihi DESC LIMIT 200`;
     return NextResponse.json({ ok:true, ozet: ozet[0], liste });
   } catch(error) {

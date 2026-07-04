@@ -35,6 +35,9 @@ export async function POST(req: NextRequest) {
     // otto_kodlar.cihaz_id kolonu keşifte mevcut (dogrula route'u yazıyor); yine de defansif garanti:
     await sql`ALTER TABLE otto_kodlar ADD COLUMN IF NOT EXISTS cihaz_id text`;
 
+    // Kod tipi: 'otto' (ücretsiz/eski) veya 'otto+' (premium/ücretli). Mevcut tüm kodlar 'otto' kalır.
+    await sql`ALTER TABLE otto_kodlar ADD COLUMN IF NOT EXISTS tip text NOT NULL DEFAULT 'otto'`;
+
     // ABRP fiyat/detay cache (istasyon-fiyat proxy için)
     await sql`CREATE TABLE IF NOT EXISTS abrp_cache (
       coord_key text PRIMARY KEY,
