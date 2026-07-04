@@ -894,6 +894,13 @@
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({kod:kod})
     }).then(function(r){
+      if(r.status===403){
+        return r.json().catch(function(){return null}).then(function(j){
+          pairErr.textContent=(j&&j.hata)||'Bu kod Otto Mobil için geçerli değil — Otto+ kodu gerekiyor.';
+          pairBtn.disabled=false;
+          return null;
+        });
+      }
       if(r.status===404){pairErr.textContent='Kod bulunamadı';pairBtn.disabled=false;return null}
       if(r.status===409){pairErr.textContent='Araç henüz aktive edilmemiş';pairBtn.disabled=false;return null}
       return r.json().catch(function(){return null});

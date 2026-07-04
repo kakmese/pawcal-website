@@ -28,10 +28,17 @@ export async function POST(req: NextRequest) {
 
     const sql = getSql();
     const rows = await sql`
-      SELECT durum, cihaz_id, iptal FROM otto_kodlar WHERE kod=${normKod} LIMIT 1
+      SELECT durum, cihaz_id, iptal, tip FROM otto_kodlar WHERE kod=${normKod} LIMIT 1
     `;
     if (rows.length === 0 || rows[0].iptal === true || rows[0].durum !== 'kullanildi') {
       return corsJson({ ok:false, hata:'kod bulunamadı' }, { status:404 });
+    }
+    // Otto Mobil ücretli sürüm — sadece 'otto+' kodlar eşleşebilir.
+    if ((rows[0].tip || 'otto') !== 'otto+') {
+      return corsJson(
+        { ok:false, hata:'Bu kod Otto Mobil için geçerli değil. Otto Mobil, Otto+ kodu gerektirir.' },
+        { status:403 },
+      );
     }
     const cihazId = rows[0].cihaz_id;
     if (!cihazId) {
