@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 
-const OTTO_MOBIL_YAYINDA = false;
-
 const OTTO_MOBIL_APK_URL =
   'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1/otto-mobil.apk';
 
@@ -11,6 +9,7 @@ export default function OttoIndirPage() {
   const [versionName, setVersionName] = useState<string | null>(null);
   const [indiriliyor, setIndiriliyor] = useState(false);
   const [mobilIndiriliyor, setMobilIndiriliyor] = useState(false);
+  const [mobilYayinda, setMobilYayinda] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -18,6 +17,13 @@ export default function OttoIndirPage() {
         const r = await fetch('/api/otto/surum');
         const j = await r.json();
         if (j.ok && j.versionName) setVersionName(j.versionName);
+      } catch {}
+    })();
+    (async () => {
+      try {
+        const r = await fetch('/api/otto/mobil-durum', { cache: 'no-store' });
+        const j = await r.json();
+        if (j.ok && j.yayinda === true) setMobilYayinda(true);
       } catch {}
     })();
   }, []);
@@ -152,7 +158,7 @@ export default function OttoIndirPage() {
             ))}
           </div>
 
-          {OTTO_MOBIL_YAYINDA && (
+          {mobilYayinda && (
             <div
               className="mt-10 rounded-2xl p-6 sm:p-7"
               style={{

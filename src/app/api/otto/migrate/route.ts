@@ -59,9 +59,18 @@ export async function POST(req: NextRequest) {
       acilis_sayisi int DEFAULT 1)`;
     await sql`CREATE INDEX IF NOT EXISTS mobil_kurulum_arac ON mobil_kurulum (cihaz_id)`;
 
+    // Site geneli ayarlar (anahtar/deger). Otto Mobil aç/kapa gibi bayraklar.
+    await sql`CREATE TABLE IF NOT EXISTS site_ayar (
+      anahtar text PRIMARY KEY,
+      deger text,
+      guncelleme timestamptz DEFAULT now())`;
+    await sql`INSERT INTO site_ayar (anahtar, deger)
+      VALUES ('otto_mobil_yayinda', 'false')
+      ON CONFLICT (anahtar) DO NOTHING`;
+
     return NextResponse.json({
       ok:true,
-      tablolar:['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum'],
+      tablolar:['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum','site_ayar'],
     });
   } catch (e) {
     console.error('OTTO MIGRATE ERROR:', e);

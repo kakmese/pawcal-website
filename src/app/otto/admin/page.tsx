@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type Ozet = { toplam: number; aktive: number; bos: number; aktif7: number; iptalli: number };
 type Satir = {
@@ -23,6 +23,8 @@ type KullSatir = {
   platformlar: string[] | null;
   acilis_toplam: number;
 };
+
+const SAYFA_BOYU = 20;
 
 function kisalt(s: string | null, n = 8): string {
   if (!s) return '—';
@@ -66,6 +68,21 @@ export default function OttoAdminPage() {
   const [sHata, setSHata] = useState<string | null>(null);
   const [sMevcut, setSMevcut] = useState<{ versionCode: number; versionName: string } | null>(null);
 
+  const [mobilYayinda, setMobilYayinda] = useState(false);
+  const [mobilYayindaYukleniyor, setMobilYayindaYukleniyor] = useState(false);
+
+  const [kullAcik, setKullAcik] = useState(false);
+  const [kullArama, setKullArama] = useState('');
+  const [kullSayfa, setKullSayfa] = useState(1);
+
+  const [mobAcik, setMobAcik] = useState(false);
+  const [mobArama, setMobArama] = useState('');
+  const [mobSayfa, setMobSayfa] = useState(1);
+
+  const [kodAcik, setKodAcik] = useState(false);
+  const [kodArama, setKodArama] = useState('');
+  const [kodSayfa, setKodSayfa] = useState(1);
+
   async function surumYukle() {
     try {
       const r = await fetch('/api/otto/surum');
@@ -79,6 +96,33 @@ export default function OttoAdminPage() {
         setSMevcut({ versionCode: j.versionCode, versionName: j.versionName });
       }
     } catch {}
+  }
+
+  async function mobilDurumYukle() {
+    try {
+      const r = await fetch('/api/otto/mobil-durum', { cache: 'no-store' });
+      const j = await r.json();
+      if (j.ok) setMobilYayinda(j.yayinda === true);
+    } catch {}
+  }
+
+  async function mobilDurumDegistir(yeni: boolean) {
+    setMobilYayindaYukleniyor(true);
+    const eski = mobilYayinda;
+    setMobilYayinda(yeni);
+    try {
+      const r = await fetch('/api/otto/mobil-durum-set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({ adminKey, yayinda: yeni }),
+      });
+      const j = await r.json();
+      if (!j.ok) setMobilYayinda(eski);
+    } catch {
+      setMobilYayinda(eski);
+    } finally {
+      setMobilYayindaYukleniyor(false);
+    }
   }
 
   async function surumKaydet() {
@@ -182,6 +226,7 @@ export default function OttoAdminPage() {
       setGiris(true);
       surumYukle();
       kullaniciYukle(adminKey);
+      mobilDurumYukle();
     }
   }
 
@@ -212,6 +257,30 @@ export default function OttoAdminPage() {
       setYYukleniyor(false);
     }
   }
+
+  const kullFiltre = useMemo(() => {
+    const q = kullArama.trim().toLowerCase();
+    if (!q) return kullListe;
+    return kullListe.filter((s) => s.cihaz_id.toLowerCase().includes(q));
+  }, [kullListe, kullArama]);
+
+  const mobListe = useMemo(() => kullListe.filter((s) => s.mobil_sayisi > 0), [kullListe]);
+  const mobFiltre = useMemo(() => {
+    const q = mobArama.trim().toLowerCase();
+    if (!q) return mobListe;
+    return mobListe.filter((s) => s.cihaz_id.toLowerCase().includes(q));
+  }, [mobListe, mobArama]);
+
+  const kodFiltre = useMemo(() => {
+    const q = kodArama.trim().toLowerCase();
+    if (!q) return liste;
+    return liste.filter(
+      (s) =>
+        s.kod.toLowerCase().includes(q) ||
+        (s.cihaz_id || '').toLowerCase().includes(q) ||
+        (s.not_alan || '').toLowerCase().includes(q),
+    );
+  }, [liste, kodArama]);
 
   if (!giris) {
     return (
@@ -264,6 +333,56 @@ export default function OttoAdminPage() {
             </button>
           </div>
         </div>
+
+        {/* Özet 4 kutu — her zaman görünür */}
+        {kullOzet && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <Kutu baslik="Toplam Araç" deger={kullOzet.toplam_arac} renk="slate" />
+            <Kutu baslik="Otto Kullanan" deger={kullOzet.otto_kullanan} renk="green" />
+            <Kutu baslik="Otto Mobil Kuran" deger={kullOzet.mobil_kuran} renk="blue" />
+            <Kutu baslik="İkisini Kullanan" deger={kullOzet.ikisi} renk="purple" />
+          </div>
+        )}
+
+        {/* Otto Mobil aç/kapa */}
+        <section className="bg-white rounded-xl shadow p-4 mb-4 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-slate-900">Otto Mobil indirme</div>
+            <div className="text-xs text-slate-500 mt-0.5">
+              /otto/indir sayfasında Otto Mobil kartının gösterilip gösterilmeyeceğini kontrol eder.
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span
+              className={
+                mobilYayinda
+                  ? 'text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full'
+                  : 'text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded-full'
+              }
+            >
+              {mobilYayinda ? 'Açık' : 'Kapalı'}
+            </span>
+            <button
+              onClick={() => mobilDurumDegistir(!mobilYayinda)}
+              disabled={mobilYayindaYukleniyor}
+              className={
+                mobilYayinda
+                  ? 'relative inline-flex h-7 w-12 items-center rounded-full bg-green-500 transition-colors disabled:opacity-60'
+                  : 'relative inline-flex h-7 w-12 items-center rounded-full bg-slate-300 transition-colors disabled:opacity-60'
+              }
+              aria-pressed={mobilYayinda}
+              aria-label="Otto Mobil indirme aç/kapa"
+            >
+              <span
+                className={
+                  mobilYayinda
+                    ? 'inline-block h-5 w-5 transform rounded-full bg-white shadow translate-x-6 transition-transform'
+                    : 'inline-block h-5 w-5 transform rounded-full bg-white shadow translate-x-1 transition-transform'
+                }
+              />
+            </button>
+          </div>
+        </section>
 
         {ozet && (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
@@ -392,172 +511,375 @@ export default function OttoAdminPage() {
           {sHata && <p className="mt-3 text-sm text-red-600">{sHata}</p>}
         </section>
 
-        <section className="bg-white rounded-xl shadow overflow-hidden mb-6">
-          <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Kullanıcılar ({kullListe.length})</h2>
-            <button
-              onClick={() => kullaniciYukle(adminKey)}
-              disabled={kullYukleniyor}
-              className="text-sm text-blue-600 hover:underline disabled:text-slate-400"
-            >
-              {kullYukleniyor ? 'Yükleniyor...' : 'Yenile'}
-            </button>
-          </div>
-          {kullOzet && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-4 bg-slate-50 border-b border-slate-200">
-              <Kutu baslik="Toplam Araç" deger={kullOzet.toplam_arac} renk="slate" />
-              <Kutu baslik="Otto Kullanan" deger={kullOzet.otto_kullanan} renk="green" />
-              <Kutu baslik="Otto Mobil Kuran" deger={kullOzet.mobil_kuran} renk="blue" />
-              <Kutu baslik="İkisini Kullanan" deger={kullOzet.ikisi} renk="purple" />
-            </div>
-          )}
-          {kullHata && <p className="mx-5 mt-3 text-sm text-red-600">{kullHata}</p>}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-slate-600 text-left">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Araç</th>
-                  <th className="px-3 py-2 font-medium">Otto</th>
-                  <th className="px-3 py-2 font-medium">Otto Mobil</th>
-                  <th className="px-3 py-2 font-medium">Platform</th>
-                  <th className="px-3 py-2 font-medium">Son Mobil Açılış</th>
-                  <th className="px-3 py-2 font-medium">Durum</th>
-                </tr>
-              </thead>
-              <tbody>
-                {kullListe.map((s) => {
-                  const ottoAktif = s.otto_son && (Date.now() - new Date(s.otto_son).getTime()) < 7 * 86400 * 1000;
-                  const mobilVar = s.mobil_sayisi > 0;
-                  const platforms = Array.isArray(s.platformlar) ? s.platformlar : [];
-                  return (
-                    <tr key={s.cihaz_id} className="border-t border-slate-100 text-slate-900">
-                      <td className="px-3 py-2 font-mono text-xs text-slate-700" title={s.cihaz_id}>{kisalt(s.cihaz_id, 12)}</td>
-                      <td className="px-3 py-2">
-                        {ottoAktif ? (
-                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">aktif</span>
-                        ) : s.otto_son ? (
-                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-700" title={tarih(s.otto_son)}>pasif</span>
-                        ) : (
-                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-500">—</span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-xs text-slate-700">
-                        {mobilVar ? `${s.mobil_sayisi} cihaz` : '—'}
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex flex-wrap gap-1">
-                          {platforms.length === 0 && <span className="text-xs text-slate-400">—</span>}
-                          {platforms.map((p) => (
-                            <span
-                              key={p}
-                              className={
-                                p === 'android-apk'
-                                  ? 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 font-semibold'
-                                  : 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-indigo-100 text-indigo-800 font-semibold'
-                              }
-                            >
-                              {p === 'android-apk' ? 'APK' : p === 'web-pwa' ? 'PWA' : p}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.mobil_son)}</td>
-                      <td className="px-3 py-2">
-                        {mobilVar ? (
-                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">Otto + Mobil</span>
-                        ) : (
-                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-700">Sadece Otto</span>
-                        )}
+        <KatlanirBaslik
+          baslik="Kullanıcılar"
+          adet={kullListe.length}
+          acik={kullAcik}
+          onToggle={() => setKullAcik((v) => !v)}
+          yenile={() => kullaniciYukle(adminKey)}
+          yenileniyor={kullYukleniyor}
+        />
+        {kullAcik && (
+          <section className="bg-white rounded-xl shadow overflow-hidden mb-4">
+            {kullHata && <p className="mx-4 mt-3 text-sm text-red-600">{kullHata}</p>}
+            <ListeUst
+              arama={kullArama}
+              onArama={(v) => { setKullArama(v); setKullSayfa(1); }}
+              placeholder="Araç kimliğinde ara..."
+              sayilar={{ toplam: kullListe.length, filtre: kullFiltre.length }}
+            />
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs sm:text-sm">
+                <thead className="bg-slate-50 text-slate-600 text-left">
+                  <tr>
+                    <th className="px-3 py-1.5 font-medium">Araç</th>
+                    <th className="px-3 py-1.5 font-medium">Otto</th>
+                    <th className="px-3 py-1.5 font-medium">Otto Mobil</th>
+                    <th className="px-3 py-1.5 font-medium">Platform</th>
+                    <th className="px-3 py-1.5 font-medium">Son Mobil</th>
+                    <th className="px-3 py-1.5 font-medium">Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sayfalanmis(kullFiltre, kullSayfa).map((s) => (
+                    <KullSatirRow key={s.cihaz_id} s={s} />
+                  ))}
+                  {kullFiltre.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-3 py-6 text-center text-slate-500">
+                        {kullArama ? 'Aramaya uyan araç yok.' : 'Henüz aktive edilmiş araç yok.'}
                       </td>
                     </tr>
-                  );
-                })}
-                {kullListe.length === 0 && (
-                  <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">Henüz aktive edilmiş araç yok.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Sayfalayici
+              sayfa={kullSayfa}
+              toplam={kullFiltre.length}
+              onSayfa={setKullSayfa}
+            />
+          </section>
+        )}
 
-        <section className="bg-white rounded-xl shadow overflow-hidden">
-          <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Kodlar ({liste.length})</h2>
-            <button
-              onClick={() => istatistikYukle(adminKey)}
-              disabled={yukleniyor}
-              className="text-sm text-blue-600 hover:underline disabled:text-slate-400"
-            >
-              {yukleniyor ? 'Yükleniyor...' : 'Yenile'}
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-slate-600 text-left">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Kod</th>
-                  <th className="px-3 py-2 font-medium">Durum</th>
-                  <th className="px-3 py-2 font-medium">Etiket</th>
-                  <th className="px-3 py-2 font-medium">Cihaz</th>
-                  <th className="px-3 py-2 font-medium">Oluşturma</th>
-                  <th className="px-3 py-2 font-medium">Aktivasyon</th>
-                  <th className="px-3 py-2 font-medium">Son Görülme</th>
-                  <th className="px-3 py-2 font-medium">Sürüm</th>
-                  <th className="px-3 py-2 font-medium">İşlem</th>
-                </tr>
-              </thead>
-              <tbody>
-                {liste.map((s) => (
-                  <tr key={s.kod} className={
-                    s.iptal
-                      ? 'border-t border-slate-100 text-slate-900 bg-red-50'
-                      : 'border-t border-slate-100 text-slate-900'
-                  }>
-                    <td className="px-3 py-2 font-mono text-xs">
-                      {s.kod}
-                      {s.iptal && (
-                        <span className="ml-2 inline-block px-1.5 py-0.5 text-[10px] rounded bg-red-600 text-white font-sans font-semibold">İPTAL</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2">
-                      <span className={
-                        s.durum === 'kullanildi'
-                          ? 'inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800'
-                          : 'inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-700'
-                      }>
-                        {s.durum}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-xs text-slate-600 max-w-[160px] truncate" title={s.not_alan || ''}>{s.not_alan || '—'}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600" title={s.cihaz_id || ''}>{kisalt(s.cihaz_id, 10)}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.olusturma_tarihi)}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.aktivasyon_tarihi)}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.son_gorulme)}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600">{s.uygulama_surumu || '—'}</td>
-                    <td className="px-3 py-2">
-                      <button
-                        onClick={() => kodIptal(s.kod, !s.iptal)}
-                        disabled={iptalIsleniyor === s.kod}
-                        className={
-                          s.iptal
-                            ? 'text-xs px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 disabled:opacity-50'
-                            : 'text-xs px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
-                        }
-                      >
-                        {iptalIsleniyor === s.kod ? '...' : (s.iptal ? 'Geri Al' : 'İptal Et')}
-                      </button>
-                    </td>
+        <KatlanirBaslik
+          baslik="Otto Mobil"
+          adet={mobListe.length}
+          acik={mobAcik}
+          onToggle={() => setMobAcik((v) => !v)}
+        />
+        {mobAcik && (
+          <section className="bg-white rounded-xl shadow overflow-hidden mb-4">
+            <ListeUst
+              arama={mobArama}
+              onArama={(v) => { setMobArama(v); setMobSayfa(1); }}
+              placeholder="Araç kimliğinde ara..."
+              sayilar={{ toplam: mobListe.length, filtre: mobFiltre.length }}
+            />
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs sm:text-sm">
+                <thead className="bg-slate-50 text-slate-600 text-left">
+                  <tr>
+                    <th className="px-3 py-1.5 font-medium">Araç</th>
+                    <th className="px-3 py-1.5 font-medium">Cihaz</th>
+                    <th className="px-3 py-1.5 font-medium">Platform</th>
+                    <th className="px-3 py-1.5 font-medium">Son Açılış</th>
+                    <th className="px-3 py-1.5 font-medium">Toplam Açılış</th>
                   </tr>
-                ))}
-                {liste.length === 0 && (
-                  <tr><td colSpan={9} className="px-3 py-8 text-center text-slate-500">Henüz kod yok.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody>
+                  {sayfalanmis(mobFiltre, mobSayfa).map((s) => {
+                    const platforms = Array.isArray(s.platformlar) ? s.platformlar : [];
+                    return (
+                      <tr key={s.cihaz_id} className="border-t border-slate-100 text-slate-900">
+                        <td className="px-3 py-1.5 font-mono text-[11px] text-slate-700" title={s.cihaz_id}>{kisalt(s.cihaz_id, 12)}</td>
+                        <td className="px-3 py-1.5 text-[11px] text-slate-700">{s.mobil_sayisi}</td>
+                        <td className="px-3 py-1.5">
+                          <div className="flex flex-wrap gap-1">
+                            {platforms.length === 0 && <span className="text-[11px] text-slate-400">—</span>}
+                            {platforms.map((p) => (
+                              <span
+                                key={p}
+                                className={
+                                  p === 'android-apk'
+                                    ? 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 font-semibold'
+                                    : 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-indigo-100 text-indigo-800 font-semibold'
+                                }
+                              >
+                                {p === 'android-apk' ? 'APK' : p === 'web-pwa' ? 'PWA' : p}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-3 py-1.5 text-[11px] text-slate-600">{tarih(s.mobil_son)}</td>
+                        <td className="px-3 py-1.5 text-[11px] text-slate-600">{s.acilis_toplam}</td>
+                      </tr>
+                    );
+                  })}
+                  {mobFiltre.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-6 text-center text-slate-500">
+                        {mobArama ? 'Aramaya uyan kurulum yok.' : 'Henüz Otto Mobil kurulumu yok.'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Sayfalayici sayfa={mobSayfa} toplam={mobFiltre.length} onSayfa={setMobSayfa} />
+          </section>
+        )}
+
+        <KatlanirBaslik
+          baslik="Kodlar"
+          adet={liste.length}
+          acik={kodAcik}
+          onToggle={() => setKodAcik((v) => !v)}
+          yenile={() => istatistikYukle(adminKey)}
+          yenileniyor={yukleniyor}
+        />
+        {kodAcik && (
+          <section className="bg-white rounded-xl shadow overflow-hidden mb-4">
+            <ListeUst
+              arama={kodArama}
+              onArama={(v) => { setKodArama(v); setKodSayfa(1); }}
+              placeholder="Kod / cihaz / etikette ara..."
+              sayilar={{ toplam: liste.length, filtre: kodFiltre.length }}
+            />
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs sm:text-sm">
+                <thead className="bg-slate-50 text-slate-600 text-left">
+                  <tr>
+                    <th className="px-3 py-1.5 font-medium">Kod</th>
+                    <th className="px-3 py-1.5 font-medium">Durum</th>
+                    <th className="px-3 py-1.5 font-medium">Etiket</th>
+                    <th className="px-3 py-1.5 font-medium">Cihaz</th>
+                    <th className="px-3 py-1.5 font-medium">Oluşturma</th>
+                    <th className="px-3 py-1.5 font-medium">Aktivasyon</th>
+                    <th className="px-3 py-1.5 font-medium">Son Görülme</th>
+                    <th className="px-3 py-1.5 font-medium">Sürüm</th>
+                    <th className="px-3 py-1.5 font-medium">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sayfalanmis(kodFiltre, kodSayfa).map((s) => (
+                    <tr key={s.kod} className={
+                      s.iptal
+                        ? 'border-t border-slate-100 text-slate-900 bg-red-50'
+                        : 'border-t border-slate-100 text-slate-900'
+                    }>
+                      <td className="px-3 py-1.5 font-mono text-[11px]">
+                        {s.kod}
+                        {s.iptal && (
+                          <span className="ml-2 inline-block px-1.5 py-0.5 text-[10px] rounded bg-red-600 text-white font-sans font-semibold">İPTAL</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-1.5">
+                        <span className={
+                          s.durum === 'kullanildi'
+                            ? 'inline-block px-2 py-0.5 text-[11px] rounded-full bg-green-100 text-green-800'
+                            : 'inline-block px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-700'
+                        }>
+                          {s.durum}
+                        </span>
+                      </td>
+                      <td className="px-3 py-1.5 text-[11px] text-slate-600 max-w-[160px] truncate" title={s.not_alan || ''}>{s.not_alan || '—'}</td>
+                      <td className="px-3 py-1.5 font-mono text-[11px] text-slate-600" title={s.cihaz_id || ''}>{kisalt(s.cihaz_id, 10)}</td>
+                      <td className="px-3 py-1.5 text-[11px] text-slate-600">{tarih(s.olusturma_tarihi)}</td>
+                      <td className="px-3 py-1.5 text-[11px] text-slate-600">{tarih(s.aktivasyon_tarihi)}</td>
+                      <td className="px-3 py-1.5 text-[11px] text-slate-600">{tarih(s.son_gorulme)}</td>
+                      <td className="px-3 py-1.5 text-[11px] text-slate-600">{s.uygulama_surumu || '—'}</td>
+                      <td className="px-3 py-1.5">
+                        <button
+                          onClick={() => kodIptal(s.kod, !s.iptal)}
+                          disabled={iptalIsleniyor === s.kod}
+                          className={
+                            s.iptal
+                              ? 'text-[11px] px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 disabled:opacity-50'
+                              : 'text-[11px] px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
+                          }
+                        >
+                          {iptalIsleniyor === s.kod ? '...' : (s.iptal ? 'Geri Al' : 'İptal Et')}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {kodFiltre.length === 0 && (
+                    <tr>
+                      <td colSpan={9} className="px-3 py-6 text-center text-slate-500">
+                        {kodArama ? 'Aramaya uyan kod yok.' : 'Henüz kod yok.'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Sayfalayici sayfa={kodSayfa} toplam={kodFiltre.length} onSayfa={setKodSayfa} />
+          </section>
+        )}
       </div>
     </main>
+  );
+}
+
+function sayfalanmis<T>(arr: T[], sayfa: number): T[] {
+  return arr.slice(0, sayfa * SAYFA_BOYU);
+}
+
+function KullSatirRow({ s }: { s: KullSatir }) {
+  const ottoAktif = s.otto_son && (Date.now() - new Date(s.otto_son).getTime()) < 7 * 86400 * 1000;
+  const mobilVar = s.mobil_sayisi > 0;
+  const platforms = Array.isArray(s.platformlar) ? s.platformlar : [];
+  return (
+    <tr className="border-t border-slate-100 text-slate-900">
+      <td className="px-3 py-1.5 font-mono text-[11px] text-slate-700" title={s.cihaz_id}>{kisalt(s.cihaz_id, 12)}</td>
+      <td className="px-3 py-1.5">
+        {ottoAktif ? (
+          <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-green-100 text-green-800">aktif</span>
+        ) : s.otto_son ? (
+          <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-700" title={tarih(s.otto_son)}>pasif</span>
+        ) : (
+          <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-500">—</span>
+        )}
+      </td>
+      <td className="px-3 py-1.5 text-[11px] text-slate-700">
+        {mobilVar ? `${s.mobil_sayisi} cihaz` : '—'}
+      </td>
+      <td className="px-3 py-1.5">
+        <div className="flex flex-wrap gap-1">
+          {platforms.length === 0 && <span className="text-[11px] text-slate-400">—</span>}
+          {platforms.map((p) => (
+            <span
+              key={p}
+              className={
+                p === 'android-apk'
+                  ? 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 font-semibold'
+                  : 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-indigo-100 text-indigo-800 font-semibold'
+              }
+            >
+              {p === 'android-apk' ? 'APK' : p === 'web-pwa' ? 'PWA' : p}
+            </span>
+          ))}
+        </div>
+      </td>
+      <td className="px-3 py-1.5 text-[11px] text-slate-600">{tarih(s.mobil_son)}</td>
+      <td className="px-3 py-1.5">
+        {mobilVar ? (
+          <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-purple-100 text-purple-800">Otto + Mobil</span>
+        ) : (
+          <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-700">Sadece Otto</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+function KatlanirBaslik({
+  baslik,
+  adet,
+  acik,
+  onToggle,
+  yenile,
+  yenileniyor,
+}: {
+  baslik: string;
+  adet: number;
+  acik: boolean;
+  onToggle: () => void;
+  yenile?: () => void;
+  yenileniyor?: boolean;
+}) {
+  return (
+    <div className="bg-white rounded-xl shadow px-4 py-2.5 mb-2 flex items-center justify-between">
+      <button
+        onClick={onToggle}
+        className="flex items-center gap-2 text-left flex-1"
+      >
+        <span
+          className="inline-block text-slate-500 transition-transform"
+          style={{ transform: acik ? 'rotate(90deg)' : 'rotate(0deg)' }}
+        >
+          ▶
+        </span>
+        <span className="text-base font-semibold text-slate-900">{baslik}</span>
+        <span className="text-sm text-slate-500">({adet})</span>
+      </button>
+      {yenile && (
+        <button
+          onClick={(e) => { e.stopPropagation(); yenile(); }}
+          disabled={yenileniyor}
+          className="text-xs text-blue-600 hover:underline disabled:text-slate-400"
+        >
+          {yenileniyor ? 'Yükleniyor...' : 'Yenile'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ListeUst({
+  arama,
+  onArama,
+  placeholder,
+  sayilar,
+}: {
+  arama: string;
+  onArama: (v: string) => void;
+  placeholder: string;
+  sayilar: { toplam: number; filtre: number };
+}) {
+  return (
+    <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center gap-2">
+      <input
+        type="text"
+        value={arama}
+        onChange={(e) => onArama(e.target.value)}
+        placeholder={placeholder}
+        className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+      />
+      <div className="text-xs text-slate-500 whitespace-nowrap">
+        {arama ? `${sayilar.filtre} / ${sayilar.toplam}` : `${sayilar.toplam} kayıt`}
+      </div>
+    </div>
+  );
+}
+
+function Sayfalayici({
+  sayfa,
+  toplam,
+  onSayfa,
+}: {
+  sayfa: number;
+  toplam: number;
+  onSayfa: (n: number) => void;
+}) {
+  const gosterilen = Math.min(sayfa * SAYFA_BOYU, toplam);
+  const maxSayfa = Math.max(1, Math.ceil(toplam / SAYFA_BOYU));
+  if (toplam <= SAYFA_BOYU) return null;
+  return (
+    <div className="px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-slate-50">
+      <div className="text-xs text-slate-500">
+        {gosterilen} / {toplam} gösteriliyor
+      </div>
+      <div className="flex items-center gap-2">
+        {sayfa < maxSayfa && (
+          <button
+            onClick={() => onSayfa(sayfa + 1)}
+            className="text-xs bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium px-3 py-1.5 rounded-lg"
+          >
+            Daha fazla göster
+          </button>
+        )}
+        {sayfa > 1 && (
+          <button
+            onClick={() => onSayfa(1)}
+            className="text-xs text-slate-600 hover:underline"
+          >
+            Başa dön
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
