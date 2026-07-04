@@ -17,6 +17,7 @@ type Satir = {
 type KullOzet = { toplam_arac: number; otto_kullanan: number; mobil_kuran: number; ikisi: number };
 type KullSatir = {
   cihaz_id: string;
+  otto_kod: string | null;
   otto_son: string | null;
   mobil_sayisi: number;
   mobil_son: string | null;
@@ -261,14 +262,22 @@ export default function OttoAdminPage() {
   const kullFiltre = useMemo(() => {
     const q = kullArama.trim().toLowerCase();
     if (!q) return kullListe;
-    return kullListe.filter((s) => s.cihaz_id.toLowerCase().includes(q));
+    return kullListe.filter(
+      (s) =>
+        (s.otto_kod || '').toLowerCase().includes(q) ||
+        s.cihaz_id.toLowerCase().includes(q),
+    );
   }, [kullListe, kullArama]);
 
   const mobListe = useMemo(() => kullListe.filter((s) => s.mobil_sayisi > 0), [kullListe]);
   const mobFiltre = useMemo(() => {
     const q = mobArama.trim().toLowerCase();
     if (!q) return mobListe;
-    return mobListe.filter((s) => s.cihaz_id.toLowerCase().includes(q));
+    return mobListe.filter(
+      (s) =>
+        (s.otto_kod || '').toLowerCase().includes(q) ||
+        s.cihaz_id.toLowerCase().includes(q),
+    );
   }, [mobListe, mobArama]);
 
   const kodFiltre = useMemo(() => {
@@ -525,14 +534,14 @@ export default function OttoAdminPage() {
             <ListeUst
               arama={kullArama}
               onArama={(v) => { setKullArama(v); setKullSayfa(1); }}
-              placeholder="Araç kimliğinde ara..."
+              placeholder="Otto kodunda ara..."
               sayilar={{ toplam: kullListe.length, filtre: kullFiltre.length }}
             />
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm">
                 <thead className="bg-slate-50 text-slate-600 text-left">
                   <tr>
-                    <th className="px-3 py-1.5 font-medium">Araç</th>
+                    <th className="px-3 py-1.5 font-medium">Otto Kodu</th>
                     <th className="px-3 py-1.5 font-medium">Otto</th>
                     <th className="px-3 py-1.5 font-medium">Otto Mobil</th>
                     <th className="px-3 py-1.5 font-medium">Platform</th>
@@ -573,14 +582,14 @@ export default function OttoAdminPage() {
             <ListeUst
               arama={mobArama}
               onArama={(v) => { setMobArama(v); setMobSayfa(1); }}
-              placeholder="Araç kimliğinde ara..."
+              placeholder="Otto kodunda ara..."
               sayilar={{ toplam: mobListe.length, filtre: mobFiltre.length }}
             />
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm">
                 <thead className="bg-slate-50 text-slate-600 text-left">
                   <tr>
-                    <th className="px-3 py-1.5 font-medium">Araç</th>
+                    <th className="px-3 py-1.5 font-medium">Otto Kodu</th>
                     <th className="px-3 py-1.5 font-medium">Cihaz</th>
                     <th className="px-3 py-1.5 font-medium">Platform</th>
                     <th className="px-3 py-1.5 font-medium">Son Açılış</th>
@@ -592,7 +601,7 @@ export default function OttoAdminPage() {
                     const platforms = Array.isArray(s.platformlar) ? s.platformlar : [];
                     return (
                       <tr key={s.cihaz_id} className="border-t border-slate-100 text-slate-900">
-                        <td className="px-3 py-1.5 font-mono text-[11px] text-slate-700" title={s.cihaz_id}>{kisalt(s.cihaz_id, 12)}</td>
+                        <td className="px-3 py-1.5 text-[11px]"><OttoKodHucre kod={s.otto_kod} cihazId={s.cihaz_id} /></td>
                         <td className="px-3 py-1.5 text-[11px] text-slate-700">{s.mobil_sayisi}</td>
                         <td className="px-3 py-1.5">
                           <div className="flex flex-wrap gap-1">
@@ -726,13 +735,31 @@ function sayfalanmis<T>(arr: T[], sayfa: number): T[] {
   return arr.slice(0, sayfa * SAYFA_BOYU);
 }
 
+function OttoKodHucre({ kod, cihazId }: { kod: string | null; cihazId: string }) {
+  if (kod) {
+    return (
+      <span
+        className="font-mono text-[12px] font-semibold text-slate-900"
+        title={`Cihaz: ${cihazId}`}
+      >
+        {kod}
+      </span>
+    );
+  }
+  return (
+    <span className="text-[11px] italic text-slate-400" title={`Cihaz: ${cihazId}`}>
+      kod yok
+    </span>
+  );
+}
+
 function KullSatirRow({ s }: { s: KullSatir }) {
   const ottoAktif = s.otto_son && (Date.now() - new Date(s.otto_son).getTime()) < 7 * 86400 * 1000;
   const mobilVar = s.mobil_sayisi > 0;
   const platforms = Array.isArray(s.platformlar) ? s.platformlar : [];
   return (
     <tr className="border-t border-slate-100 text-slate-900">
-      <td className="px-3 py-1.5 font-mono text-[11px] text-slate-700" title={s.cihaz_id}>{kisalt(s.cihaz_id, 12)}</td>
+      <td className="px-3 py-1.5 text-[11px]"><OttoKodHucre kod={s.otto_kod} cihazId={s.cihaz_id} /></td>
       <td className="px-3 py-1.5">
         {ottoAktif ? (
           <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-green-100 text-green-800">aktif</span>

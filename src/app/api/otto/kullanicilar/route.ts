@@ -13,8 +13,10 @@ export async function POST(req: NextRequest) {
 
     const satirlar = await sql`
       WITH araclar AS (
-        SELECT DISTINCT cihaz_id FROM otto_kodlar
+        SELECT DISTINCT ON (cihaz_id) cihaz_id, kod
+        FROM otto_kodlar
         WHERE cihaz_id IS NOT NULL AND durum='kullanildi' AND iptal=false
+        ORDER BY cihaz_id, aktivasyon_tarihi DESC NULLS LAST
       ),
       mk AS (
         SELECT cihaz_id,
@@ -28,6 +30,7 @@ export async function POST(req: NextRequest) {
       )
       SELECT
         a.cihaz_id,
+        a.kod           AS otto_kod,
         vs.updated_at   AS otto_son,
         COALESCE(mk.mobil_sayisi, 0) AS mobil_sayisi,
         mk.mobil_son,
