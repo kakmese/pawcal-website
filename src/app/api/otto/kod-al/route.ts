@@ -23,8 +23,12 @@ export async function POST(req: NextRequest) {
       uretilen.push(kod);
     }
     return NextResponse.json({ ok:true, kodlar: uretilen, tip: kodTipi });
-  } catch(error) {
-    console.error("OTTO API ERROR:", error);
-    return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
+  } catch(error: unknown) {
+    const err = error as { message?: string; code?: string };
+    console.error("OTTO KOD-AL ERROR:", error);
+    return NextResponse.json(
+      { ok:false, hata:'sunucu', detay: String(err?.message || error), kod: err?.code || null },
+      { status:500 },
+    );
   }
 }
