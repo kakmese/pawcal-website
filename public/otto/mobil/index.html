@@ -764,7 +764,34 @@
   function cellHtml(l,v,u,cls){
     return '<div class="cell"><div class="cl">'+esc(l)+'</div><div class="cv'+(cls?' '+cls:'')+' num">'+v+(u?'<small>'+esc(u)+'</small>':'')+'</div></div>';
   }
-  var LS={tok:'om_token',kwh:'om_kwh',bnz:'om_bnz',notif:'om_notif',upd:'om_last_upd'};
+  var LS={tok:'om_token',kwh:'om_kwh',bnz:'om_bnz',notif:'om_notif',upd:'om_last_upd',dev:'om_dev_id'};
+
+  /* ── kurulum-ping (bir kez, açılışta) ── */
+  (function pingKurulum(){
+    try{
+      var did=localStorage.getItem(LS.dev);
+      if(!did){
+        var rnd=new Uint8Array(16);
+        (window.crypto||window.msCrypto).getRandomValues(rnd);
+        did='om_'+Array.prototype.map.call(rnd,function(x){return ('0'+x.toString(16)).slice(-2)}).join('');
+        localStorage.setItem(LS.dev,did);
+      }
+      var ua=navigator.userAgent||'';
+      var platform=/wv|WebView|; wv\)|OttoMobil/i.test(ua) ? 'android-apk' : 'web-pwa';
+      var body={
+        cihazKimlik:did,
+        platform:platform,
+        surum:'1.0',
+        token:localStorage.getItem(LS.tok)||undefined
+      };
+      fetch('/api/mobil/kurulum-ping',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body),
+        keepalive:true
+      }).catch(function(){});
+    }catch(e){}
+  })();
   var toastT;
   function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on')},2400)}
   function haritaAc(la, ln, etiket){

@@ -48,9 +48,20 @@ export async function POST(req: NextRequest) {
       card_ts   timestamptz,
       price_ts  timestamptz)`;
 
+    // Otto Mobil kurulum/kullanım takibi (her cihaz = bir telefon; cihaz_id ARAÇ'a bağlı)
+    await sql`CREATE TABLE IF NOT EXISTS mobil_kurulum (
+      cihaz_kimlik text PRIMARY KEY,
+      cihaz_id text,
+      platform text,
+      surum text,
+      ilk_kurulum timestamptz DEFAULT now(),
+      son_acilis timestamptz DEFAULT now(),
+      acilis_sayisi int DEFAULT 1)`;
+    await sql`CREATE INDEX IF NOT EXISTS mobil_kurulum_arac ON mobil_kurulum (cihaz_id)`;
+
     return NextResponse.json({
       ok:true,
-      tablolar:['vehicle_state','vehicle_events','mobile_tokens','abrp_cache'],
+      tablolar:['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum'],
     });
   } catch (e) {
     console.error('OTTO MIGRATE ERROR:', e);

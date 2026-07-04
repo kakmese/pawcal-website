@@ -14,6 +14,15 @@ type Satir = {
   uygulama_surumu: string | null;
   iptal: boolean;
 };
+type KullOzet = { toplam_arac: number; otto_kullanan: number; mobil_kuran: number; ikisi: number };
+type KullSatir = {
+  cihaz_id: string;
+  otto_son: string | null;
+  mobil_sayisi: number;
+  mobil_son: string | null;
+  platformlar: string[] | null;
+  acilis_toplam: number;
+};
 
 function kisalt(s: string | null, n = 8): string {
   if (!s) return '—';
@@ -41,6 +50,11 @@ export default function OttoAdminPage() {
   const [yHata, setYHata] = useState<string | null>(null);
 
   const [iptalIsleniyor, setIptalIsleniyor] = useState<string | null>(null);
+
+  const [kullOzet, setKullOzet] = useState<KullOzet | null>(null);
+  const [kullListe, setKullListe] = useState<KullSatir[]>([]);
+  const [kullYukleniyor, setKullYukleniyor] = useState(false);
+  const [kullHata, setKullHata] = useState<string | null>(null);
 
   const [sVersionCode, setSVersionCode] = useState('');
   const [sVersionName, setSVersionName] = useState('');
@@ -138,12 +152,36 @@ export default function OttoAdminPage() {
     }
   }
 
+  async function kullaniciYukle(key: string) {
+    setKullYukleniyor(true);
+    setKullHata(null);
+    try {
+      const r = await fetch('/api/otto/kullanicilar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ adminKey: key }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        setKullHata(j.hata === 'yetkisiz' ? 'Yetki hatası.' : 'Bir hata oluştu.');
+        return;
+      }
+      setKullOzet(j.ozet);
+      setKullListe(j.liste);
+    } catch {
+      setKullHata('Bağlantı hatası.');
+    } finally {
+      setKullYukleniyor(false);
+    }
+  }
+
   async function girisYap() {
     if (!adminKey) return;
     const ok = await istatistikYukle(adminKey);
     if (ok) {
       setGiris(true);
       surumYukle();
+      kullaniciYukle(adminKey);
     }
   }
 
@@ -219,7 +257,7 @@ export default function OttoAdminPage() {
               📊 Telemetri Paneli
             </a>
             <button
-              onClick={() => { setGiris(false); setAdminKey(''); setOzet(null); setListe([]); setYeniKodlar([]); }}
+              onClick={() => { setGiris(false); setAdminKey(''); setOzet(null); setListe([]); setYeniKodlar([]); setKullOzet(null); setKullListe([]); }}
               className="text-sm text-slate-600 hover:text-slate-900"
             >
               Çıkış
@@ -352,6 +390,94 @@ export default function OttoAdminPage() {
           </div>
           {sMesaj && <p className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">{sMesaj}</p>}
           {sHata && <p className="mt-3 text-sm text-red-600">{sHata}</p>}
+        </section>
+
+        <section className="bg-white rounded-xl shadow overflow-hidden mb-6">
+          <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Kullanıcılar ({kullListe.length})</h2>
+            <button
+              onClick={() => kullaniciYukle(adminKey)}
+              disabled={kullYukleniyor}
+              className="text-sm text-blue-600 hover:underline disabled:text-slate-400"
+            >
+              {kullYukleniyor ? 'Yükleniyor...' : 'Yenile'}
+            </button>
+          </div>
+          {kullOzet && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-4 bg-slate-50 border-b border-slate-200">
+              <Kutu baslik="Toplam Araç" deger={kullOzet.toplam_arac} renk="slate" />
+              <Kutu baslik="Otto Kullanan" deger={kullOzet.otto_kullanan} renk="green" />
+              <Kutu baslik="Otto Mobil Kuran" deger={kullOzet.mobil_kuran} renk="blue" />
+              <Kutu baslik="İkisini Kullanan" deger={kullOzet.ikisi} renk="purple" />
+            </div>
+          )}
+          {kullHata && <p className="mx-5 mt-3 text-sm text-red-600">{kullHata}</p>}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-slate-600 text-left">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Araç</th>
+                  <th className="px-3 py-2 font-medium">Otto</th>
+                  <th className="px-3 py-2 font-medium">Otto Mobil</th>
+                  <th className="px-3 py-2 font-medium">Platform</th>
+                  <th className="px-3 py-2 font-medium">Son Mobil Açılış</th>
+                  <th className="px-3 py-2 font-medium">Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                {kullListe.map((s) => {
+                  const ottoAktif = s.otto_son && (Date.now() - new Date(s.otto_son).getTime()) < 7 * 86400 * 1000;
+                  const mobilVar = s.mobil_sayisi > 0;
+                  const platforms = Array.isArray(s.platformlar) ? s.platformlar : [];
+                  return (
+                    <tr key={s.cihaz_id} className="border-t border-slate-100 text-slate-900">
+                      <td className="px-3 py-2 font-mono text-xs text-slate-700" title={s.cihaz_id}>{kisalt(s.cihaz_id, 12)}</td>
+                      <td className="px-3 py-2">
+                        {ottoAktif ? (
+                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">aktif</span>
+                        ) : s.otto_son ? (
+                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-700" title={tarih(s.otto_son)}>pasif</span>
+                        ) : (
+                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-500">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-slate-700">
+                        {mobilVar ? `${s.mobil_sayisi} cihaz` : '—'}
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-wrap gap-1">
+                          {platforms.length === 0 && <span className="text-xs text-slate-400">—</span>}
+                          {platforms.map((p) => (
+                            <span
+                              key={p}
+                              className={
+                                p === 'android-apk'
+                                  ? 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 font-semibold'
+                                  : 'inline-block px-1.5 py-0.5 text-[10px] rounded bg-indigo-100 text-indigo-800 font-semibold'
+                              }
+                            >
+                              {p === 'android-apk' ? 'APK' : p === 'web-pwa' ? 'PWA' : p}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-xs text-slate-600">{tarih(s.mobil_son)}</td>
+                      <td className="px-3 py-2">
+                        {mobilVar ? (
+                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">Otto + Mobil</span>
+                        ) : (
+                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-700">Sadece Otto</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {kullListe.length === 0 && (
+                  <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">Henüz aktive edilmiş araç yok.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section className="bg-white rounded-xl shadow overflow-hidden">
