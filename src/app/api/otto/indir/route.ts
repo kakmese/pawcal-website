@@ -24,7 +24,12 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'no-store',
       },
     });
-  } catch {
-    return NextResponse.json({ ok: false, hata: 'sunucu' }, { status: 500 });
+  } catch (e: unknown) {
+    const err = e as { message?: string; code?: string };
+    console.error('OTTO INDIR ERROR:', e);
+    return NextResponse.json(
+      { ok: false, hata: 'sunucu', detay: String(err?.message || e), kod: err?.code || null },
+      { status: 200 },
+    );
   }
 }

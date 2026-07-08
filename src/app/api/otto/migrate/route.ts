@@ -110,22 +110,46 @@ export async function POST(req: NextRequest) {
       VALUES ('otto_mobil_yayinda', 'false')
       ON CONFLICT (anahtar) DO NOTHING`;
 
-    // otto_surum: tip başına AYRI satır (Otto vs Otto+). PK=tip.
-    await sql`CREATE TABLE IF NOT EXISTS otto_surum (
-      tip text PRIMARY KEY,
-      version_code int,
-      version_name text,
-      apk_url text,
-      notlar text,
-      zorunlu boolean DEFAULT false,
-      guncelleme_tarihi timestamptz DEFAULT now())`;
-    // Eski şema (id=1) için tip kolonu ve unique index garantisi
-    await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS tip text`;
-    await sql`UPDATE otto_surum SET tip='otto' WHERE tip IS NULL OR tip=''`;
-    await sql`CREATE UNIQUE INDEX IF NOT EXISTS otto_surum_tip_uniq ON otto_surum (tip)`;
-    // Her iki tip için satır garantisi (idempotent)
-    await sql`INSERT INTO otto_surum (tip) VALUES ('otto') ON CONFLICT (tip) DO NOTHING`;
-    await sql`INSERT INTO otto_surum (tip) VALUES ('otto+') ON CONFLICT (tip) DO NOTHING`;
+    // otto_surum: tip başına AYRI satır (Otto vs Otto+). PK/UNIQUE = tip.
+    // Kendi izole try/catch'i — patlarsa detay JSON döner.
+    let otto_surum_ok = false;
+    let otto_surum_detay: string | null = null;
+    let otto_surum_kod: string | null = null;
+    let otto_surum_kolonlar: unknown = null;
+    try {
+      // 1) Tablo yoksa yeni şemayla oluştur (tip PK)
+      await sql`CREATE TABLE IF NOT EXISTS otto_surum (
+        tip text PRIMARY KEY,
+        version_code int,
+        version_name text,
+        apk_url text,
+        notlar text,
+        zorunlu boolean DEFAULT false,
+        guncelleme_tarihi timestamptz DEFAULT now())`;
+      // 2) Eski şema için tip kolonu garantisi
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS tip text`;
+      // 3) NULL/boş tip → 'otto'
+      await sql`UPDATE otto_surum SET tip='otto' WHERE tip IS NULL OR tip=''`;
+      // 4) Duplicate tip'leri temizle (aynı tip'te birden fazla satır varsa en eskisini tut)
+      await sql`DELETE FROM otto_surum a USING otto_surum b WHERE a.ctid > b.ctid AND a.tip = b.tip`;
+      // 5) tip üzerinde UNIQUE index (ON CONFLICT için conflict target)
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS otto_surum_tip_uniq ON otto_surum (tip)`;
+      // 6) Her iki tip için satır garantisi (idempotent)
+      await sql`INSERT INTO otto_surum (tip) VALUES ('otto') ON CONFLICT (tip) DO NOTHING`;
+      await sql`INSERT INTO otto_surum (tip) VALUES ('otto+') ON CONFLICT (tip) DO NOTHING`;
+      // 7) Doğrulama: kolonlar
+      otto_surum_kolonlar = await sql`
+        SELECT column_name, data_type
+        FROM information_schema.columns
+        WHERE table_name='otto_surum'
+        ORDER BY ordinal_position`;
+      otto_surum_ok = true;
+    } catch (e: unknown) {
+      const err = e as { message?: string; code?: string };
+      otto_surum_detay = String(err?.message || e);
+      otto_surum_kod = err?.code || null;
+      console.error('OTTO MIGRATE otto_surum hata:', e);
+    }
 
     // Duyuru/pop-up anahtarları — her tip için ayrı (idempotent).
     const duyuruAnahtarlari: [string, string][] = [
@@ -150,10 +174,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      tablolar: ['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum','site_ayar'],
+      tablolar: ['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum','site_ayar','otto_surum'],
       tip_alter_ok,
       tip_kolonu_var,
       tip_kolon_detay: tip_kolon_satirlari[0] || null,
+      otto_surum_ok,
+      otto_surum_detay,
+      otto_surum_kod,
+      otto_surum_kolonlar,
       tablo_bilgisi,
     });
   } catch (e: unknown) {

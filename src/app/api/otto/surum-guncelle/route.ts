@@ -10,18 +10,31 @@ export async function POST(req: NextRequest) {
     const vc = parseInt(versionCode);
     if (!vc || !versionName) return NextResponse.json({ ok:false, hata:'eksik' }, { status:400 });
     const sql = getSql();
-    await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu, guncelleme_tarihi)
-      VALUES (${tip}, ${vc}, ${versionName}, ${apkUrl||null}, ${notlar||null}, ${zorunlu===true}, now())
-      ON CONFLICT (tip) DO UPDATE SET
-        version_code=EXCLUDED.version_code,
-        version_name=EXCLUDED.version_name,
-        apk_url=EXCLUDED.apk_url,
-        notlar=EXCLUDED.notlar,
-        zorunlu=EXCLUDED.zorunlu,
-        guncelleme_tarihi=now()`;
-    return NextResponse.json({ ok:true, tip });
-  } catch(error) {
-    console.error("OTTO API ERROR:", error);
-    return NextResponse.json({ ok:false, hata:'sunucu' }, { status:500 });
+    try {
+      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu, guncelleme_tarihi)
+        VALUES (${tip}, ${vc}, ${versionName}, ${apkUrl||null}, ${notlar||null}, ${zorunlu===true}, now())
+        ON CONFLICT (tip) DO UPDATE SET
+          version_code=EXCLUDED.version_code,
+          version_name=EXCLUDED.version_name,
+          apk_url=EXCLUDED.apk_url,
+          notlar=EXCLUDED.notlar,
+          zorunlu=EXCLUDED.zorunlu,
+          guncelleme_tarihi=now()`;
+      return NextResponse.json({ ok:true, tip });
+    } catch (e: unknown) {
+      const err = e as { message?: string; code?: string };
+      console.error('OTTO SURUM-GUNCELLE upsert hata:', e);
+      return NextResponse.json(
+        { ok:false, hata:'upsert_basarisiz', detay: String(err?.message || e), kod: err?.code || null, tip },
+        { status: 200 },
+      );
+    }
+  } catch (e: unknown) {
+    const err = e as { message?: string; code?: string };
+    console.error('OTTO SURUM-GUNCELLE ERROR:', e);
+    return NextResponse.json(
+      { ok:false, hata:'sunucu', detay: String(err?.message || e), kod: err?.code || null },
+      { status: 200 },
+    );
   }
 }

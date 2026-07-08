@@ -12,7 +12,9 @@ export async function GET(req: NextRequest) {
       notlar: string | null;
       zorunlu: boolean | null;
     }[];
-    if (rows.length === 0) return NextResponse.json({ ok: false, tip }, { status: 404 });
+    if (rows.length === 0) {
+      return NextResponse.json({ ok: false, tip, hata: 'satir_yok' }, { status: 200 });
+    }
     const r = rows[0];
     return NextResponse.json({
       ok: true,
@@ -23,7 +25,12 @@ export async function GET(req: NextRequest) {
       notlar: r.notlar,
       zorunlu: r.zorunlu,
     });
-  } catch {
-    return NextResponse.json({ ok: false, hata: 'sunucu' }, { status: 500 });
+  } catch (e: unknown) {
+    const err = e as { message?: string; code?: string };
+    console.error('OTTO SURUM GET ERROR:', e);
+    return NextResponse.json(
+      { ok: false, hata: 'sunucu', detay: String(err?.message || e), kod: err?.code || null },
+      { status: 200 },
+    );
   }
 }
