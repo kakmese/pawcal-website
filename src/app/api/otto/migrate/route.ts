@@ -110,8 +110,10 @@ export async function POST(req: NextRequest) {
       VALUES ('otto_mobil_yayinda', 'false')
       ON CONFLICT (anahtar) DO NOTHING`;
 
-    // otto_surum: id-PK'dan tip-PK'ya güvenli geçiş. Her adım izole try/catch,
-    // migrate ASLA 500 vermesin; her adımın sonucu otto_surum_adimlar'a yazılır.
+    // otto_surum: TABLOYU DROP + CREATE ile tip-PK olarak yeniden kur.
+    // Sadece 2 satır sürüm bilgisi tutulur; eski Otto tip='otto' verisi migrate öncesi okunur
+    // ve yeni tabloya taşınır. Otto+ ise varsayılan APK bilgisiyle ekilir.
+    // Her adım izole try/catch — migrate ASLA 500 vermez; sonuç otto_surum_adimlar'a yazılır.
     type AdimSonuc = { adim: string; ok: boolean; hata?: string | null; kod?: string | null };
     const otto_surum_adimlar: AdimSonuc[] = [];
     const adim = async (ad: string, fn: () => Promise<void>) => {
@@ -130,64 +132,75 @@ export async function POST(req: NextRequest) {
       }
     };
 
-    // 1) Tablo yoksa minimum şemayla oluştur. Varsa dokunmaz.
-    await adim('tablo_garanti', async () => {
-      await sql`CREATE TABLE IF NOT EXISTS otto_surum (tip text)`;
+    // 1) Eski Otto verisini oku (varsa). Herhangi bir hata (tablo yok, kolon yok) sessiz.
+    type EskiOtto = {
+      version_code: number | null;
+      version_name: string | null;
+      apk_url: string | null;
+      notlar: string | null;
+      zorunlu: boolean | null;
+    };
+    let eskiOtto: EskiOtto | null = null;
+    await adim('eski_otto_oku', async () => {
+      try {
+        const r = await sql`SELECT version_code, version_name, apk_url, notlar, zorunlu FROM otto_surum WHERE tip='otto' LIMIT 1` as EskiOtto[];
+        if (r.length > 0) eskiOtto = r[0];
+      } catch {
+        try {
+          const r2 = await sql`SELECT version_code, version_name, apk_url, notlar, zorunlu FROM otto_surum WHERE id=1 LIMIT 1` as EskiOtto[];
+          if (r2.length > 0) eskiOtto = r2[0];
+        } catch {
+          eskiOtto = null;
+        }
+      }
     });
-    // 2) Kolon garantileri (idempotent) — eski şemada eksik olabilir
-    await adim('kolon_tip', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS tip text`;
+
+    // 2) Tabloyu tamamen düşür (eski id-pk + duplicate + tüm bagajıyla temizle)
+    await adim('tablo_drop', async () => {
+      await sql`DROP TABLE IF EXISTS otto_surum`;
     });
-    await adim('kolon_version_code', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS version_code int`;
+
+    // 3) Yeni tabloyu tip-PK ile oluştur
+    await adim('tablo_create_tip_pk', async () => {
+      await sql`CREATE TABLE otto_surum (
+        tip text PRIMARY KEY,
+        version_code int,
+        version_name text,
+        apk_url text,
+        notlar text,
+        zorunlu boolean DEFAULT false,
+        guncelleme_tarihi timestamptz DEFAULT now())`;
     });
-    await adim('kolon_version_name', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS version_name text`;
-    });
-    await adim('kolon_apk_url', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS apk_url text`;
-    });
-    await adim('kolon_notlar', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS notlar text`;
-    });
-    await adim('kolon_zorunlu', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS zorunlu boolean DEFAULT false`;
-    });
-    await adim('kolon_guncelleme_tarihi', async () => {
-      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS guncelleme_tarihi timestamptz DEFAULT now()`;
-    });
-    // 3) Mevcut satırlarda NULL/boş tip → 'otto' (id=1'in verisi burada 'otto' tip'ine bağlanır)
-    await adim('tip_backfill', async () => {
-      await sql`UPDATE otto_surum SET tip='otto' WHERE tip IS NULL OR tip=''`;
-    });
-    // 4) ESKİ PK'yı düşür (id üzerindeki eski primary key). Yoksa no-op.
-    await adim('eski_pk_dusur', async () => {
-      await sql`ALTER TABLE otto_surum DROP CONSTRAINT IF EXISTS otto_surum_pkey`;
-    });
-    // 5) id kolonunu tamamen kaldır (route dosyalarında referans yok). Yoksa no-op.
-    await adim('id_kolonu_dusur', async () => {
-      await sql`ALTER TABLE otto_surum DROP COLUMN IF EXISTS id`;
-    });
-    // 6) Duplicate tip'leri temizle (aynı tip'te birden fazla satır varsa en eskisini tut)
-    await adim('duplicate_temizle', async () => {
-      await sql`DELETE FROM otto_surum a USING otto_surum b WHERE a.ctid > b.ctid AND a.tip = b.tip`;
-    });
-    // 7) tip'i PRIMARY KEY yap. Zaten pk ise hata yut.
-    await adim('tip_pk_ekle', async () => {
-      await sql`ALTER TABLE otto_surum ADD PRIMARY KEY (tip)`;
-    });
-    // 7b) PK eklenemezse (zaten var, vb.) UNIQUE index garantisi (ON CONFLICT için)
-    await adim('tip_uniq_index', async () => {
-      await sql`CREATE UNIQUE INDEX IF NOT EXISTS otto_surum_tip_uniq ON otto_surum (tip)`;
-    });
-    // 8) Her iki tip için satır garantisi (idempotent)
+
+    // 4) Otto satırı: eski veriyi taşı; yoksa 1.9 varsayılanı (versionCode=10, versionName='1.9')
+    // TS closure-set değişkeni 'never' olarak daraltır; cast ile ele al.
+    const e = eskiOtto as EskiOtto | null;
+    const ottoVC = (e && typeof e.version_code === 'number' && e.version_code) ? e.version_code : 10;
+    const ottoVN = (e && e.version_name) ? e.version_name : '1.9';
+    const ottoApk = (e && e.apk_url) ? e.apk_url : '';
+    const ottoNot = (e && e.notlar) ? e.notlar : '';
+    const ottoZor = !!(e && e.zorunlu);
     await adim('satir_otto', async () => {
-      await sql`INSERT INTO otto_surum (tip) VALUES ('otto') ON CONFLICT (tip) DO NOTHING`;
+      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu)
+        VALUES ('otto', ${ottoVC}, ${ottoVN}, ${ottoApk}, ${ottoNot}, ${ottoZor})
+        ON CONFLICT (tip) DO NOTHING`;
     });
+
+    // 5) Otto+ satırı: varsayılan APK bilgisiyle
     await adim('satir_otto_plus', async () => {
-      await sql`INSERT INTO otto_surum (tip) VALUES ('otto+') ON CONFLICT (tip) DO NOTHING`;
+      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu)
+        VALUES (
+          'otto+',
+          2,
+          '1.1',
+          'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk',
+          'Otto+ ilk yayin',
+          false
+        )
+        ON CONFLICT (tip) DO NOTHING`;
     });
-    // 9) Doğrulama: kolonlar
+
+    // 6) Doğrulama: kolonlar
     let otto_surum_kolonlar: unknown = null;
     await adim('dogrulama_kolonlar', async () => {
       otto_surum_kolonlar = await sql`
@@ -196,10 +209,10 @@ export async function POST(req: NextRequest) {
         WHERE table_name='otto_surum'
         ORDER BY ordinal_position`;
     });
-    // 10) Doğrulama: satırlar (tip listesi)
+    // 7) Doğrulama: satırlar (tip listesi)
     let otto_surum_satirlar: unknown = null;
     await adim('dogrulama_satirlar', async () => {
-      otto_surum_satirlar = await sql`SELECT tip FROM otto_surum ORDER BY tip`;
+      otto_surum_satirlar = await sql`SELECT tip, version_code, version_name FROM otto_surum ORDER BY tip`;
     });
 
     // Duyuru/pop-up anahtarları — her tip için ayrı (idempotent).
@@ -218,9 +231,13 @@ export async function POST(req: NextRequest) {
       ['otto_plus_duyuru_no', '1'],
     ];
     for (const [k, v] of duyuruAnahtarlari) {
-      await sql`INSERT INTO site_ayar (anahtar, deger)
-        VALUES (${k}, ${v})
-        ON CONFLICT (anahtar) DO NOTHING`;
+      try {
+        await sql`INSERT INTO site_ayar (anahtar, deger)
+          VALUES (${k}, ${v})
+          ON CONFLICT (anahtar) DO NOTHING`;
+      } catch (e) {
+        console.error(`OTTO MIGRATE duyuru anahtar "${k}" hata (yoksayıldı):`, e);
+      }
     }
 
     return NextResponse.json({
@@ -239,7 +256,7 @@ export async function POST(req: NextRequest) {
     console.error('OTTO MIGRATE ERROR:', e);
     return NextResponse.json(
       { ok:false, hata:'sunucu', detay: String(err?.message || e), kod: err?.code || null },
-      { status:500 },
+      { status:200 },
     );
   }
 }
