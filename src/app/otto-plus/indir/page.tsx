@@ -310,25 +310,45 @@ export default function OttoPlusIndirPage() {
               },
               {
                 n: '2',
-                t: 'Kodu alın',
+                t: 'İletişime geçin',
                 d: (
                   <>
-                    Satın alma sonrası{' '}
-                    <a
-                      href="https://pawcal.net/otto/kod"
-                      className="underline"
-                      style={{ color: AKSAN }}
-                    >
-                      pawcal.net/otto/kod
-                    </a>{' '}
-                    adresinden kodunuzu alın.
+                    <div>Kod satın almak için bizimle iletişime geçin:</div>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      <a
+                        href="mailto:info@pawcal.net"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold transition-colors hover:brightness-110"
+                        style={{
+                          backgroundColor: 'rgba(184,146,255,0.14)',
+                          border: '1px solid rgba(184,146,255,0.40)',
+                          color: AKSAN,
+                        }}
+                      >
+                        <span aria-hidden>✉️</span>
+                        info@pawcal.net
+                      </a>
+                      <a
+                        href="https://t.me/AKINCl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold transition-colors hover:brightness-110"
+                        style={{
+                          backgroundColor: 'rgba(231,200,106,0.14)',
+                          border: '1px solid rgba(231,200,106,0.40)',
+                          color: ALTIN,
+                        }}
+                      >
+                        <span aria-hidden>💬</span>
+                        t.me/AKINCl
+                      </a>
+                    </div>
                   </>
                 ),
               },
               {
                 n: '3',
-                t: 'Aynı kodu girin',
-                d: 'Aynı kodu hem araca hem telefona girin — entegre çalışır.',
+                t: 'Kodu girin',
+                d: 'Aldığınız kodu hem araca hem telefona girin — entegre çalışır.',
               },
             ].map((a) => (
               <div
