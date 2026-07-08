@@ -53,7 +53,8 @@
       "Bash(curl -s https://pawcal.net/api/mobil/durum)",
       "Bash(curl -s https://pawcal.net/api/mobil/olaylar)",
       "Bash(curl -s -o /dev/null -w \"code=%{http_code}\\\\nallow-origin=%header{access-control-allow-origin}\\\\nallow-methods=%header{access-control-allow-methods}\\\\n\" -X OPTIONS https://pawcal.net/api/otto/telemetri)",
-      "Bash(curl -s -o /dev/null -w \"code=%{http_code} allow-origin=%header{access-control-allow-origin}\\\\n\" -X OPTIONS https://pawcal.net/api/otto/telemetri)"
+      "Bash(curl -s -o /dev/null -w \"code=%{http_code} allow-origin=%header{access-control-allow-origin}\\\\n\" -X OPTIONS https://pawcal.net/api/otto/telemetri)",
+      "Bash(curl *)"
     ]
   }
 }

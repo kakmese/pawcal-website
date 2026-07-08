@@ -110,46 +110,97 @@ export async function POST(req: NextRequest) {
       VALUES ('otto_mobil_yayinda', 'false')
       ON CONFLICT (anahtar) DO NOTHING`;
 
-    // otto_surum: tip başına AYRI satır (Otto vs Otto+). PK/UNIQUE = tip.
-    // Kendi izole try/catch'i — patlarsa detay JSON döner.
-    let otto_surum_ok = false;
-    let otto_surum_detay: string | null = null;
-    let otto_surum_kod: string | null = null;
-    let otto_surum_kolonlar: unknown = null;
-    try {
-      // 1) Tablo yoksa yeni şemayla oluştur (tip PK)
-      await sql`CREATE TABLE IF NOT EXISTS otto_surum (
-        tip text PRIMARY KEY,
-        version_code int,
-        version_name text,
-        apk_url text,
-        notlar text,
-        zorunlu boolean DEFAULT false,
-        guncelleme_tarihi timestamptz DEFAULT now())`;
-      // 2) Eski şema için tip kolonu garantisi
+    // otto_surum: id-PK'dan tip-PK'ya güvenli geçiş. Her adım izole try/catch,
+    // migrate ASLA 500 vermesin; her adımın sonucu otto_surum_adimlar'a yazılır.
+    type AdimSonuc = { adim: string; ok: boolean; hata?: string | null; kod?: string | null };
+    const otto_surum_adimlar: AdimSonuc[] = [];
+    const adim = async (ad: string, fn: () => Promise<void>) => {
+      try {
+        await fn();
+        otto_surum_adimlar.push({ adim: ad, ok: true });
+      } catch (e: unknown) {
+        const err = e as { message?: string; code?: string };
+        otto_surum_adimlar.push({
+          adim: ad,
+          ok: false,
+          hata: String(err?.message || e),
+          kod: err?.code || null,
+        });
+        console.error(`OTTO MIGRATE otto_surum adım "${ad}" hata:`, e);
+      }
+    };
+
+    // 1) Tablo yoksa minimum şemayla oluştur. Varsa dokunmaz.
+    await adim('tablo_garanti', async () => {
+      await sql`CREATE TABLE IF NOT EXISTS otto_surum (tip text)`;
+    });
+    // 2) Kolon garantileri (idempotent) — eski şemada eksik olabilir
+    await adim('kolon_tip', async () => {
       await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS tip text`;
-      // 3) NULL/boş tip → 'otto'
+    });
+    await adim('kolon_version_code', async () => {
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS version_code int`;
+    });
+    await adim('kolon_version_name', async () => {
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS version_name text`;
+    });
+    await adim('kolon_apk_url', async () => {
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS apk_url text`;
+    });
+    await adim('kolon_notlar', async () => {
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS notlar text`;
+    });
+    await adim('kolon_zorunlu', async () => {
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS zorunlu boolean DEFAULT false`;
+    });
+    await adim('kolon_guncelleme_tarihi', async () => {
+      await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS guncelleme_tarihi timestamptz DEFAULT now()`;
+    });
+    // 3) Mevcut satırlarda NULL/boş tip → 'otto' (id=1'in verisi burada 'otto' tip'ine bağlanır)
+    await adim('tip_backfill', async () => {
       await sql`UPDATE otto_surum SET tip='otto' WHERE tip IS NULL OR tip=''`;
-      // 4) Duplicate tip'leri temizle (aynı tip'te birden fazla satır varsa en eskisini tut)
+    });
+    // 4) ESKİ PK'yı düşür (id üzerindeki eski primary key). Yoksa no-op.
+    await adim('eski_pk_dusur', async () => {
+      await sql`ALTER TABLE otto_surum DROP CONSTRAINT IF EXISTS otto_surum_pkey`;
+    });
+    // 5) id kolonunu tamamen kaldır (route dosyalarında referans yok). Yoksa no-op.
+    await adim('id_kolonu_dusur', async () => {
+      await sql`ALTER TABLE otto_surum DROP COLUMN IF EXISTS id`;
+    });
+    // 6) Duplicate tip'leri temizle (aynı tip'te birden fazla satır varsa en eskisini tut)
+    await adim('duplicate_temizle', async () => {
       await sql`DELETE FROM otto_surum a USING otto_surum b WHERE a.ctid > b.ctid AND a.tip = b.tip`;
-      // 5) tip üzerinde UNIQUE index (ON CONFLICT için conflict target)
+    });
+    // 7) tip'i PRIMARY KEY yap. Zaten pk ise hata yut.
+    await adim('tip_pk_ekle', async () => {
+      await sql`ALTER TABLE otto_surum ADD PRIMARY KEY (tip)`;
+    });
+    // 7b) PK eklenemezse (zaten var, vb.) UNIQUE index garantisi (ON CONFLICT için)
+    await adim('tip_uniq_index', async () => {
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS otto_surum_tip_uniq ON otto_surum (tip)`;
-      // 6) Her iki tip için satır garantisi (idempotent)
+    });
+    // 8) Her iki tip için satır garantisi (idempotent)
+    await adim('satir_otto', async () => {
       await sql`INSERT INTO otto_surum (tip) VALUES ('otto') ON CONFLICT (tip) DO NOTHING`;
+    });
+    await adim('satir_otto_plus', async () => {
       await sql`INSERT INTO otto_surum (tip) VALUES ('otto+') ON CONFLICT (tip) DO NOTHING`;
-      // 7) Doğrulama: kolonlar
+    });
+    // 9) Doğrulama: kolonlar
+    let otto_surum_kolonlar: unknown = null;
+    await adim('dogrulama_kolonlar', async () => {
       otto_surum_kolonlar = await sql`
         SELECT column_name, data_type
         FROM information_schema.columns
         WHERE table_name='otto_surum'
         ORDER BY ordinal_position`;
-      otto_surum_ok = true;
-    } catch (e: unknown) {
-      const err = e as { message?: string; code?: string };
-      otto_surum_detay = String(err?.message || e);
-      otto_surum_kod = err?.code || null;
-      console.error('OTTO MIGRATE otto_surum hata:', e);
-    }
+    });
+    // 10) Doğrulama: satırlar (tip listesi)
+    let otto_surum_satirlar: unknown = null;
+    await adim('dogrulama_satirlar', async () => {
+      otto_surum_satirlar = await sql`SELECT tip FROM otto_surum ORDER BY tip`;
+    });
 
     // Duyuru/pop-up anahtarları — her tip için ayrı (idempotent).
     const duyuruAnahtarlari: [string, string][] = [
@@ -178,10 +229,9 @@ export async function POST(req: NextRequest) {
       tip_alter_ok,
       tip_kolonu_var,
       tip_kolon_detay: tip_kolon_satirlari[0] || null,
-      otto_surum_ok,
-      otto_surum_detay,
-      otto_surum_kod,
+      otto_surum_adimlar,
       otto_surum_kolonlar,
+      otto_surum_satirlar,
       tablo_bilgisi,
     });
   } catch (e: unknown) {
