@@ -89,6 +89,10 @@ export default function OttoPlusIndirPage() {
     setTimeout(() => setMobilIndiriliyor(false), 4000);
   }
 
+  function acIphoneSayfasi() {
+    window.location.href = 'https://pawcal.net/otto/mobil/';
+  }
+
   return (
     <main
       className="relative min-h-screen w-full"
@@ -256,6 +260,128 @@ export default function OttoPlusIndirPage() {
         </div>
       </section>
 
+      {mobilYayinda && (
+        <section className="relative z-10 px-4 pb-16 sm:pb-20">
+          <div className="w-full max-w-3xl mx-auto">
+            <div className="text-center mb-6 sm:mb-8">
+              <div
+                className="inline-block text-xs font-semibold tracking-widest uppercase mb-2"
+                style={{ color: AKSAN }}
+              >
+                Telefonunuzda
+              </div>
+              <h2
+                className="text-white font-bold"
+                style={{ fontSize: 26, lineHeight: 1.15 }}
+              >
+                Otto Mobil — Telefonunuzda
+              </h2>
+              <p className="mt-2 text-slate-400 text-sm">
+                Araç verilerinize her yerden ulaşın. Otto+ ile birlikte çalışır.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              <div
+                className="rounded-2xl p-6 flex flex-col"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  backdropFilter: 'blur(6px)',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex items-center justify-center shrink-0"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
+                      backgroundColor: 'rgba(52,199,89,0.14)',
+                      border: '1px solid rgba(52,199,89,0.35)',
+                      fontSize: 22,
+                    }}
+                    aria-hidden
+                  >
+                    🤖
+                  </div>
+                  <div className="text-white font-bold text-lg">Android</div>
+                </div>
+                <p className="mt-3 text-slate-300 text-sm leading-relaxed flex-1">
+                  APK dosyasını indirip kurun. Kurulum sonrası aracınızı doğrudan
+                  telefondan takip edin.
+                </p>
+                <button
+                  onClick={indirMobil}
+                  disabled={mobilIndiriliyor}
+                  className="mt-5 w-full py-3 rounded-xl text-white font-semibold text-sm transition-transform active:scale-[0.98] disabled:opacity-70"
+                  style={{
+                    backgroundColor: '#1189FF',
+                    boxShadow:
+                      '0 10px 24px rgba(17,137,255,0.40), 0 2px 6px rgba(17,137,255,0.28)',
+                  }}
+                >
+                  {mobilIndiriliyor ? 'İndiriliyor...' : 'Android İçin İndir'}
+                </button>
+              </div>
+
+              <div
+                className="rounded-2xl p-6 flex flex-col"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  backdropFilter: 'blur(6px)',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex items-center justify-center shrink-0"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
+                      backgroundColor: 'rgba(184,146,255,0.14)',
+                      border: '1px solid rgba(184,146,255,0.35)',
+                      fontSize: 22,
+                    }}
+                    aria-hidden
+                  >
+
+                  </div>
+                  <div className="text-white font-bold text-lg">iPhone</div>
+                </div>
+                <ol className="mt-3 text-slate-300 text-sm leading-relaxed flex-1 space-y-1.5">
+                  <li>
+                    <span className="font-semibold text-white">1.</span>{' '}
+                    Aşağıdaki butona dokunun
+                  </li>
+                  <li>
+                    <span className="font-semibold text-white">2.</span>{' '}
+                    Safari&apos;de açılan sayfada Paylaş{' '}
+                    <span aria-hidden></span> simgesine dokunun
+                  </li>
+                  <li>
+                    <span className="font-semibold text-white">3.</span>{' '}
+                    &quot;Ana Ekrana Ekle&quot; seçin
+                  </li>
+                </ol>
+                <button
+                  onClick={acIphoneSayfasi}
+                  className="mt-5 w-full py-3 rounded-xl text-white font-semibold text-sm transition-transform active:scale-[0.98]"
+                  style={{
+                    backgroundColor: BUTON,
+                    boxShadow:
+                      '0 10px 24px rgba(122,75,255,0.40), 0 2px 6px rgba(122,75,255,0.28)',
+                  }}
+                >
+                  iPhone İçin Aç
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="relative z-10 px-4 pb-20 sm:pb-24">
         <div className="w-full max-w-2xl mx-auto">
           <div className="text-center mb-5">
@@ -314,77 +440,6 @@ export default function OttoPlusIndirPage() {
             üzerinden BYD araç verisi izinlerini vermen gerekiyor. Bu izinler
             olmadan araç verileri (batarya, hız, menzil vb.) görünmez.
           </div>
-
-          {mobilYayinda && (
-            <div
-              className="mt-10 rounded-2xl p-6 sm:p-7"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                backdropFilter: 'blur(6px)',
-              }}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-                <div
-                  className="flex items-center justify-center shrink-0"
-                  style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: 18,
-                    boxShadow: '0 8px 24px rgba(17,137,255,0.25)',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/otto/mobil/otto_icon.png"
-                    alt="Otto Mobil"
-                    width={72}
-                    height={72}
-                    style={{ display: 'block', width: '100%', height: '100%' }}
-                  />
-                </div>
-
-                <div className="flex-1 text-center sm:text-left">
-                  <div className="text-white font-bold text-lg">Otto Mobil</div>
-                  <div className="mt-1 text-slate-300 text-sm">
-                    Telefonunda aracını takip et (Android)
-                  </div>
-                </div>
-
-                <button
-                  onClick={indirMobil}
-                  disabled={mobilIndiriliyor}
-                  className="w-full sm:w-auto sm:px-8 py-3 rounded-xl text-white font-semibold text-sm transition-transform active:scale-[0.98] disabled:opacity-70"
-                  style={{
-                    backgroundColor: '#1189FF',
-                    boxShadow:
-                      '0 10px 24px rgba(17,137,255,0.40), 0 2px 6px rgba(17,137,255,0.28)',
-                    minWidth: 180,
-                  }}
-                >
-                  {mobilIndiriliyor ? 'İndiriliyor...' : 'Android için indir'}
-                </button>
-              </div>
-
-              <div
-                className="mt-5 pt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <div className="text-slate-400 text-xs sm:text-sm leading-relaxed text-center sm:text-left">
-                  <span className="text-slate-200 font-semibold">iPhone:</span>{' '}
-                  Safari&apos;de aç → Paylaş → Ana Ekrana Ekle
-                </div>
-                <a
-                  href="/otto/mobil"
-                  className="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap"
-                  style={{ color: AKSAN }}
-                >
-                  pawcal.net/otto/mobil →
-                </a>
-              </div>
-            </div>
-          )}
         </div>
       </section>
     </main>
