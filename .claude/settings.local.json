@@ -31,7 +31,29 @@
       "Bash(git push *)",
       "Bash(git commit *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/tr/blog/kopek-kilo-takibi-neden-onemli)",
-      "Bash(curl -s http://localhost:3000/tr/blog/kopek-kilo-takibi-neden-onemli)"
+      "Bash(curl -s http://localhost:3000/tr/blog/kopek-kilo-takibi-neden-onemli)",
+      "PowerShell(Copy-Item *)",
+      "Bash(echo \"dev_pid=$!\")",
+      "Bash(NEXT_BUILD_WORKERS=1 npm run build)",
+      "Bash(unzip -l \"C:/Users/kakme/OneDrive/Masaüstü/AracVeri_V2_FAZ2_3c1_fix21.apk\")",
+      "Bash(grep -aoE \"[a-zA-Z0-9.-]{8,80}\" resources.arsc)",
+      "Bash(npm run *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(mkdir -p .backups)",
+      "Bash(mv src/app/api/otto/dogrula/route.bak_20260702_150407.ts \".backups/dogrula_route.bak_20260702_150407.ts\")",
+      "Bash(curl -s -o /dev/null -w \"dogrula=%{http_code}\\\\n\" -X POST https://pawcal.net/api/otto/dogrula -H 'content-type: application/json' -d '{}')",
+      "Bash(curl -s -o /dev/null -w \"ping=%{http_code}\\\\n\" -X POST https://pawcal.net/api/otto/ping -H 'content-type: application/json' -d '{}')",
+      "Bash(curl -s -o /dev/null -w \"migrate=%{http_code}\\\\n\" -X POST https://pawcal.net/api/otto/migrate)",
+      "Bash(curl -s -o /dev/null -w \"mobil_esle=%{http_code}\\\\n\" -X POST https://pawcal.net/api/mobil/esle -H 'content-type: application/json' -d '{}')",
+      "Bash(kill 1247)",
+      "Bash(kill 1301)",
+      "Bash(gh api *)",
+      "Bash(curl -s -o /dev/null -w \"migrate=%{http_code}\\\\nmobil_esle=%{http_code}\\\\n\" -X POST https://pawcal.net/api/otto/migrate)",
+      "Bash(curl -s -X POST https://pawcal.net/api/otto/telemetri -H 'content-type: application/json' -d '{\"cihazId\":\"TESTCIHAZ\",\"durum\":{\"soc\":63,\"menzil\":196}}')",
+      "Bash(curl -s https://pawcal.net/api/mobil/durum)",
+      "Bash(curl -s https://pawcal.net/api/mobil/olaylar)",
+      "Bash(curl -s -o /dev/null -w \"code=%{http_code}\\\\nallow-origin=%header{access-control-allow-origin}\\\\nallow-methods=%header{access-control-allow-methods}\\\\n\" -X OPTIONS https://pawcal.net/api/otto/telemetri)",
+      "Bash(curl -s -o /dev/null -w \"code=%{http_code} allow-origin=%header{access-control-allow-origin}\\\\n\" -X OPTIONS https://pawcal.net/api/otto/telemetri)"
     ]
   }
 }

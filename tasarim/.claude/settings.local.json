@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl *)",
+      "Bash(mkdir -p \"C:/Users/kakme/OneDrive/Masaüstü/pawcal-website/public/otto/mobil\")",
+      "Bash(cp \"C:/Users/kakme/AndroidStudioProjects/AracVeri/app/src/main/assets/sarjtr_stations.json\" \"C:/Users/kakme/OneDrive/Masaüstü/pawcal-website/public/otto/mobil/sarjtr_stations.json\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('public/otto/mobil/index.html','utf8'\\);const m=s.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\);if\\(!m\\){console.log\\('NO_SCRIPT'\\);process.exit\\(1\\)}fs.writeFileSync\\('.tmp_check.js',m[1]\\);\")",
+      "Bash(node --check .tmp_check.js)",
+      "Bash(rm .tmp_check.js)",
+      "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('public/otto/mobil/index.html','utf8'\\);const m=s.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\);fs.writeFileSync\\('.tmp_check.js',m[1]\\);\")",
+      "Bash(node --check src/app/api/mobil/istasyon-fiyat/route.ts)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

@@ -110,6 +110,27 @@ export async function POST(req: NextRequest) {
       VALUES ('otto_mobil_yayinda', 'false')
       ON CONFLICT (anahtar) DO NOTHING`;
 
+    // Duyuru/pop-up anahtarları — her tip için ayrı (idempotent).
+    const duyuruAnahtarlari: [string, string][] = [
+      ['otto_duyuru_aktif', '0'],
+      ['otto_duyuru_baslik', ''],
+      ['otto_duyuru_metin', ''],
+      ['otto_duyuru_buton', ''],
+      ['otto_duyuru_link', ''],
+      ['otto_duyuru_no', '1'],
+      ['otto_plus_duyuru_aktif', '0'],
+      ['otto_plus_duyuru_baslik', ''],
+      ['otto_plus_duyuru_metin', ''],
+      ['otto_plus_duyuru_buton', ''],
+      ['otto_plus_duyuru_link', ''],
+      ['otto_plus_duyuru_no', '1'],
+    ];
+    for (const [k, v] of duyuruAnahtarlari) {
+      await sql`INSERT INTO site_ayar (anahtar, deger)
+        VALUES (${k}, ${v})
+        ON CONFLICT (anahtar) DO NOTHING`;
+    }
+
     return NextResponse.json({
       ok: true,
       tablolar: ['vehicle_state','vehicle_events','mobile_tokens','abrp_cache','mobil_kurulum','site_ayar'],

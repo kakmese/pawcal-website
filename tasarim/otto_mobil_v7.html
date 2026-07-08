@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Otto Mobil — v7 Önizleme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --nrm:#1189FF; --eco:#34C759; --spt:#FF3B30; --kar:#5AC8FA;
+    --font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  [data-theme="light"]{
+    --bg:#F4F6F8; --card:#FFFFFF; --brd:#ECEFF2; --brd2:#E2E6EA;
+    --tx:#111417; --dim:#7A838C; --dim2:#B0B8BF;
+    --grn:#34C759; --grnS:#EAF9EE; --grnB:#BEEACB;
+    --acc:#1189FF; --accS:#E8F2FF; --accB:#BFDCFF;
+    --pill:#F0F2F4; --orn:#F5A524; --red:#F4595B;
+    --sh:0 1px 2px rgba(16,24,32,.04),0 10px 30px rgba(16,24,32,.06);
+    --shN:0 6px 24px rgba(16,24,32,.10);
+    --map0:#E9EDF1; --map1:#D6DCE2; --map2:#DfE4E9; --sea:#D3E7F2; --sealn:#AECBDD;
+  }
+  [data-theme="dark"]{
+    --bg:#0C0F12; --card:#15181D; --brd:#1E242A; --brd2:#272E35;
+    --tx:#F3F5F7; --dim:#97A0A9; --dim2:#57606A;
+    --grn:#3BD273; --grnS:rgba(59,210,115,.13); --grnB:rgba(59,210,115,.35);
+    --acc:#3B9DFF; --accS:rgba(59,157,255,.15); --accB:rgba(59,157,255,.42);
+    --pill:#20262C; --orn:#F5A524; --red:#F4595B;
+    --sh:0 1px 2px rgba(0,0,0,.3),0 12px 30px rgba(0,0,0,.35);
+    --shN:0 8px 26px rgba(0,0,0,.5);
+    --map0:#12181D; --map1:#1D262D; --map2:#171F26; --sea:#0E1B24; --sealn:#23404F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  button,input{font-family:var(--font);color:inherit}
+  button{cursor:pointer;background:none;border:none}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+  body{
+    background:#dfe3e7;min-height:100vh;display:grid;place-items:center;
+    padding:24px 16px;font-family:var(--font);-webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    width:min(392px,100%);height:min(852px,calc(100dvh - 40px));
+    border-radius:46px;overflow:hidden;position:relative;
+    display:flex;flex-direction:column;color:var(--tx);background:var(--bg);
+    box-shadow:0 0 0 2px rgba(255,255,255,.5),0 0 0 11px #22262a,0 0 0 12px #33383d,0 40px 80px -18px rgba(10,14,18,.55);
+    transition:background .3s;
+  }
+  [data-theme=dark] .phone{box-shadow:0 0 0 2px rgba(255,255,255,.06),0 0 0 11px #05070a,0 0 0 12px #22282e,0 40px 80px -18px rgba(0,0,0,.8)}
+
+  .statusbar{
+    flex:none;display:flex;justify-content:space-between;align-items:center;
+    padding:15px 30px 2px;font-size:13.5px;font-weight:700;color:var(--dim);
+    font-variant-numeric:tabular-nums;
+  }
+  .statusbar svg{display:block;opacity:.8}
+  .statusbar .sig{display:flex;gap:7px;align-items:center}
+
+  /* ── üst bar ── */
+  .top{flex:none;display:flex;align-items:center;gap:9px;padding:10px 18px 10px 22px}
+  .logo{width:38px;height:38px;flex:none;border-radius:12px;background:#DDD8C9;display:grid;place-items:center;box-shadow:var(--sh)}
+  .mark{font-weight:700;font-size:12.5px;letter-spacing:.2px;color:var(--dim);line-height:1.2}
+  .stamp{
+    margin-left:auto;display:flex;align-items:center;gap:7px;
+    padding:8px 13px;border-radius:100px;cursor:pointer;
+    background:var(--card);border:1px solid var(--brd);box-shadow:var(--sh);
+    font-size:11px;font-weight:700;color:var(--dim);white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .stamp i{width:6px;height:6px;border-radius:50%;background:var(--grn);flex:none;animation:pl 2.4s ease-out infinite}
+  @keyframes pl{0%{box-shadow:0 0 0 0 rgba(31,193,107,.45)}70%{box-shadow:0 0 0 6px rgba(31,193,107,0)}100%{box-shadow:0 0 0 0 rgba(31,193,107,0)}}
+  .stamp b{color:var(--tx);font-weight:800}
+  .icobtn{
+    width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;color:var(--dim);
+    background:var(--card);border:1px solid var(--brd);box-shadow:var(--sh);
+  }
+  .icobtn:hover{color:var(--tx)}
+  .icobtn .bd{position:absolute;margin:-14px 0 0 14px;width:6px;height:6px;border-radius:50%;background:var(--acc)}
+
+  /* ── ekranlar ── */
+  .screens{flex:1;min-height:0;display:grid;position:relative}
+  .screen{
+    grid-area:1/1;overflow-y:auto;scrollbar-width:none;
+    padding:4px 16px 106px;
+    opacity:0;visibility:hidden;transform:translateY(8px);
+    transition:opacity .2s,transform .2s,visibility 0s .2s;
+  }
+  .screen::-webkit-scrollbar{display:none}
+  .screen.on{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .2s}
+  .screen.on .card{animation:in .4s cubic-bezier(.2,.7,.2,1) backwards}
+  .screen.on .card:nth-child(2){animation-delay:.05s}
+  .screen.on .card:nth-child(3){animation-delay:.1s}
+  .screen.on .card:nth-child(4){animation-delay:.15s}
+  @keyframes in{from{opacity:0;transform:translateY(10px)}}
+
+  .card{
+    background:var(--card);border:1px solid var(--brd);border-radius:26px;
+    padding:18px;margin-bottom:13px;box-shadow:var(--sh);
+    transition:background .3s,border-color .3s;
+  }
+  .sechd{
+    display:flex;align-items:baseline;justify-content:space-between;
+    font-size:14.5px;font-weight:800;letter-spacing:-.1px;
+    margin-bottom:13px;
+  }
+  .sechd .act{font-size:12px;font-weight:700;color:var(--acc)}
+  .sechd .cnt{font-size:11.5px;font-weight:600;color:var(--dim)}
+
+  /* ── hücreler ── */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px}
+  .cell{padding:8px 2px}
+  .cell .cl{font-size:11px;font-weight:600;color:var(--dim)}
+  .cell .cvv{margin-top:4px;font-size:22px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+  .cell .cvv small{font-size:11.5px;font-weight:700;color:var(--dim);margin-left:3px;letter-spacing:0}
+  .cvv.g{color:var(--grn)} .cvv.o{color:var(--orn)}
+
+  /* ── hero ── */
+  .hero{display:flex;align-items:center;gap:16px;padding:20px 18px}
+  .ring{position:relative;width:118px;height:118px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .tr{stroke:var(--pill)}
+  .ring .in{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .ring .pc{font-size:31px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+  .ring .pc small{font-size:15px;font-weight:700;color:var(--dim)}
+  .ring .kwh{margin-top:1px;font-size:10px;font-weight:600;color:var(--dim)}
+  .hb{flex:1;min-width:0}
+  .hb .rng{font-size:31px;font-weight:800;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums}
+  .hb .rng small{font-size:14px;font-weight:700;color:var(--dim);margin-left:4px;letter-spacing:0}
+  .hb .rl{margin-top:3px;font-size:11.5px;font-weight:600;color:var(--dim)}
+  .hb .chg{margin-top:11px;font-size:14px;font-weight:800;color:var(--grn)}
+  .hb .chg small{display:block;margin-top:2px;font-size:11px;font-weight:600;color:var(--dim)}
+  .hb .zz{margin-top:9px;font-size:10.5px;font-weight:500;color:var(--dim2);line-height:1.45}
+
+  /* ── çipler (görseldeki hap dili) ── */
+  .chiprow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
+  .chiprow::-webkit-scrollbar{display:none}
+  .chipgrid{display:grid;gap:8px;margin-bottom:14px}
+  .chipgrid.c3{grid-template-columns:repeat(3,1fr)}
+  .chipgrid.c2{grid-template-columns:repeat(2,1fr)}
+  .chipgrid .chip{text-align:center;padding:9px 4px}
+  .chip{
+    flex:0 0 auto;padding:8px 15px;border-radius:100px;
+    background:var(--card);border:1.5px solid var(--brd2);
+    font-size:12.5px;font-weight:700;color:var(--dim);white-space:nowrap;transition:.15s;
+  }
+  .chip:hover{color:var(--tx)}
+  .chip.on{background:var(--accS);border-color:var(--accB);color:var(--acc)}
+
+  /* ── liste satırı ── */
+  .lrow{display:flex;align-items:center;gap:12px;padding:11px 0}
+  .lrow + .lrow{border-top:1px solid var(--brd)}
+  .lb{flex:1;min-width:0}
+  .lt{font-size:13.5px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ls{margin-top:2px;font-size:11px;font-weight:550;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lx{margin-top:2px;font-size:10.5px;font-weight:550;color:var(--dim2)}
+  .le{flex:none;text-align:right}
+  .lv{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+  .lv small{font-size:10px;font-weight:700;color:var(--dim);margin-left:2px}
+  .lvs{margin-top:2px;font-size:10.5px;font-weight:650;color:var(--dim)}
+  .kwb{
+    flex:none;min-width:50px;padding:8px 6px;text-align:center;border-radius:14px;
+    background:var(--pill);
+    font-size:14.5px;font-weight:800;color:var(--dim);line-height:1;font-variant-numeric:tabular-nums;
+  }
+  .kwb small{display:block;margin-top:3px;font-size:7.5px;font-weight:800;letter-spacing:1px}
+  .kwb.dc{color:var(--acc);background:var(--accS)}
+  .kwb.hy{color:#fff;background:var(--acc)}
+  .avdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--grn);margin-right:4px;vertical-align:1px}
+  .avdot.full{background:var(--dim2)}
+  .scorep{font-weight:800;color:var(--grn)} .scorep.a{color:var(--orn)}
+
+  /* ── yetişir mi ── */
+  .reach{display:flex;align-items:center;gap:10px}
+  .reach input{
+    flex:1;min-width:0;background:var(--pill);border:1.5px solid transparent;border-radius:100px;
+    padding:11px 17px;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;transition:.15s;
+  }
+  .reach input:focus{border-color:var(--accB);background:var(--accS);outline:none}
+  .reach input::placeholder{color:var(--dim2);font-weight:600;font-size:13px}
+  .reach .unit{font-size:13px;font-weight:800;color:var(--dim)}
+  .rres{margin-top:13px;display:none}
+  .rres.on{display:block}
+  .rline{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-size:12.5px;font-weight:650;color:var(--dim)}
+  .rline b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+  .rline b.ok{color:var(--grn)} .rline b.risk{color:var(--orn)} .rline b.no{color:var(--red)}
+  .rnote{margin-top:6px;font-size:10.5px;font-weight:500;color:var(--dim2)}
+
+  /* ── modlar ── */
+  .mods{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .mod{border-radius:20px;padding:13px 14px;background:var(--pill)}
+  .mod.on{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--mc),var(--sh)}
+  .mod .mn{font-size:13px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:6px;color:var(--mc)}
+  .mod .badge{font-size:8px;font-weight:800;letter-spacing:.5px;color:#fff;padding:2.5px 7px;border-radius:20px;background:var(--mc)}
+  .mod .mrow{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;font-weight:650;color:var(--dim)}
+  .mod .mrow b{color:var(--tx);font-weight:750;font-variant-numeric:tabular-nums}
+  .mod .mk{margin-top:8px;padding-top:8px;border-top:1px solid var(--brd);font-size:11px;font-weight:800;color:var(--mc);font-variant-numeric:tabular-nums}
+
+  /* ── maliyet +/− ── */
+  .pm{display:inline-flex;gap:6px;margin-top:6px}
+  .pm button{
+    width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    background:var(--accS);color:var(--acc);font-size:15px;font-weight:800;
+  }
+
+  /* ── sıralama ── */
+  .fwrap{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .fwrap .chiprow{margin:0;flex:1}
+  .sortsw{display:flex;background:var(--pill);border-radius:100px;padding:3px}
+  .sortsw button{padding:6px 12px;border-radius:100px;font-size:11px;font-weight:750;color:var(--dim)}
+  .sortsw button.on{background:var(--card);color:var(--tx);box-shadow:var(--sh)}
+
+  /* ── harita ── */
+  .map{position:relative;height:196px;border-radius:20px;overflow:hidden;border:1px solid var(--brd)}
+  .map svg.base{position:absolute;inset:0;width:100%;height:100%}
+  .carpin{position:absolute;transform:translate(-50%,-50%)}
+  .carpin .ring2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:rgba(17,137,255,.3);animation:ping 2.6s ease-out infinite}
+  @keyframes ping{0%{width:14px;height:14px;opacity:.85}100%{width:54px;height:54px;opacity:0}}
+  .carpin .dot{position:relative;display:block;width:13px;height:13px;border-radius:50%;background:var(--acc);border:3px solid var(--card);box-shadow:0 1px 6px rgba(0,0,0,.3)}
+  .sdot{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);background:var(--acc);border:1.5px solid var(--card);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:opacity .2s}
+  .sdot.hy{background:var(--tx)}
+  .sdot.full{background:var(--dim2)}
+  .sdot.hide{opacity:.12}
+  .mline{display:flex;align-items:center;gap:8px;margin-top:12px}
+  .mline .pl{font-size:13.5px;font-weight:750}
+  .mline .ps{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--dim);white-space:nowrap}
+  .navb{
+    display:inline-flex;align-items:center;gap:7px;margin-top:12px;
+    padding:11px 18px;border-radius:100px;background:var(--acc);color:#fff;
+    font-size:13px;font-weight:800;box-shadow:0 6px 16px rgba(17,137,255,.35);
+  }
+  .navb:active{transform:scale(.97)}
+
+  /* ── grafik ── */
+  .chart{display:flex;align-items:flex-end;gap:6px;height:86px;margin-top:14px}
+  .chart.dense{gap:2px}
+  .bar{flex:1;min-height:3px;height:0;border-radius:4px 4px 2px 2px;background:var(--accS);transition:height .5s cubic-bezier(.2,.7,.2,1)}
+  .bar.hi{background:var(--acc)}
+  [data-theme=dark] .bar{background:rgba(59,157,255,.18)}
+  [data-theme=dark] .bar.hi{background:var(--acc)}
+  .chx{display:flex;gap:6px;margin-top:7px}
+  .chx span{flex:1;text-align:center;font-size:9.5px;font-weight:650;color:var(--dim2)}
+  .chx span.hi{color:var(--acc)}
+
+  /* ── lastik ── */
+  .tires{display:flex;justify-content:center;gap:22px;align-items:center;padding:2px 0}
+  .tcol{display:flex;flex-direction:column;gap:38px}
+  .tcell{text-align:center;min-width:62px}
+  .tcell .n{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+  .tcell .n small{font-size:10px;font-weight:650;color:var(--dim)}
+  .tcell .w{margin-top:3px;font-size:8.5px;font-weight:800;letter-spacing:1px;color:var(--dim2);text-transform:uppercase}
+  .tcell.low .n{color:var(--orn)}
+  .tnote{margin-top:12px;font-size:11.5px;font-weight:550;color:var(--dim)}
+  .tnote b{color:var(--orn);font-weight:750}
+
+  /* ── ayarlar ── */
+  .setrow{display:flex;align-items:center;gap:12px;padding:12px 0}
+  .setrow + .setrow{border-top:1px solid var(--brd)}
+  .setrow .st{flex:1;font-size:13.5px;font-weight:750}
+  .setrow .ss{display:block;margin-top:2px;font-size:11px;font-weight:550;color:var(--dim)}
+  .sw{position:relative;flex:none;width:46px;height:28px}
+  .sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+  .sw .tr{position:absolute;inset:0;border-radius:100px;background:var(--pill);transition:.2s}
+  .sw .kn{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:0 2px 5px rgba(0,0,0,.2);transition:.2s}
+  .sw input:checked ~ .tr{background:var(--grn)}
+  .sw input:checked ~ .kn{left:20px;background:#fff}
+  .note{margin-top:12px;font-size:10.5px;font-weight:500;line-height:1.6;color:var(--dim2)}
+  .foot{padding:2px 6px 10px;text-align:center;font-size:10px;font-weight:600;letter-spacing:.3px;color:var(--dim2)}
+
+  /* ── yüzen alt bar (görseldeki gibi: seçili sekme hap, + yok) ── */
+  .nav{
+    position:absolute;left:12px;right:12px;bottom:12px;z-index:20;
+    display:flex;align-items:center;gap:2px;padding:8px;border-radius:38px;
+    background:var(--card);border:1px solid var(--brd);box-shadow:var(--shN);
+    transition:background .3s;
+  }
+  .nbtn{flex:1;display:flex;justify-content:center}
+  .nbtn .inner{
+    display:flex;align-items:center;gap:8px;
+    padding:12px 13px;border-radius:100px;color:var(--dim);
+    transition:background .2s,color .2s;
+  }
+  .nbtn .inner span{display:none;font-size:12.5px;font-weight:800;letter-spacing:-.1px}
+  .nbtn.on{flex:1.8}
+  .nbtn.on .inner{background:var(--pill);color:var(--tx);padding:12px 18px}
+  .nbtn.on .inner span{display:inline}
+  .nbtn:active .inner{transform:scale(.94)}
+
+  /* ── sheet + toast ── */
+  .veil{position:absolute;inset:0;z-index:30;background:rgba(10,14,18,.35);opacity:0;pointer-events:none;transition:.25s}
+  [data-theme=dark] .veil{background:rgba(0,0,0,.55)}
+  .veil.on{opacity:1;pointer-events:auto}
+  .sheet{
+    position:absolute;left:10px;right:10px;bottom:10px;z-index:31;max-height:72%;overflow-y:auto;scrollbar-width:none;
+    background:var(--card);border:1px solid var(--brd);border-radius:30px;box-shadow:var(--shN);
+    padding:8px 20px 20px;
+    transform:translateY(112%);transition:transform .32s cubic-bezier(.2,.75,.25,1);
+  }
+  .sheet.on{transform:none}
+  .grab{width:36px;height:4px;border-radius:100px;background:var(--brd2);margin:8px auto 14px}
+  .sheet h3{font-size:16px;font-weight:800;margin-bottom:4px}
+  .toast{
+    position:absolute;left:50%;bottom:94px;z-index:40;transform:translate(-50%,10px);
+    padding:10px 17px;border-radius:100px;
+    background:var(--tx);color:var(--bg);
+    font-size:12px;font-weight:750;white-space:nowrap;
+    opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--shN);
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:520px){
+    body{padding:0;place-items:stretch}
+    .phone{width:100%;height:100dvh;border-radius:0;box-shadow:none}
+    .statusbar{display:none}
+    .top{padding-top:calc(12px + env(safe-area-inset-top))}
+    .nav{bottom:calc(10px + env(safe-area-inset-bottom))}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="statusbar">
+    <span>14:32</span>
+    <span class="sig">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 1C11 1 13.3 2 15 3.6l-1 1C12.6 3.3 10.6 2.5 8.5 2.5S4.4 3.3 3 4.6l-1-1C3.7 2 6 1 8.5 1Zm0 3c1.6 0 3.1.6 4.2 1.7l-1 1C10.9 5.9 9.7 5.5 8.5 5.5s-2.4.4-3.2 1.2l-1-1C5.4 4.6 6.9 4 8.5 4Zm0 3c.8 0 1.5.3 2.1.9L8.5 10 6.4 7.9C7 7.3 7.7 7 8.5 7Z" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y="1.5" width="20" height="9" rx="2.5" stroke="currentColor" opacity=".5"/><rect x="2" y="3" width="15" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx=".7" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="top">
+    <div class="logo"><svg width="26" height="23" viewBox="0 0 26 23" fill="none"><circle cx="4.7" cy="10" r="3" stroke="#15181C" stroke-width="2.2"/><circle cx="21.3" cy="10" r="3" stroke="#15181C" stroke-width="2.2"/><path d="M11.2 5.2v8.2M14.8 5.2v8.2M9.3 5.2h7.4" stroke="#15181C" stroke-width="2.2" stroke-linecap="round"/><path d="M13 16.6l2.1 3h-4.2z" fill="#1189FF"/></svg></div>
+    <div class="mark">Sealion 7</div>
+    <button class="stamp" id="stamp" title="Sunucudan yenile">
+      <i></i><span id="stampTxt">12 dk önce</span><b>63% · 196 km</b>
+    </button>
+    <button class="icobtn" id="themeBtn" aria-label="Tema">
+      <svg id="icMoon" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M13 9.3A6 6 0 0 1 5.7 2 6 6 0 1 0 13 9.3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <svg id="icSun" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none"><circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/><path d="M8 .8v2M8 13.2v2M.8 8h2M13.2 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M13.1 2.9l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <button class="icobtn" id="bellBtn" aria-label="Bildirimler">
+      <span class="bd"></span>
+      <svg width="16" height="17" viewBox="0 0 17 18" fill="none"><path d="M8.5 1.5c-3 0-5 2.2-5 5.2v3L1.8 12.6c-.4.6 0 1.4.8 1.4h11.8c.8 0 1.2-.8.8-1.4L13.5 9.7v-3c0-3-2-5.2-5-5.2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.5 16.2a2.1 2.1 0 0 0 4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="screens">
+
+    <!-- ═══ ANA ═══ -->
+    <section class="screen on" id="s-ana">
+      <div class="card hero">
+        <div class="ring">
+          <svg width="118" height="118" viewBox="0 0 118 118">
+            <circle class="tr" cx="59" cy="59" r="51" fill="none" stroke-width="10"/>
+            <circle cx="59" cy="59" r="51" fill="none" stroke="var(--grn)" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="320.4" stroke-dashoffset="118.5"/>
+          </svg>
+          <div class="in"><div>
+            <div class="pc">63<small>%</small></div>
+            <div class="kwh">43,6 kWh kalan</div>
+          </div></div>
+        </div>
+        <div class="hb">
+          <div class="rng">196<small>km</small></div>
+          <div class="rl">menzil · ≈4 gün yeter</div>
+          <div class="chg">Şarjda değil<small>Port bağlı değil · park halinde</small></div>
+          <div class="zz">Son bilinen durum — araç uykuda, canlı akış yok.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Yetişir mi?</div>
+        <div class="reach">
+          <input id="rkm" type="number" inputmode="numeric" min="1" max="999" placeholder="Gidilecek mesafe">
+          <span class="unit">km</span>
+        </div>
+        <div class="chipgrid c2" style="margin:11px 0 0">
+          <button class="chip" data-km="18">Havalimanı · 18</button>
+          <button class="chip" data-km="75">Side · 75</button>
+          <button class="chip" data-km="132">Alanya · 132</button>
+          <button class="chip" data-km="190">Kaş · 190</button>
+        </div>
+        <div class="rres" id="rres">
+          <div class="rline"><span>Tek yön · varışta</span><b id="rOne">—</b></div>
+          <div class="rline"><span>Gidiş–dönüş · varışta</span><b id="rTwo">—</b></div>
+          <div class="rnote">Kalan 43,6 kWh ve senin gerçek ortalamanla (16,8 kWh/100km) hesaplandı.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Araç verileri</div>
+        <div class="grid2">
+          <div class="cell"><div class="cl">Son 50 km tüketim</div><div class="cvv">16,4<small>kWh</small></div></div>
+          <div class="cell"><div class="cl">Son 50 km ort. hız</div><div class="cvv">38<small>km/h</small></div></div>
+          <div class="cell"><div class="cl">Toplam tüketim</div><div class="cvv">668<small>kWh</small></div></div>
+          <div class="cell"><div class="cl">Toplam yol</div><div class="cvv">3.982<small>km</small></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Bugün<button class="act" data-go="s-surus">Sürüş →</button></div>
+        <div class="grid2">
+          <div class="cell"><div class="cl">Yol</div><div class="cvv">55,0<small>km</small></div></div>
+          <div class="cell"><div class="cl">Tüketim</div><div class="cvv">9,2<small>kWh</small></div></div>
+          <div class="cell"><div class="cl">Verim skoru</div><div class="cvv g">86<small>/100</small></div></div>
+          <div class="cell"><div class="cl">Maliyet</div><div class="cvv">32,4<small>₺</small></div></div>
+        </div>
+      </div>
+      <div class="foot">Örnek veriler — pawcal.net telemetrisine bağlanacak</div>
+    </section>
+
+    <!-- ═══ BATARYA ═══ -->
+    <section class="screen" id="s-bat">
+      <div class="card">
+        <div class="sechd">Batarya durumu</div>
+        <div class="grid2">
+          <div class="cell"><div class="cl">Şarj (SOC)</div><div class="cvv g">63<small>%</small></div></div>
+          <div class="cell"><div class="cl">Kalan enerji</div><div class="cvv">43,6<small>kWh</small></div></div>
+          <div class="cell"><div class="cl">Menzil</div><div class="cvv">196<small>km</small></div></div>
+          <div class="cell"><div class="cl">Batarya sağlığı</div><div class="cvv g">%98,4</div></div>
+          <div class="cell"><div class="cl">Batarya ısısı</div><div class="cvv">26<small>°C</small></div></div>
+          <div class="cell"><div class="cl">12V akü</div><div class="cvv g">İyi</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Şarj</div>
+        <div class="grid2">
+          <div class="cell"><div class="cl">Şarj durumu</div><div class="cvv g" style="font-size:17px">Şarjda değil</div></div>
+          <div class="cell"><div class="cl">Port</div><div class="cvv" style="font-size:17px">Bağlı değil</div></div>
+          <div class="cell"><div class="cl">Şarj gücü</div><div class="cvv">—<small>kW</small></div></div>
+          <div class="cell"><div class="cl">Kalan süre</div><div class="cvv">—</div></div>
+          <div class="cell"><div class="cl">Hedef şarj</div><div class="cvv">%100</div></div>
+          <div class="cell"><div class="cl">Şarj bat. ısısı</div><div class="cvv">—</div></div>
+        </div>
+        <div class="note">Fiş takılıyken bu blok son bilinen seansı gösterir; DC şarjda araç uyanık kalır ve canlı akar.</div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Şarj geçmişi</div>
+        <div class="lrow">
+          <div class="kwb">7<small>AC</small></div>
+          <div class="lb"><div class="lt">Ev</div><div class="ls">Bugün 02:10 · %38 → %100 · 51,2 kWh</div></div>
+          <div class="le"><div class="lv">~180<small>₺</small></div><div class="lvs">3,52 ₺/kWh</div></div>
+        </div>
+        <div class="lrow">
+          <div class="kwb hy">180<small>HİPER</small></div>
+          <div class="lb"><div class="lt">Trugo · Mark Antalya</div><div class="ls">27 Haz · %21 → %80 · 48,7 kWh</div></div>
+          <div class="le"><div class="lv">~419<small>₺</small></div><div class="lvs">8,60 ₺/kWh</div></div>
+        </div>
+        <div class="lrow">
+          <div class="kwb">7<small>AC</small></div>
+          <div class="lb"><div class="lt">Ev</div><div class="ls">24 Haz · %45 → %100 · 45,4 kWh</div></div>
+          <div class="le"><div class="lv">~160<small>₺</small></div><div class="lvs">3,52 ₺/kWh</div></div>
+        </div>
+        <div class="lrow">
+          <div class="kwb dc">120<small>DC</small></div>
+          <div class="lb"><div class="lt">CV · Aura Berry Park</div><div class="ls">21 Haz · %60 → %95 · 28,9 kWh</div></div>
+          <div class="le"><div class="lv">~266<small>₺</small></div><div class="lvs">9,20 ₺/kWh</div></div>
+        </div>
+        <div class="note">Operatör, seans konumunun en yakın istasyonla eşleşmesinden; maliyet kWh × tarifeden yaklaşık (~).</div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Maliyet</div>
+        <div class="grid2">
+          <div class="cell"><div class="cl">Mesafe maliyeti</div><div class="cvv">59,1<small>₺/100km</small></div></div>
+          <div class="cell"><div class="cl">Son şarj</div><div class="cvv">253<small>₺</small></div></div>
+          <div class="cell">
+            <div class="cl">kWh birim</div><div class="cvv"><span id="kwhB">3,52</span><small>₺</small></div>
+            <div class="pm"><button id="kwhM">−</button><button id="kwhP">+</button></div>
+          </div>
+          <div class="cell">
+            <div class="cl">Benzin fiyatı</div><div class="cvv"><span id="bnzF">44</span><small>₺/lt</small></div>
+            <div class="pm"><button id="bnzM">−</button><button id="bnzP">+</button></div>
+          </div>
+          <div class="cell"><div class="cl">Aylık tahmini</div><div class="cvv" id="ayT">1.109<small>₺</small></div></div>
+          <div class="cell"><div class="cl">Toplam maliyet</div><div class="cvv">3.224<small>₺</small></div></div>
+        </div>
+        <div class="lrow" style="margin-top:4px">
+          <div class="lb"><div class="lt">Benzine göre</div><div class="ls">aynı km benzinli araçla (6,5 lt/100)</div></div>
+          <div class="le"><div class="lv" style="color:var(--grn);font-size:22px" id="bnzKiyas">−79<small>%</small></div></div>
+        </div>
+      </div>
+      <div class="foot">Örnek veriler — pawcal.net telemetrisine bağlanacak</div>
+    </section>
+
+    <!-- ═══ SÜRÜŞ ═══ -->
+    <section class="screen" id="s-surus">
+      <div class="card">
+        <div class="sechd">Sürüş<span class="cnt">sıfırlanabilir tüketim</span></div>
+        <div class="chipgrid c3" id="pSeg">
+          <button class="chip on" data-k="bugun">Bugün</button>
+          <button class="chip" data-k="hafta">Hafta</button>
+          <button class="chip" data-k="ay">Ay</button>
+          <button class="chip" data-k="manuel">Manuel</button>
+          <button class="chip" data-k="gezi1">Gezi 1</button>
+          <button class="chip" data-k="gezi2">Gezi 2</button>
+        </div>
+        <div class="grid2" id="pGrid"></div>
+        <div class="chart" id="chart"></div>
+        <div class="chx" id="chx"></div>
+        <div class="note" id="pNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Modlar<span class="cnt" id="modAct"></span></div>
+        <div class="mods" id="mods"></div>
+        <div class="note">Mod sayaçları araçta birikir (D/R'de tick); telefonda okunur, sıfırlama araçtan.</div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Defter</div>
+        <div class="lrow">
+          <div class="lb"><div class="lt">Konyaaltı → Muratpaşa</div><div class="ls">Bugün 17:50 · 31,1 km · 16,7 kWh/100</div></div>
+          <div class="le"><div class="lv">5,2<small>kWh</small></div><div class="lvs"><span class="scorep">87</span></div></div>
+        </div>
+        <div class="lrow">
+          <div class="lb"><div class="lt">Muratpaşa içi</div><div class="ls">Bugün 12:35 · 9,7 km · 17,5 kWh/100</div></div>
+          <div class="le"><div class="lv">1,7<small>kWh</small></div><div class="lvs"><span class="scorep a">78</span></div></div>
+        </div>
+        <div class="lrow">
+          <div class="lb">
+            <div class="lt">Ev → Ofis</div><div class="ls">Bugün 08:12 · 14,2 km · 16,2 kWh/100</div>
+            <div class="lx">23. sürüşün bu rotada · rekorun 14,9 · ortalaman 16,6</div>
+          </div>
+          <div class="le"><div class="lv">2,3<small>kWh</small></div><div class="lvs"><span class="scorep">90</span></div></div>
+        </div>
+        <div class="lrow">
+          <div class="lb"><div class="lt">Ofis → Ev</div><div class="ls">Dün 18:05 · 15,1 km · 16,6 kWh/100</div></div>
+          <div class="le"><div class="lv">2,5<small>kWh</small></div><div class="lvs"><span class="scorep">85</span></div></div>
+        </div>
+        <div class="lrow">
+          <div class="lb"><div class="lt">Muratpaşa → Side</div><div class="ls">28 Haz 10:20 · 68,4 km · 16,4 kWh/100</div></div>
+          <div class="le"><div class="lv">11,2<small>kWh</small></div><div class="lvs"><span class="scorep">88</span></div></div>
+        </div>
+        <div class="note">Yolculuklar aracın toplam tüketim sayacı farkından (totalCons) — klima ve geri kazanım dahil. Yer adları araçta çözülür; internetsizse ilçe eşleşmesi.</div>
+      </div>
+      <div class="foot">Örnek veriler — pawcal.net telemetrisine bağlanacak</div>
+    </section>
+
+    <!-- ═══ İSTASYON ═══ -->
+    <section class="screen" id="s-ist">
+      <div class="card">
+        <div class="sechd">Aracım nerede</div>
+        <div class="map">
+          <svg class="base" viewBox="0 0 340 196" preserveAspectRatio="xMidYMid slice">
+            <rect width="340" height="196" fill="var(--map0)"/>
+            <g stroke="var(--map1)" stroke-width="7" fill="none">
+              <path d="M-10 46 H350"/><path d="M-10 110 H350"/><path d="M92 -10 V196"/><path d="M228 -10 V196"/>
+            </g>
+            <g stroke="var(--map2)" stroke-width="3" fill="none">
+              <path d="M-10 78 H350"/><path d="M-10 144 H350"/><path d="M50 -10 V196"/><path d="M162 -10 V196"/><path d="M290 -10 V196"/>
+            </g>
+            <path d="M-10 172 C 60 162, 150 180, 230 174 S 330 162, 350 168 L350 206 L-10 206 Z" fill="var(--sea)"/>
+            <path d="M-10 172 C 60 162, 150 180, 230 174 S 330 162, 350 168" stroke="var(--sealn)" stroke-width="1.6" fill="none"/>
+            <text x="170" y="190" text-anchor="middle" fill="var(--sealn)" font-size="8.5" font-weight="700" letter-spacing="4" font-family="Plus Jakarta Sans,sans-serif">AKDENİZ</text>
+          </svg>
+          <div id="mapDots"></div>
+          <div class="carpin" style="left:56%;top:48%"><span class="ring2"></span><span class="dot"></span></div>
+        </div>
+        <div class="mline">
+          <svg width="13" height="17" viewBox="0 0 14 18" fill="none"><path d="M7 0C3.1 0 0 3.1 0 7c0 5 7 11 7 11s7-6 7-11c0-3.9-3.1-7-7-7Zm0 9.5A2.5 2.5 0 1 1 7 4.5a2.5 2.5 0 0 1 0 5Z" fill="var(--acc)"/></svg>
+          <span class="pl">Fener Cd., Muratpaşa</span>
+          <span class="ps">park halinde · 12 dk önce</span>
+        </div>
+        <button class="navb" id="navBtn">
+          <svg width="13" height="13" viewBox="0 0 15 15" fill="none"><path d="M14 1 1 6.4l5.6 2L8.6 14 14 1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          Araca yol tarifi
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Şarj noktaları<span class="cnt" id="stCount"></span></div>
+        <div class="fwrap">
+          <div class="chiprow">
+            <button class="chip on" data-f="all">Tümü</button>
+            <button class="chip" data-f="AC">AC</button>
+            <button class="chip" data-f="DC">DC</button>
+            <button class="chip" data-f="HY">Hiper</button>
+          </div>
+          <div class="sortsw">
+            <button class="on" data-s="near">En yakın</button>
+            <button data-s="cheap">En ucuz</button>
+          </div>
+        </div>
+        <div id="stList"></div>
+        <div class="note">Müsaitlik EPDK canlı verisinden (Otto ile aynı kaynak, 15 dk'da bir). Fiyatlar operatör tarife tablosundan — örnek değerler.</div>
+      </div>
+      <div class="foot">12.470 kayıtlı nokta · gösterilen: Muratpaşa 6 km çevresi</div>
+    </section>
+
+    <!-- ═══ ARAÇ ═══ -->
+    <section class="screen" id="s-arac">
+      <div class="card">
+        <div class="sechd">Lastik basıncı</div>
+        <div class="tires">
+          <div class="tcol">
+            <div class="tcell"><div class="n">2,6<small> bar</small></div><div class="w">Sol ön</div></div>
+            <div class="tcell low"><div class="n">2,3<small> bar</small></div><div class="w">Sol arka</div></div>
+          </div>
+          <svg width="82" height="168" viewBox="0 0 82 168">
+            <rect x="3" y="19" width="8" height="25" rx="4" fill="var(--pill)"/>
+            <rect x="71" y="19" width="8" height="25" rx="4" fill="var(--pill)"/>
+            <rect x="3" y="123" width="8" height="25" rx="4" fill="var(--pill)"/>
+            <rect x="71" y="123" width="8" height="25" rx="4" fill="var(--pill)"/>
+            <rect x="9" y="5" width="64" height="158" rx="29" fill="var(--bg)" stroke="var(--brd2)" stroke-width="1.5"/>
+            <path d="M21 49 Q41 40 61 49 L57 72 Q41 65 25 72 Z" fill="var(--pill)"/>
+            <path d="M23 119 Q41 128 59 119 L57 134 Q41 141 25 134 Z" fill="var(--pill)"/>
+          </svg>
+          <div class="tcol">
+            <div class="tcell"><div class="n">2,6<small> bar</small></div><div class="w">Sağ ön</div></div>
+            <div class="tcell"><div class="n">2,6<small> bar</small></div><div class="w">Sağ arka</div></div>
+          </div>
+        </div>
+        <div class="tnote"><b>Sol arka</b> önerilenin altında — kontrol et. Lastik sıcaklıkları 33–36 °C.</div>
+      </div>
+
+      <div class="card">
+        <div class="sechd">Bildirimler</div>
+        <label class="setrow">
+          <span class="st">Şarj tamamlandı<span class="ss">Hedef doluluk yakalanınca</span></span>
+          <span class="sw"><input type="checkbox" checked><span class="tr"></span><span class="kn"></span></span>
+        </label>
+        <label class="setrow">
+          <span class="st">Batarya düşük<span class="ss">%20 altına inince</span></span>
+          <span class="sw"><input type="checkbox" checked><span class="tr"></span><span class="kn"></span></span>
+        </label>
+        <label class="setrow">
+          <span class="st">Şarj kesildi<span class="ss">Seans beklenmedik biterse</span></span>
+          <span class="sw"><input type="checkbox"><span class="tr"></span><span class="kn"></span></span>
+        </label>
+        <div class="note">Bildirimler araç açıkken üretilir. Araç uykudayken gecikebilir ya da hiç gelmeyebilir — bu bir kısıt, hata değil.</div>
+      </div>
+      <div class="foot">Otto Mobil · v7 önizleme · açık/koyu tema sağ üstten</div>
+    </section>
+  </div>
+
+  <!-- ═══ YÜZEN ALT BAR ═══ -->
+  <nav class="nav">
+    <button class="nbtn on" data-s="s-ana"><span class="inner">
+      <svg width="19" height="19" viewBox="0 0 19 19" fill="none"><path d="M2.5 8 9.5 2l7 6v7.5a1.5 1.5 0 0 1-1.5 1.5h-3.5v-5h-4v5H4a1.5 1.5 0 0 1-1.5-1.5V8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>Ana</span></span>
+    </button>
+    <button class="nbtn" data-s="s-bat"><span class="inner">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="none"><rect x="1" y="1" width="14" height="10" rx="3" stroke="currentColor" stroke-width="1.8"/><rect x="3.4" y="3.4" width="6.5" height="5.2" rx="1.4" fill="currentColor"/><rect x="16.6" y="3.8" width="1.9" height="4.4" rx=".9" fill="currentColor"/></svg>
+      <span>Batarya</span></span>
+    </button>
+    <button class="nbtn" data-s="s-surus"><span class="inner">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.4" stroke="currentColor" stroke-width="1.8"/><path d="M9 9 12.4 5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="9" cy="9" r="1.4" fill="currentColor"/></svg>
+      <span>Sürüş</span></span>
+    </button>
+    <button class="nbtn" data-s="s-ist"><span class="inner">
+      <svg width="14" height="17" viewBox="0 0 12 14" fill="none"><path d="M7 0 0 8h4l-1 6 7-8H6l1-6Z" fill="currentColor"/></svg>
+      <span>İstasyon</span></span>
+    </button>
+    <button class="nbtn" data-s="s-arac"><span class="inner">
+      <svg width="21" height="14" viewBox="0 0 20 13" fill="none"><path d="M2 8.5 3.4 4a2 2 0 0 1 1.9-1.4h9.4A2 2 0 0 1 16.6 4L18 8.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><rect x="1" y="8" width="18" height="3.6" rx="1.6" stroke="currentColor" stroke-width="1.7"/><circle cx="5" cy="11.6" r="1.1" fill="currentColor"/><circle cx="15" cy="11.6" r="1.1" fill="currentColor"/></svg>
+      <span>Araç</span></span>
+    </button>
+  </nav>
+
+  <div class="veil" id="veil"></div>
+  <div class="sheet" id="sheetNotif">
+    <div class="grab"></div>
+    <h3>Bildirimler</h3>
+    <div class="lrow">
+      <div class="lb"><div class="lt">Şarj tamamlandı</div><div class="ls">%100 · 51,2 kWh eklendi</div></div>
+      <div class="le"><div class="lvs">06:40</div></div>
+    </div>
+    <div class="lrow">
+      <div class="lb"><div class="lt">Şarj başladı</div><div class="ls">AC 7 kW · %38 → hedef %100</div></div>
+      <div class="le"><div class="lvs">02:10</div></div>
+    </div>
+    <div class="lrow">
+      <div class="lb"><div class="lt" style="color:var(--orn)">Batarya düşük</div><div class="ls">%19 · şarj önerilir</div></div>
+      <div class="le"><div class="lvs">28 Haz 18:05</div></div>
+    </div>
+    <div class="note">Araç uykudayken bildirim üretilemez; bunlar araç açıkken yakalanan olaylar.</div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)};
+  var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+
+  /* ── tema ── */
+  var root=document.documentElement;
+  if(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)root.dataset.theme='dark';
+  function syncTheme(){
+    var d=root.dataset.theme==='dark';
+    $('#icMoon').style.display=d?'none':'block';
+    $('#icSun').style.display=d?'block':'none';
+  }
+  $('#themeBtn').addEventListener('click',function(){
+    root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';syncTheme();
+  });
+  syncTheme();
+
+  /* ── sekmeler ── */
+  var navBtns=$$('.nbtn');
+  function go(id){
+    $$('.screen').forEach(function(sc){sc.classList.toggle('on',sc.id===id)});
+    navBtns.forEach(function(b){b.classList.toggle('on',b.dataset.s===id)});
+    var sc=document.getElementById(id);if(sc)sc.scrollTop=0;
+    if(id==='s-surus')drawChart(cur);
+  }
+  navBtns.forEach(function(b){b.addEventListener('click',function(){go(b.dataset.s)})});
+  $$('[data-go]').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.go)})});
+
+  /* ── toast + damga + sheet ── */
+  var tT;
+  function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tT);tT=setTimeout(function(){t.classList.remove('on')},2400)}
+  var busy=false;
+  $('#stamp').addEventListener('click',function(){
+    if(busy)return;busy=true;
+    var x=$('#stampTxt'),o=x.textContent;x.textContent='çekiliyor…';
+    setTimeout(function(){x.textContent=o;toast('Yeni veri yok — araç uykuda');busy=false},900);
+  });
+  $('#bellBtn').addEventListener('click',function(){$('#veil').classList.add('on');$('#sheetNotif').classList.add('on')});
+  $('#veil').addEventListener('click',function(){$('#veil').classList.remove('on');$$('.sheet').forEach(function(s){s.classList.remove('on')})});
+
+  /* ── YETİŞİR Mİ ── */
+  var KALAN=43.6, AVG=16.8, SOC=63;
+  function fmt(v){
+    if(v>=15)return '<b class="ok">~%'+Math.round(v)+' kalır ✓</b>';
+    if(v>=5)return '<b class="risk">~%'+Math.round(v)+' kalır · riskli</b>';
+    if(v>=0)return '<b class="no">~%'+Math.round(v)+' — çok riskli</b>';
+    return '<b class="no">yetmez ✗</b>';
+  }
+  function reach(km){
+    if(!km||km<=0){$('#rres').classList.remove('on');return}
+    var drop=km*AVG/100/KALAN*SOC;
+    $('#rOne').outerHTML='<span id="rOne">'+fmt(SOC-drop)+'</span>';
+    $('#rTwo').outerHTML='<span id="rTwo">'+fmt(SOC-2*drop)+'</span>';
+    $('#rres').classList.add('on');
+  }
+  $('#rkm').addEventListener('input',function(){reach(parseFloat(this.value))});
+  $$('.chip[data-km]').forEach(function(b){b.addEventListener('click',function(){$('#rkm').value=b.dataset.km;reach(parseFloat(b.dataset.km))})});
+
+  /* ── MALİYET +/− ── */
+  var kwhB=3.52,bnzF=44,AY_KWH=315.1,ORT=16.8,BNZ_LT=6.5;
+  function trN(v,d){return v.toFixed(d).replace('.',',')}
+  function calc(){
+    $('#kwhB').textContent=trN(kwhB,2);
+    $('#bnzF').textContent=Math.round(bnzF);
+    $('#ayT').innerHTML=Math.round(AY_KWH*kwhB).toLocaleString('tr-TR')+'<small>₺</small>';
+    var k=Math.round((ORT*kwhB/100)/(BNZ_LT*bnzF/100)*100-100);
+    $('#bnzKiyas').innerHTML=k+'<small>%</small>';
+  }
+  $('#kwhM').addEventListener('click',function(){kwhB=Math.max(.5,+(kwhB-.1).toFixed(2));calc()});
+  $('#kwhP').addEventListener('click',function(){kwhB=+(kwhB+.1).toFixed(2);calc()});
+  $('#bnzM').addEventListener('click',function(){bnzF=Math.max(10,bnzF-1);calc()});
+  $('#bnzP').addEventListener('click',function(){bnzF+=1;calc()});
+  calc();
+
+  /* ── SÜRÜŞ ── */
+  var P={
+    bugun:{km:'55,0',kwh:'9,2',c100:'16,7',rng:'261',yenen:'3',skor:'86',hiz:'34',sure:'1,8',mal:'32,4',regen:'1,9',
+      note:'Bugün · gün sonunda kapanır',bars:[2.3,1.7,5.2],x:['08:12','12:35','17:50'],hi:2,dense:false},
+    hafta:{km:'352',kwh:'58,8',c100:'16,7',rng:'261',yenen:'11',skor:'84',hiz:'38',sure:'9,6',mal:'207',regen:'12,4',
+      note:'Bu hafta · Pazartesi sıfırlanır',bars:[9.6,11.4,7.9,12.7,4.4,3.6,9.2],x:['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'],hi:6,dense:false},
+    ay:{km:'1.544',kwh:'258,1',c100:'16,7',rng:'261',yenen:'47',skor:'85',hiz:'41',sure:'41,2',mal:'908',regen:'55,2',
+      note:'Bu ay · ayın 1\u2019i sıfırlanır',
+      bars:[7.8,8.8,7.0,10.1,8.5,3.4,6.1,9.2,10.8,7.7,11.1,9.6,4.6,6.6,8.6,9.4,7.5,10.2,8.8,4.1,6.4,8.9,9.9,8.1,11.5,9.0,5.0,6.8,8.4,9.2],
+      x:['1','','','','','','','8','','','','','','','15','','','','','','','22','','','','','','','','30'],hi:29,dense:true},
+    manuel:{km:'128,4',kwh:'21,6',c100:'16,8',rng:'260',yenen:'4',skor:'85',hiz:'36',sure:'3,4',mal:'76,0',regen:'4,6',
+      note:'Manuel sayaç · 12 Haz\u2019dan beri · sıfırlama araçtan',bars:null},
+    gezi1:{km:'68,4',kwh:'11,2',c100:'16,4',rng:'265',yenen:'2',skor:'88',hiz:'52',sure:'1,3',mal:'39,4',regen:'2,3',
+      note:'Gezi 1 · Muratpaşa → Side',bars:null},
+    gezi2:{km:'0',kwh:'0',c100:'—',rng:'—',yenen:'0',skor:'—',hiz:'—',sure:'—',mal:'—',regen:'—',
+      note:'Gezi 2 · henüz başlatılmadı',bars:null}
+  };
+  var cur='bugun';
+  function cellHtml(l,v,u,cls){
+    return '<div class="cell"><div class="cl">'+l+'</div><div class="cvv'+(cls?' '+cls:'')+'">'+v+(u?'<small>'+u+'</small>':'')+'</div></div>';
+  }
+  function renderPeriod(k){
+    var d=P[k];
+    $('#pGrid').innerHTML=
+      cellHtml('Gidilen',d.km,'km')+
+      cellHtml('100km tüketim',d.c100,'kWh')+
+      cellHtml('Tahmini menzil',d.rng,'km')+
+      cellHtml('Harcanan',d.kwh,'kWh')+
+      cellHtml('Yenen batarya',d.yenen,'%','g')+
+      cellHtml('Verim skoru',d.skor,'/100','g')+
+      cellHtml('Ort. hız',d.hiz,'km/h')+
+      cellHtml('Sürüş süresi',d.sure,'sa')+
+      cellHtml('Maliyet',d.mal,'₺')+
+      cellHtml('Toplam geri kazanım',d.regen,'kWh','g');
+    $('#pNote').textContent=d.note;
+    drawChart(k);
+  }
+  function drawChart(k){
+    var d=P[k],c=$('#chart'),x=$('#chx');
+    if(!d.bars){c.style.display='none';x.style.display='none';return}
+    c.style.display='flex';x.style.display='flex';
+    var mx=Math.max.apply(null,d.bars);
+    c.className='chart'+(d.dense?' dense':'');c.innerHTML='';x.innerHTML='';
+    d.bars.forEach(function(v,i){
+      var b=document.createElement('div');b.className='bar'+(i===d.hi?' hi':'');c.appendChild(b);
+      requestAnimationFrame(function(){requestAnimationFrame(function(){b.style.height=Math.max(3,v/mx*100)+'%'})});
+    });
+    d.x.forEach(function(t,i){var s=document.createElement('span');s.textContent=t;if(i===d.hi&&t)s.className='hi';x.appendChild(s)});
+  }
+  $$('#pSeg .chip').forEach(function(t){t.addEventListener('click',function(){
+    $$('#pSeg .chip').forEach(function(x){x.classList.remove('on')});t.classList.add('on');
+    cur=t.dataset.k;renderPeriod(cur);
+  })});
+  renderPeriod('bugun');
+
+  /* ── MODLAR ── */
+  var MODS=[
+    {k:'NORMAL',c:'#1189FF',sure:'14 sa 2 dk',km:'412,6',kwh:'68,4',tl:'241',kmb:'0,58'},
+    {k:'ECO',c:'#34C759',sure:'6 sa 4 dk',km:'198,4',kwh:'29,1',tl:'102',kmb:'0,52'},
+    {k:'SPORT',c:'#FF3B30',sure:'1 sa 12 dk',km:'64,2',kwh:'13,8',tl:'49',kmb:'0,76'},
+    {k:'KAR',c:'#5AC8FA',sure:'—',km:'0,0',kwh:'0,00',tl:'0',kmb:'—'}
+  ];
+  var AKTIF='NORMAL';
+  $('#modAct').textContent='aktif: '+AKTIF;
+  $('#mods').innerHTML=MODS.map(function(m){
+    var on=m.k===AKTIF;
+    return '<div class="mod'+(on?' on':'')+'" style="--mc:'+m.c+'">'+
+      '<div class="mn">'+m.k+(on?'<span class="badge">AKTİF</span>':'')+'</div>'+
+      '<div class="mrow"><span>Süre</span><b>'+m.sure+'</b></div>'+
+      '<div class="mrow"><span>Km</span><b>'+m.km+'</b></div>'+
+      '<div class="mrow"><span>kWh</span><b>'+m.kwh+'</b></div>'+
+      '<div class="mrow"><span>Maliyet</span><b>'+m.tl+' ₺</b></div>'+
+      '<div class="mk">'+(m.kmb==='—'?'—':m.kmb+' ₺/km')+'</div>'+
+    '</div>';
+  }).join('');
+
+  /* ── İSTASYON MOTORU ── */
+  var CAR={la:36.885,ln:30.705};
+  var ST=[{"t":"Aura Berry Teneffüs Park/ DC 120 K","b":"CHARGING VEHICLES CV","la":36.88616,"ln":30.70465,"n":4,"a":1},{"t":"Cumhuriyet Otoparkı","b":"VOLTUP","la":36.88713,"ln":30.70339,"n":1,"a":1},{"t":"Khan Hotel 2x22 kW","b":"CHARGING VEHICLES CV","la":36.88856,"ln":30.70409,"n":2,"a":1},{"t":"Sky Kamer Hotel Antalya","b":"zes","la":36.88763,"ln":30.70092,"n":1,"a":1},{"t":"Mekanik Katlı Otopark","b":"VOLTUP","la":36.88626,"ln":30.71043,"n":1,"a":1},{"t":"İsmet İnönü Yeraltı Otoparkı -2","b":"VOLTUP","la":36.88893,"ln":30.70993,"n":2,"a":1},{"t":"Antalya Millet Bahçesi -1 Otopark","b":"wat mobilite","la":36.87929,"ln":30.70791,"n":19,"a":1},{"t":"Güllük Katlı Otopark","b":"VOLTUP","la":36.88689,"ln":30.69741,"n":3,"a":1},{"t":"Işıklar Otopark","b":"VOLTUP","la":36.8786,"ln":30.70902,"n":1,"a":0},{"t":"Muratpaşa Antalya","b":"TESLA","la":36.89272,"ln":30.70356,"n":8,"a":1},{"t":"MarkAntalya AVM","b":"MINUS ENERGY","la":36.89294,"ln":30.70465,"n":3,"a":1},{"t":"MARK ANTALYA AVM","b":"enertürk rhg enerji","la":36.8929,"ln":30.704,"n":4,"a":1},{"t":"MARKANTALYA","b":"VOLTRUN","la":36.89295,"ln":30.70442,"n":3,"a":1},{"t":"Mark Antalya AVM","b":"Trugo","la":36.89314,"ln":30.70434,"n":4,"a":1},{"t":"ASTORŞARJ MURATPAŞA RAMADA BY WYND","b":"ASTOR","la":36.87692,"ln":30.70821,"n":2,"a":1},{"t":"BioGreen: Mostar Hotel -The Hood -","b":"biogreen","la":36.89312,"ln":30.70159,"n":1,"a":1},{"t":"BİLGEHAN OTEL","b":"TORA","la":36.89336,"ln":30.70247,"n":2,"a":1},{"t":"ERSOY İKİZ OTEL","b":"VOLTRUN","la":36.89487,"ln":30.70345,"n":1,"a":1},{"t":"3M Car Care","b":"carbonage","la":36.88372,"ln":30.71832,"n":2,"a":1},{"t":"Anadolu Hastanesi Önü","b":"VOLTUP","la":36.88683,"ln":30.71942,"n":3,"a":1},{"t":"A PLAZA İŞ MERKEZİ","b":"VOLTRUN","la":36.89663,"ln":30.70866,"n":2,"a":1},{"t":"BioGreen: Double Three By Hilton A","b":"biogreen","la":36.89638,"ln":30.71072,"n":4,"a":1},{"t":"Atatürk Parkı","b":"VOLTUP","la":36.8849,"ln":30.68919,"n":4,"a":1},{"t":"Antalya Muratpaşa Belediyesi Otopa","b":"GEL DOL","la":36.88908,"ln":30.68984,"n":2,"a":1},{"t":"BLOOMTALYA HOTEL","b":"VOLTRUN","la":36.89114,"ln":30.71935,"n":1,"a":1},{"t":"Otojet - Çınar Petrol","b":"Otojet","la":36.89814,"ln":30.7092,"n":1,"a":1},{"t":"LARA BALIK EVİ IŞIKLAR","b":"beefull","la":36.8737,"ln":30.71528,"n":2,"a":1},{"t":"Platin İş Merkezi","b":"getacharge","la":36.89813,"ln":30.71171,"n":5,"a":1},{"t":"BioGreen: Grand Kayalar Otel - 22 ","b":"biogreen","la":36.89889,"ln":30.69987,"n":2,"a":1},{"t":"ELİPS ROYAL HOTEL","b":"VOLTRUN","la":36.89966,"ln":30.70703,"n":1,"a":1},{"t":"Opet Acente Muratpaşa","b":"wat mobilite","la":36.90028,"ln":30.70678,"n":2,"a":1},{"t":"Netek Mühendislik Şarj İstasyonu","b":"TÜRKŞARJ","la":36.90054,"ln":30.70428,"n":1,"a":1},{"t":"Star Elektronik","b":"CHARGING VEHICLES CV","la":36.90159,"ln":30.70581,"n":2,"a":1},{"t":"SKY BUSINESS HOTEL","b":"EN YAKIT","la":36.88788,"ln":30.72546,"n":2,"a":1},{"t":"CARWAX","b":"evroad","la":36.88027,"ln":30.72611,"n":1,"a":0},{"t":"Ali Peçen Plaza","b":"zes","la":36.90065,"ln":30.71645,"n":4,"a":1},{"t":"Sultanyar Kebap Yanı Otopark","b":"VOLTUP","la":36.86961,"ln":30.71975,"n":4,"a":1},{"t":"Vestel Kızılarık Şubesi","b":"zes","la":36.90216,"ln":30.71653,"n":1,"a":0},{"t":"MİNTA ELEKTRİK","b":"VOLTRUN","la":36.9027,"ln":30.6944,"n":1,"a":1},{"t":"MERVE ELEKTRONİK TİCARET","b":"VOLTRUN","la":36.90245,"ln":30.71664,"n":1,"a":0},{"t":"TR-07-015 Yenigün","b":"ŞARJPLUS","la":36.90094,"ln":30.72216,"n":2,"a":1},{"t":"ASTORŞARJ ÖZKAYMAK FALEZ ELEKTRİKL","b":"ASTOR","la":36.88683,"ln":30.67615,"n":2,"a":1}];
+  var AC_BRANDS={'VOLTUP':7.9,'wat mobilite':7.5,'ADZE':7.2,'solarşarj':7.9,'ECOCONNECT':7.4,'SHARZ.NET':7.9,'RSŞARJ':7.6,'Electrise':7.9,'MINUS ENERGY':8.2,'EKOS':7.8,'ŞS ŞARJSTOP Güvenli Şarj Noktası':7.6,'enertürk rhg enerji':8.4,'CATEC':7.9,'BOLT & GO':7.9,'POINTO':7.9,'BEYAZ ŞARJ':7.9};
+  var DC_PRICE={'TESLA':9.4,'Trugo':8.6,'zes':10.9,'Eşarj':10.4,'VOLTRUN':9.9,'Astor':9.8,'ASTOR':9.8,'CHARGING VEHICLES CV':9.2,'BEEFULL':9.9,'ONLIFE ŞARJ':10.2,'D-Şarj':9.9,'Otojet':9.6,'Aksa Şarj':10.1,'multiforce':9.9,'OTOWATT':9.7,'petrol ofisi e-po':10.8,'biogreen':9.5};
+  function kwOf(s){
+    var m=(s.t||'').match(/(\d{2,3})\s*K\s*W/i);
+    if(m){var v=+m[1];if(v>=22)return v}
+    var b=s.b||'';
+    if(b in AC_BRANDS)return 22;
+    if(/tesla/i.test(b))return 250;
+    if(/trugo|astor/i.test(b))return 180;
+    if(/zes|e-po|eşarj|esarj/i.test(b))return 120;
+    return 60;
+  }
+  function priceOf(s,kw){
+    if(kw<=22)return AC_BRANDS[s.b]||7.9;
+    for(var k in DC_PRICE){if(s.b.toLowerCase().indexOf(k.toLowerCase())>=0)return DC_PRICE[k]}
+    return kw>=150?9.9:9.5;
+  }
+  function distKm(a,b,c,d){
+    var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;
+    var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);
+    return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+  }
+  ST.forEach(function(s){
+    s.kw=kwOf(s);s.tip=s.kw>=150?'HY':(s.kw>=50?'DC':'AC');
+    s.pr=priceOf(s,s.kw);s.d=distKm(CAR.la,CAR.ln,s.la,s.ln);
+  });
+  var fMode='all',sMode='near';
+  var LA0=36.869,LA1=36.899,LN0=30.688,LN1=30.724;
+  function mapXY(s){
+    var x=(s.ln-LN0)/(LN1-LN0)*100,y=(1-(s.la-LA0)/(LA1-LA0))*100;
+    return {x:Math.max(2,Math.min(98,x)),y:Math.max(3,Math.min(92,y))};
+  }
+  function render(){
+    var list=ST.filter(function(s){return fMode==='all'||s.tip===fMode});
+    list.sort(sMode==='near'?function(a,b){return a.d-b.d}:function(a,b){return a.pr-b.pr||a.d-b.d});
+    $('#stCount').textContent=list.length+' nokta';
+    $('#stList').innerHTML=list.slice(0,8).map(function(s){
+      var tip=s.tip==='HY'?'HİPER':s.tip;
+      var cls=s.tip==='HY'?' hy':(s.tip==='DC'?' dc':'');
+      return '<div class="lrow">'+
+        '<div class="kwb'+cls+'">'+s.kw+'<small>'+tip+'</small></div>'+
+        '<div class="lb"><div class="lt">'+s.t+'</div>'+
+        '<div class="ls">'+s.b+' · '+s.n+' soket · '+trN(s.d,1)+' km</div></div>'+
+        '<div class="le"><div class="lv">'+trN(s.pr,2)+'<small>₺/kWh</small></div>'+
+        '<div class="lvs"><span class="avdot'+(s.a?'':' full')+'"></span>'+(s.a?'müsait':'dolu')+'</div></div></div>';
+    }).join('');
+    $('#mapDots').innerHTML=ST.map(function(s){
+      var p=mapXY(s),show=fMode==='all'||s.tip===fMode;
+      return '<span class="sdot'+(s.tip==='HY'?' hy':'')+(s.a?'':' full')+(show?'':' hide')+'" style="left:'+p.x+'%;top:'+p.y+'%" title="'+s.b+' · '+s.t+'"></span>';
+    }).join('');
+  }
+  $$('.chip[data-f]').forEach(function(b){b.addEventListener('click',function(){
+    $$('.chip[data-f]').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    fMode=b.dataset.f;render();
+  })});
+  $$('.sortsw button').forEach(function(b){b.addEventListener('click',function(){
+    $$('.sortsw button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    sMode=b.dataset.s;render();
+  })});
+  render();
+  $('#navBtn').addEventListener('click',function(){toast('Harita uygulamasında açılacak')});
+})();
+</script>
+</body>
+</html>

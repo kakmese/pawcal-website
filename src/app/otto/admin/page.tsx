@@ -88,6 +88,18 @@ export default function OttoAdminPage() {
   const [kodSayfa, setKodSayfa] = useState(1);
   const [kodTipFiltre, setKodTipFiltre] = useState<'hepsi' | KodTip>('hepsi');
 
+  const [dTip, setDTip] = useState<KodTip>('otto');
+  const [dAktif, setDAktif] = useState(false);
+  const [dBaslik, setDBaslik] = useState('');
+  const [dMetin, setDMetin] = useState('');
+  const [dButon, setDButon] = useState('');
+  const [dLink, setDLink] = useState('');
+  const [dNo, setDNo] = useState<number | null>(null);
+  const [dYukleniyor, setDYukleniyor] = useState(false);
+  const [dKaydediyor, setDKaydediyor] = useState(false);
+  const [dMesaj, setDMesaj] = useState<string | null>(null);
+  const [dHata, setDHata] = useState<string | null>(null);
+
   async function surumYukle() {
     try {
       const r = await fetch('/api/otto/surum');
@@ -224,6 +236,68 @@ export default function OttoAdminPage() {
     }
   }
 
+  async function duyuruYukle(tip: KodTip) {
+    setDYukleniyor(true);
+    setDMesaj(null);
+    setDHata(null);
+    try {
+      const r = await fetch(`/api/otto/duyuru?tip=${encodeURIComponent(tip)}`, { cache: 'no-store' });
+      const j = await r.json();
+      if (!j.ok) {
+        setDHata('Duyuru yüklenemedi.');
+        return;
+      }
+      setDAktif(j.aktif === true);
+      setDBaslik(j.baslik ?? '');
+      setDMetin(j.metin ?? '');
+      setDButon(j.buton ?? '');
+      setDLink(j.link ?? '');
+      setDNo(typeof j.no === 'number' ? j.no : null);
+    } catch {
+      setDHata('Bağlantı hatası.');
+    } finally {
+      setDYukleniyor(false);
+    }
+  }
+
+  async function duyuruTipDegistir(yeni: KodTip) {
+    if (yeni === dTip) return;
+    setDTip(yeni);
+    await duyuruYukle(yeni);
+  }
+
+  async function duyuruKaydet() {
+    setDKaydediyor(true);
+    setDMesaj(null);
+    setDHata(null);
+    try {
+      const r = await fetch('/api/otto/duyuru-set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({
+          adminKey,
+          tip: dTip,
+          aktif: dAktif,
+          baslik: dBaslik.trim(),
+          metin: dMetin,
+          buton: dButon.trim(),
+          link: dLink.trim(),
+        }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        setDHata(j.hata === 'yetkisiz' ? 'Yetki hatası.' : 'Kaydedilemedi.');
+        return;
+      }
+      setDNo(typeof j.yeniNo === 'number' ? j.yeniNo : null);
+      setDMesaj(dAktif ? 'Yayınlandı.' : 'Kaydedildi (kapalı).');
+    } catch {
+      setDHata('Bağlantı hatası.');
+    } finally {
+      setDKaydediyor(false);
+    }
+  }
+
   async function girisYap() {
     if (!adminKey) return;
     const ok = await istatistikYukle(adminKey);
@@ -232,6 +306,7 @@ export default function OttoAdminPage() {
       surumYukle();
       kullaniciYukle(adminKey);
       mobilDurumYukle();
+      duyuruYukle(dTip);
     }
   }
 
@@ -547,6 +622,141 @@ export default function OttoAdminPage() {
           </div>
           {sMesaj && <p className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">{sMesaj}</p>}
           {sHata && <p className="mt-3 text-sm text-red-600">{sHata}</p>}
+        </section>
+
+        <section className="bg-white rounded-xl shadow p-5 mb-6">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h2 className="text-lg font-semibold text-slate-900">Duyuru / Pop-up</h2>
+            {dNo !== null && (
+              <span className="text-xs text-slate-500">Sürüm no: <b className="text-slate-700">{dNo}</b></span>
+            )}
+          </div>
+          <p className="text-xs text-slate-500 mb-4">
+            Aktif edilince o uygulamanın kullanıcıları açılışta bu pop-up&apos;ı bir kez görür.
+            Metni değiştirip tekrar yayınlarsan aynı kullanıcılar yeni duyuruyu tekrar görür.
+          </p>
+
+          <div className="flex gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => duyuruTipDegistir('otto')}
+              className={
+                dTip === 'otto'
+                  ? 'px-4 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-white'
+                  : 'px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }
+              disabled={dYukleniyor || dKaydediyor}
+            >
+              Otto
+            </button>
+            <button
+              type="button"
+              onClick={() => duyuruTipDegistir('otto+')}
+              className={
+                dTip === 'otto+'
+                  ? 'px-4 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white'
+                  : 'px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }
+              disabled={dYukleniyor || dKaydediyor}
+            >
+              Otto+
+            </button>
+            <button
+              type="button"
+              onClick={() => duyuruYukle(dTip)}
+              className="ml-auto text-xs text-slate-600 hover:text-slate-900 underline"
+              disabled={dYukleniyor || dKaydediyor}
+            >
+              {dYukleniyor ? 'Yükleniyor…' : 'Yeniden Yükle'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={dAktif}
+                  onChange={(e) => setDAktif(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  disabled={dKaydediyor}
+                />
+                Aktif (kullanıcılara göster)
+              </label>
+              <span
+                className={
+                  dAktif
+                    ? 'text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full'
+                    : 'text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded-full'
+                }
+              >
+                {dAktif ? 'Yayında' : 'Kapalı'}
+              </span>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-slate-600 mb-1">Başlık</label>
+              <input
+                type="text"
+                value={dBaslik}
+                onChange={(e) => setDBaslik(e.target.value)}
+                maxLength={200}
+                placeholder="örn. Yeni sürüm çıktı"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={dKaydediyor}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-slate-600 mb-1">Metin</label>
+              <textarea
+                value={dMetin}
+                onChange={(e) => setDMetin(e.target.value)}
+                maxLength={4000}
+                rows={4}
+                placeholder="Pop-up gövde metni"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={dKaydediyor}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Buton yazısı</label>
+              <input
+                type="text"
+                value={dButon}
+                onChange={(e) => setDButon(e.target.value)}
+                maxLength={60}
+                placeholder="örn. Siteden İndir"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={dKaydediyor}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Buton linki</label>
+              <input
+                type="text"
+                value={dLink}
+                onChange={(e) => setDLink(e.target.value)}
+                maxLength={500}
+                placeholder="https://pawcal.net/otto/indir"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                disabled={dKaydediyor}
+              />
+            </div>
+            <div className="sm:col-span-2 flex items-center justify-end">
+              <button
+                onClick={duyuruKaydet}
+                disabled={dKaydediyor || dYukleniyor}
+                className={
+                  dTip === 'otto+'
+                    ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium px-6 py-2 rounded-lg transition-colors'
+                    : 'bg-slate-800 hover:bg-slate-900 disabled:bg-slate-400 text-white font-medium px-6 py-2 rounded-lg transition-colors'
+                }
+              >
+                {dKaydediyor ? 'Kaydediliyor…' : dAktif ? 'Kaydet ve Yayınla' : 'Kaydet (kapalı)'}
+              </button>
+            </div>
+          </div>
+          {dMesaj && <p className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">{dMesaj}</p>}
+          {dHata && <p className="mt-3 text-sm text-red-600">{dHata}</p>}
         </section>
 
         <KatlanirBaslik

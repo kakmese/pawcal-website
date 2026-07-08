@@ -1,0 +1,232 @@
+<!doctype html><html lang=tr><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Otto — birleşik önizleme</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,sans-serif;background:linear-gradient(180deg,#EAF0F8,#E4E9F1 55%,#E7EBF1);min-height:100vh}
+.num{font-family:'Space Grotesk';font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.app{max-width:440px;margin:0 auto;padding:14px 15px 90px;color:#141922}
+.topbar{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.lg{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#1189FF,#22D3FF);display:grid;place-items:center;font-weight:800;font-size:12px;color:#04121F;flex:none;box-shadow:0 4px 12px rgba(17,137,255,.3)}
+.hnm{font-size:12.5px;font-weight:700;color:#3E4652}.hnm small{display:block;font-size:9.5px;color:#9198A2;font-weight:600}
+.hst{margin-left:auto;display:flex;align-items:center;gap:6px;background:#fff;padding:7px 12px;border-radius:100px;font-size:11.5px;font-weight:700;box-shadow:0 3px 12px rgba(20,30,48,.08)}
+.hst i{width:6px;height:6px;border-radius:50%;background:#B4BAC3;font-style:normal}
+
+/* paneller ortak */
+.panel{background:#fff;border-radius:20px;padding:15px 16px;margin-bottom:11px;box-shadow:0 6px 18px rgba(20,30,48,.07)}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.ph b{font-size:14px;font-weight:800}.ph a{font-size:12px;font-weight:700;color:#1189FF}.ph .gg{font-size:11px;color:#9198A2;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.cell .cl{font-size:10.5px;color:#9198A2;font-weight:600}.cell .cv{font-size:20px;font-weight:700;margin-top:2px}.cell .cv small{font-size:11px;color:#9198A2}.cell .cv.g{color:#34A853}
+
+/* ANA */
+.hero{background:#fff;border-radius:24px;padding:16px 18px;box-shadow:0 10px 30px rgba(20,30,48,.08);margin-bottom:12px}
+.htop{display:flex;justify-content:space-between;align-items:flex-start}
+.tt{font-size:15px;font-weight:800}.tt small{display:block;font-size:10.5px;color:#9198A2;font-weight:600;margin-top:2px}
+.chip{font-size:11px;font-weight:800;color:#34A853;background:#EAF7EE;padding:6px 12px;border-radius:100px}
+.carw{text-align:center;margin:2px 0}.carw img{width:90%;filter:drop-shadow(0 14px 20px rgba(10,25,45,.18))}
+.bwrap{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
+.soc{font-size:44px;font-weight:700;line-height:.9}.soc small{font-size:19px;color:#9198A2}
+.kw{font-size:11px;color:#8A909C;font-weight:600;margin-top:3px}
+.rr{text-align:right}.rr .v{font-size:26px;font-weight:700}.rr .v small{font-size:12px;color:#9198A2}.rr .l{font-size:10.5px;color:#9198A2;font-weight:600}
+.shell{position:relative;height:26px;border-radius:9px;background:#E4E9F0;padding:4px;margin-right:8px}
+.shell::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:6px;height:12px;border-radius:0 3px 3px 0;background:#E4E9F0}
+.fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#34C759,#1189FF)}
+.zz{font-size:10.5px;color:#AAB0B8;font-weight:500;margin-top:10px}
+.qr{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:11px}
+.q{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 4px 12px;border-radius:19px;background:#fff;box-shadow:0 5px 16px rgba(20,30,48,.07);font-size:10.5px;font-weight:600;color:#3E4652}
+.strip{display:flex}.stx{flex:1;text-align:center;border-right:1px solid #EDF0F4}.stx:last-child{border:none}
+.stx .v{font-size:20px;font-weight:700}.stx .l{font-size:9.5px;color:#9198A2;font-weight:600;margin-top:3px}
+
+/* BATARYA */
+.cellwrap{display:flex;gap:20px;align-items:center;margin-bottom:12px;background:#fff;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(20,30,48,.08)}
+.cell3d{position:relative;width:88px;height:186px;flex:none}
+.cell3d .cap{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:32px;height:8px;border-radius:4px 4px 0 0;background:#CDD5DF}
+.cbody{position:absolute;inset:0;border-radius:16px;background:#EEF2F7;border:1.5px solid #DDE3EA;overflow:hidden}
+.lvl{position:absolute;left:0;right:0;bottom:0;height:52%;background:linear-gradient(180deg,#22D3FF,#1189FF 55%,#34C759);border-radius:0 0 14px 14px}
+.lvl::before{content:"";position:absolute;top:-5px;left:0;right:0;height:10px;background:rgba(255,255,255,.4);filter:blur(2px)}
+.gloss{position:absolute;top:8px;left:9px;width:14px;bottom:8px;border-radius:7px;background:linear-gradient(180deg,rgba(255,255,255,.7),transparent)}
+.ci .p{font-size:52px;font-weight:700;line-height:.85}.ci .p small{font-size:20px;color:#9198A2}
+.ckw{font-size:12px;color:#8A909C;font-weight:600;margin-top:6px}
+.days{margin-top:10px;display:inline-block;font-size:11px;font-weight:800;color:#1189FF;background:#E8F2FF;padding:6px 12px;border-radius:100px}
+.brow{display:flex;gap:10px;margin-bottom:11px}
+.bx{flex:1;background:#fff;border-radius:15px;padding:13px 14px;box-shadow:0 5px 14px rgba(20,30,48,.06)}
+.bx .bl{font-size:10px;color:#9198A2;font-weight:600}.bx .bv{font-size:20px;font-weight:700;margin-top:3px}.bx .bv.g{color:#34A853}
+.save{display:flex;align-items:baseline;gap:8px}.save .big{font-size:32px;font-weight:700;color:#34A853}.save .sl{font-size:10.5px;color:#9198A2;font-weight:500}
+.crow{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #F1F3F5}.crow:last-child{border:none}
+.crow .cc{flex:1}.crow .ct{font-size:12.5px;font-weight:700}.crow .cs{font-size:10px;color:#9198A2;margin-top:2px}
+.crow .cvv{font-size:14px;font-weight:800;text-align:right}.crow .cvv small{font-size:9px;color:#9198A2}.crow .cvv span{color:#34A853;font-size:10px}
+
+/* SÜRÜŞ */
+.perrow{display:flex;justify-content:flex-end;margin-bottom:11px}
+.perbtn{display:inline-flex;align-items:center;gap:6px;background:#fff;padding:8px 14px;border-radius:100px;font-size:12.5px;font-weight:800;box-shadow:0 3px 10px rgba(20,30,48,.06)}
+.dhero{background:#fff;border-radius:18px;padding:16px;margin-bottom:11px;display:flex;align-items:center;gap:16px;box-shadow:0 7px 20px rgba(20,30,48,.07)}
+.dscore{text-align:center}.dscore .sv{font-size:46px;font-weight:700;color:#F59E0B;line-height:.9}.dsl{font-size:10px;color:#9198A2;font-weight:600;margin-top:2px}
+.dspark{flex:1}.dspark .dsl{margin-bottom:6px}
+.dmetrics{background:#fff;border-radius:16px;padding:4px 16px;margin-bottom:11px;box-shadow:0 6px 18px rgba(20,30,48,.06)}
+.dm{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F1F3F5}.dm:last-child{border:none}
+.dm .dl{font-size:12px;color:#6B7280}.dm .dv{font-size:16px;font-weight:700}.dm .dv small{font-size:10px;color:#9198A2}.dm .dv.g{color:#34A853}
+.dmod{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 6px 18px rgba(20,30,48,.06);margin-bottom:11px}
+.dmh{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;justify-content:space-between}.dmh span{font-size:11px;color:#9198A2;font-weight:600}
+.mbar{margin-bottom:12px}.mbar:last-child{margin-bottom:0}
+.mbt{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px}.mbt b{font-weight:800}.mbt .n{color:#1189FF}.mbt .e{color:#34A853}.mbt .s{color:#F97316}.mbt .k{color:#22B8CF}.mbt span{color:#9198A2;font-weight:600}
+.mtrack{height:7px;border-radius:100px;background:#EDF0F4;overflow:hidden}.mtrack i{display:block;height:100%;border-radius:100px}
+
+/* İSTASYON */
+.map{position:relative;height:220px;background:linear-gradient(135deg,#DCE6F0,#C8D6E6);overflow:hidden;border-radius:20px;margin-bottom:-16px}
+.road{position:absolute;background:#EEF3F8}
+.r1{top:66px;left:-20px;right:-20px;height:16px;transform:rotate(-8deg)}
+.r2{top:0;bottom:0;left:130px;width:14px;transform:rotate(6deg)}
+.r3{top:146px;left:-20px;right:-20px;height:12px;transform:rotate(4deg)}
+.blob{position:absolute;border-radius:40%;background:rgba(52,168,83,.13)}
+.b1{width:120px;height:90px;top:-20px;right:-10px}
+.mpin{position:absolute;transform:translate(-50%,-100%)}
+.mdot{width:32px;height:32px;border-radius:50% 50% 50% 2px;transform:rotate(45deg);display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.mdot span{transform:rotate(-45deg);font-size:10px;font-weight:800;color:#fff;font-family:'Space Grotesk'}
+.mpin.me .mdot{background:#1189FF;border-radius:50%;width:20px;height:20px}
+.mpin.dc .mdot{background:#F59E0B}.mpin.hi .mdot{background:#8B5CF6}
+.mapbtn{position:absolute;bottom:26px;right:12px;background:#fff;border-radius:12px;padding:9px 13px;font-size:11.5px;font-weight:700;box-shadow:0 4px 12px rgba(20,30,48,.15);display:flex;align-items:center;gap:6px}
+.isheet{background:#F4F6F9;border-radius:22px 22px 20px 20px;position:relative;padding:16px 15px 6px;box-shadow:0 -4px 16px rgba(20,30,48,.06)}
+.chips{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto}
+.chips::-webkit-scrollbar{display:none}
+.chip2{font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:100px;background:#fff;color:#5A616B;white-space:nowrap;box-shadow:0 2px 8px rgba(20,30,48,.05)}
+.chips .chip{font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:100px;background:#fff;color:#5A616B;white-space:nowrap;box-shadow:0 2px 8px rgba(20,30,48,.05)}
+.chips .chip.on{background:#1189FF;color:#fff}
+.srow{display:flex;align-items:center;background:#fff;border-radius:14px;padding:12px 13px;margin-bottom:9px;box-shadow:0 4px 12px rgba(20,30,48,.05)}
+.kwb{font-size:11px;font-weight:800;font-family:'Space Grotesk';padding:8px 6px;border-radius:10px;margin-right:11px;text-align:center;min-width:44px;line-height:1.1}
+.kwb.hi{background:#F3EDFF;color:#8B5CF6}.kwb.dc{background:#FFF4E5;color:#F59E0B}.kwb small{font-size:8px;display:block;font-weight:700}
+.si{flex:1}.st2{font-size:13px;font-weight:700}.ss{font-size:10.5px;color:#9198A2;margin-top:2px}
+.spp{text-align:right}.spv{font-size:15px;font-weight:800}.spv small{font-size:9px;color:#9198A2}.spd{font-size:10px;font-weight:700;margin-top:2px}.spd.o{color:#34A853}.spd.b{color:#EF4444}
+
+/* ARAÇ */
+.schema{position:relative;background:#fff;border-radius:22px;padding:20px 16px 16px;box-shadow:0 8px 24px rgba(20,30,48,.08);margin-bottom:11px}
+.sst{font-size:13px;font-weight:800;margin-bottom:4px}
+.carbox{position:relative;width:190px;height:270px;margin:6px auto 0}
+.tvb{position:absolute;background:#F4F7FA;border:1px solid #E4E9F0;border-radius:11px;padding:6px 10px;text-align:center;box-shadow:0 3px 8px rgba(20,30,48,.05)}
+.tvv{font-size:15px;font-weight:800;font-family:'Space Grotesk';line-height:1}.tvl{font-size:8.5px;color:#9198A2;font-weight:700;margin-top:1px}
+.tgl{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F1F3F5}.tgl:last-child{border:none}
+.tll{font-size:13px;font-weight:600}.tls{font-size:10.5px;color:#9198A2;margin-top:2px}
+.sw{width:44px;height:26px;border-radius:100px;background:#D5DAE1;position:relative;flex:none}.sw.on{background:#34C759}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.2s}.sw.on::after{left:21px}
+
+/* TABBAR B — alta oturan */
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:10px 8px calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;box-shadow:0 -6px 20px rgba(20,30,48,.08);max-width:440px;margin:0 auto;z-index:20}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9.5px;font-weight:700;color:#9198A2;flex:1;padding:4px 0}
+.tab.on{color:#1189FF}
+.und{width:5px;height:5px;border-radius:50%;background:transparent;margin-top:2px}
+.tab.on .und{background:#1189FF}
+</style></head><body>
+<div class=app>
+  <div class=topbar><div class=lg>oT</div><div class=hnm>Otto<small>Sealion 7</small></div><div class=hst><i></i>Park · 52% · 223km</div></div>
+  <div class=screen id=screen0 style=display:block>
+<div class=hero>
+  <div class=htop><div class=tt>BYD Sealion 7<small>Son bilinen durum</small></div><div class=chip>Park halinde</div></div>
+  <img src="[BASE64-CAR-IMAGE-OMITTED]">
+  <div class=bwrap><div><div class="soc num">52<small>%</small></div><div class=kw>35,9 kWh kalan</div></div><div class=rr><div class="v num">223<small>km</small></div><div class=l>menzil · ≈4 gün</div></div></div>
+  <div class=shell><div class=fill style=width:52%></div></div>
+  <div class=zz>Araç uykuda — son bilinen durum (4 sa önce)</div>
+</div>
+<div class=qr>
+  <div class=q><svg width=17 height=17 viewBox="0 0 15 15" fill=none><path d="M14 1 1 6.4l5.6 2L8.6 14 14 1Z" stroke=#1189FF stroke-width=1.6 stroke-linejoin=round/></svg>Yol tarifi</div>
+  <div class=q><svg width=14 height=17 viewBox="0 0 12 14" fill=none><path d="M7 0 0 8h4l-1 6 7-8H6l1-6Z" fill=#1189FF/></svg>İstasyon</div>
+  <div class=q><svg width=17 height=17 viewBox="0 0 18 18" fill=none><circle cx=9 cy=9 r=7.4 stroke=#1189FF stroke-width=1.7/><path d="M9 9 12.4 5.6" stroke=#1189FF stroke-width=1.8 stroke-linecap=round/></svg>Sürüş</div>
+  <div class=q><svg width=16 height=17 viewBox="0 0 17 18" fill=none><path d="M8.5 1.5c-3 0-5 2.2-5 5.2v3L1.8 12.6c-.4.6 0 1.4.8 1.4h11.8c.8 0 1.2-.8.8-1.4L13.5 9.7v-3c0-3-2-5.2-5-5.2Z" stroke=#1189FF stroke-width=1.5 stroke-linejoin=round/></svg>Bildirim</div>
+</div>
+<div class=panel><div class=ph><b>Bugün</b><a>Sürüş →</a></div>
+  <div class=strip>
+    <div class=stx><div class="v num">23,4</div><div class=l>km</div></div>
+    <div class=stx><div class="v num">16,7</div><div class=l>kWh/100</div></div>
+    <div class=stx><div class="v num">34</div><div class=l>km/h ort.</div></div>
+    <div class=stx><div class="v num">41</div><div class=l>dk süre</div></div>
+  </div>
+</div>
+<div class=panel><div class=ph><b>Araç verileri</b></div>
+  <div class=g2><div class=cell><div class=cl>Son 50 km tüketim</div><div class="cv num">16,4<small>kWh</small></div></div><div class=cell><div class=cl>Toplam yol</div><div class="cv num">3.982<small>km</small></div></div></div>
+</div></div><div class=screen id=screen1 style=display:none>
+<div class=cellwrap>
+  <div class=cell3d><div class=cap></div><div class=cbody><div class=lvl></div><div class=gloss></div></div></div>
+  <div class=ci><div class="p num">52<small>%</small></div><div class=ckw>35,9 kWh kalan</div><div class=days>≈4 gün yeter</div></div>
+</div>
+<div class=brow>
+  <div class=bx><div class=bl>Menzil</div><div class="bv num">223<small style=font-size:11px> km</small></div></div>
+  <div class=bx><div class=bl>Sağlık</div><div class="bv num g">%94</div></div>
+  <div class=bx><div class=bl>12V akü</div><div class="bv num">12,6<small style=font-size:11px>V</small></div></div>
+</div>
+<div class=panel><div class=ph><b>Benzine göre tasarruf</b><span class=gg>bugüne kadar</span></div>
+  <div class=save><div class="big num">14.240 ₺</div><div class=sl>aynı yolu benzinli<br>araç yapsaydı</div></div>
+</div>
+<div class=panel><div class=ph><b>Şarj geçmişi</b><a>Tümü →</a></div>
+  <div class=crow><div class=cc><div class=ct>Ev · AC</div><div class=cs>2 Tem · 18→80%</div></div><div class="cvv num">29,6<small>kWh</small><br><span>~104 ₺</span></div></div>
+  <div class=crow><div class=cc><div class=ct>Trugo · DC</div><div class=cs>28 Haz · 22→75%</div></div><div class="cvv num">25,4<small>kWh</small><br><span>~380 ₺</span></div></div>
+</div></div><div class=screen id=screen2 style=display:none>
+<div class=perrow><div class=perbtn>Bugün <svg width=9 height=6 viewBox="0 0 9 6" fill=none><path d="M1 1l3.5 3.5L8 1" stroke=#9198A2 stroke-width=1.6 stroke-linecap=round/></svg></div></div>
+<div class=dhero>
+  <div class=dscore><div class="sv num">74</div><div class=dsl>VERİM /100</div></div>
+  <div class=dspark><div class=dsl>SON 10 SÜRÜŞ</div><svg width=150 height=42 viewBox="0 0 150 42"><polyline points="0.0,36.0 16.7,24.0 33.3,42.0 50.0,18.0 66.7,30.0 83.3,9.0 100.0,21.0 116.7,0.0 133.3,12.0 150.0,18.0" fill=none stroke="#1189FF" stroke-width=2.5 stroke-linecap=round stroke-linejoin=round/><circle cx=150.0 cy=18.0 r=3.5 fill="#1189FF"/></svg></div>
+</div>
+<div class=dmetrics>
+  <div class=dm><span class=dl>Gidilen</span><div class="dv num">23,4<small> km</small></div></div>
+  <div class=dm><span class=dl>Ortalama tüketim</span><div class="dv num">16,7<small> kWh/100</small></div></div>
+  <div class=dm><span class=dl>Ortalama hız</span><div class="dv num">34<small> km/h</small></div></div>
+  <div class=dm><span class=dl>Sürüş süresi</span><div class="dv num">41<small> dk</small></div></div>
+  <div class=dm><span class=dl>Harcanan enerji</span><div class="dv num">4,6<small> kWh</small></div></div>
+  <div class=dm><span class=dl>Geri kazanım</span><div class="dv num g">1,2<small> kWh</small></div></div>
+</div>
+<div class=dmod>
+  <div class=dmh>Sürüş modları<span>aktif: SPORT</span></div>
+  <div class=mbar><div class=mbt><b class=n>NORMAL</b><span>305 km · 90,6 kWh</span></div><div class=mtrack><i style="width:78%;background:#1189FF"></i></div></div>
+  <div class=mbar><div class=mbt><b class=e>ECO</b><span>36,4 km · 10,7 kWh</span></div><div class=mtrack><i style="width:14%;background:#34A853"></i></div></div>
+  <div class=mbar><div class=mbt><b class=s>SPORT</b><span>32,4 km · 11,0 kWh</span></div><div class=mtrack><i style="width:12%;background:#F97316"></i></div></div>
+  <div class=mbar><div class=mbt><b class=k>KAR</b><span>kullanılmadı</span></div><div class=mtrack><i style="width:0%"></i></div></div>
+</div></div><div class=screen id=screen3 style=display:none>
+<div class=map>
+  <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div><div class="blob b1"></div>
+  <div class="mpin me" style=left:48%;top:56%><div class=mdot></div></div>
+  <div class="mpin hi" style=left:30%;top:40%><div class=mdot><span>180</span></div></div>
+  <div class="mpin dc" style=left:66%;top:48%><div class=mdot><span>120</span></div></div>
+  <div class="mpin dc" style=left:56%;top:72%><div class=mdot><span>90</span></div></div>
+  <div class="mpin hi" style=left:76%;top:28%><div class=mdot><span>350</span></div></div>
+  <div class=mapbtn><svg width=13 height=13 viewBox="0 0 15 15" fill=none><circle cx=7 cy=7 r=6 stroke=#1189FF stroke-width=1.5/><circle cx=7 cy=7 r=1.5 fill=#1189FF/></svg>Konumum</div>
+</div>
+<div class=isheet>
+  <div class=chips><div class="chip on">En yakın</div><div class=chip>En ucuz</div><div class=chip>En hızlı</div><div class=chip>Hiper</div><div class=chip>DC</div></div>
+  <div class=srow><div class="kwb hi">180<small>kW</small></div><div class=si><div class=st2>Anfaş Fuarcılık</div><div class=ss>CV Charging · 0,4 km</div></div><div class=spp><div class="spv num">26,74<small>₺</small></div><div class="spd o">Açık</div></div></div>
+  <div class=srow><div class="kwb hi">350<small>kW</small></div><div class=si><div class=st2>Başaran Porsche</div><div class=ss>D-Charge · 1,5 km</div></div><div class=spp><div class="spv num">—</div><div class="spd o">Açık</div></div></div>
+  <div class=srow><div class="kwb dc">180<small>kW</small></div><div class=si><div class=st2>Zeplin BYD</div><div class=ss>ZEPLİN · 2,2 km</div></div><div class=spp><div class="spv num">8,50<small>₺</small></div><div class="spd b">Dolu</div></div></div>
+</div></div><div class=screen id=screen4 style=display:none>
+<div class=schema>
+  <div class=sst>Lastik basıncı <span style=font-size:10px;color:#9198A2;font-weight:600>· bar</span></div>
+  <div class=carbox>
+    <svg width=190 height=270 viewBox="0 0 190 270" style=position:absolute;left:0;top:0>
+      <rect x=52 y=15 width=86 height=240 rx=34 fill="#EEF2F7" stroke="#DDE3EA" stroke-width="2"/>
+      <path d="M62 55 Q95 40 128 55 L128 90 Q95 80 62 90 Z" fill="#DCE3EC"/>
+      <rect x=64 y=112 width=62 height=84 rx=12 fill="#E4EAF1"/>
+      <rect x=40 y=40 width=14 height=38 rx=6 fill="#1B222C"/><rect x=136 y=40 width=14 height=38 rx=6 fill="#1B222C"/>
+      <rect x=40 y=192 width=14 height=38 rx=6 fill="#1B222C"/><rect x=136 y=192 width=14 height=38 rx=6 fill="#1B222C"/>
+    </svg>
+    <div class="tvb" style=top:30px;left:-14px><div class=tvv>2,4</div><div class=tvl>SOL ÖN</div></div>
+    <div class="tvb" style=top:30px;right:-14px><div class=tvv>2,4</div><div class=tvl>SAĞ ÖN</div></div>
+    <div class="tvb" style=bottom:18px;left:-14px><div class=tvv>2,5</div><div class=tvl>SOL ARKA</div></div>
+    <div class="tvb" style=bottom:18px;right:-14px><div class=tvv>2,5</div><div class=tvl>SAĞ ARKA</div></div>
+  </div>
+</div>
+<div class=panel><div class=ph><b>Batarya sağlığı</b></div>
+  <div class=g2><div class=cell><div class=cl>Sağlık (SoH)</div><div class="cv num g">%94</div></div><div class=cell><div class=cl>12V akü</div><div class="cv num">12,6<small>V</small></div></div></div>
+</div>
+<div class=panel><div class=ph><b>Bildirimler</b></div>
+  <div class=tgl><div><div class=tll>Şarj doldu</div><div class=tls>%100'e ulaşınca</div></div><div class="sw on"></div></div>
+  <div class=tgl><div><div class=tll>Batarya düşük</div><div class=tls>%20 altına inince</div></div><div class="sw on"></div></div>
+  <div class=tgl><div><div class=tll>Yolculuk özeti</div><div class=tls>her sürüş sonrası</div></div><div class=sw></div></div>
+</div></div>
+</div>
+<div class="tabbar" id=tb0 style="display:flex"><div class="tab on" onclick="go(0)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 9.5 10 4l7 5.5V17a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1z" stroke="#1189FF" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Ana</span><div class=und></div></div><div class="tab " onclick="go(1)"><svg width=21 height=21 viewBox="0 0 20 20"><rect x="2.5" y="6" width="13" height="8" rx="2" stroke="#9198A2" stroke-width="1.6" fill="none"/><rect x="16.5" y="8.5" width="2" height="3" rx="1" fill="#9198A2"/><rect x="4.5" y="8" width="6" height="4" rx="1" fill="#9198A2"/></svg><span>Batarya</span><div class=und></div></div><div class="tab " onclick="go(2)"><svg width=21 height=21 viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.3" stroke="#9198A2" stroke-width="1.6" fill="none"/><path d="M10 10 13.2 6.8" stroke="#9198A2" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="#9198A2"/></svg><span>Sürüş</span><div class=und></div></div><div class="tab " onclick="go(3)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M8 1 1 9h4l-1 8 7-8H7l1-8Z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg><span>İstasyon</span><div class=und></div></div><div class="tab " onclick="go(4)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h7.2a2 2 0 0 1 1.9 1.5L17 12v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="6" cy="13" r="1" fill="#9198A2"/><circle cx="14" cy="13" r="1" fill="#9198A2"/></svg><span>Araç</span><div class=und></div></div></div><div class="tabbar" id=tb1 style="display:none"><div class="tab " onclick="go(0)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 9.5 10 4l7 5.5V17a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Ana</span><div class=und></div></div><div class="tab on" onclick="go(1)"><svg width=21 height=21 viewBox="0 0 20 20"><rect x="2.5" y="6" width="13" height="8" rx="2" stroke="#1189FF" stroke-width="1.6" fill="none"/><rect x="16.5" y="8.5" width="2" height="3" rx="1" fill="#1189FF"/><rect x="4.5" y="8" width="6" height="4" rx="1" fill="#1189FF"/></svg><span>Batarya</span><div class=und></div></div><div class="tab " onclick="go(2)"><svg width=21 height=21 viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.3" stroke="#9198A2" stroke-width="1.6" fill="none"/><path d="M10 10 13.2 6.8" stroke="#9198A2" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="#9198A2"/></svg><span>Sürüş</span><div class=und></div></div><div class="tab " onclick="go(3)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M8 1 1 9h4l-1 8 7-8H7l1-8Z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg><span>İstasyon</span><div class=und></div></div><div class="tab " onclick="go(4)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h7.2a2 2 0 0 1 1.9 1.5L17 12v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="6" cy="13" r="1" fill="#9198A2"/><circle cx="14" cy="13" r="1" fill="#9198A2"/></svg><span>Araç</span><div class=und></div></div></div><div class="tabbar" id=tb2 style="display:none"><div class="tab " onclick="go(0)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 9.5 10 4l7 5.5V17a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Ana</span><div class=und></div></div><div class="tab " onclick="go(1)"><svg width=21 height=21 viewBox="0 0 20 20"><rect x="2.5" y="6" width="13" height="8" rx="2" stroke="#9198A2" stroke-width="1.6" fill="none"/><rect x="16.5" y="8.5" width="2" height="3" rx="1" fill="#9198A2"/><rect x="4.5" y="8" width="6" height="4" rx="1" fill="#9198A2"/></svg><span>Batarya</span><div class=und></div></div><div class="tab on" onclick="go(2)"><svg width=21 height=21 viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.3" stroke="#1189FF" stroke-width="1.6" fill="none"/><path d="M10 10 13.2 6.8" stroke="#1189FF" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="#1189FF"/></svg><span>Sürüş</span><div class=und></div></div><div class="tab " onclick="go(3)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M8 1 1 9h4l-1 8 7-8H7l1-8Z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg><span>İstasyon</span><div class=und></div></div><div class="tab " onclick="go(4)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h7.2a2 2 0 0 1 1.9 1.5L17 12v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="6" cy="13" r="1" fill="#9198A2"/><circle cx="14" cy="13" r="1" fill="#9198A2"/></svg><span>Araç</span><div class=und></div></div></div><div class="tabbar" id=tb3 style="display:none"><div class="tab " onclick="go(0)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 9.5 10 4l7 5.5V17a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Ana</span><div class=und></div></div><div class="tab " onclick="go(1)"><svg width=21 height=21 viewBox="0 0 20 20"><rect x="2.5" y="6" width="13" height="8" rx="2" stroke="#9198A2" stroke-width="1.6" fill="none"/><rect x="16.5" y="8.5" width="2" height="3" rx="1" fill="#9198A2"/><rect x="4.5" y="8" width="6" height="4" rx="1" fill="#9198A2"/></svg><span>Batarya</span><div class=und></div></div><div class="tab " onclick="go(2)"><svg width=21 height=21 viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.3" stroke="#9198A2" stroke-width="1.6" fill="none"/><path d="M10 10 13.2 6.8" stroke="#9198A2" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="#9198A2"/></svg><span>Sürüş</span><div class=und></div></div><div class="tab on" onclick="go(3)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M8 1 1 9h4l-1 8 7-8H7l1-8Z" stroke="#1189FF" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg><span>İstasyon</span><div class=und></div></div><div class="tab " onclick="go(4)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h7.2a2 2 0 0 1 1.9 1.5L17 12v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="6" cy="13" r="1" fill="#9198A2"/><circle cx="14" cy="13" r="1" fill="#9198A2"/></svg><span>Araç</span><div class=und></div></div></div><div class="tabbar" id=tb4 style="display:none"><div class="tab " onclick="go(0)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 9.5 10 4l7 5.5V17a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1z" stroke="#9198A2" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Ana</span><div class=und></div></div><div class="tab " onclick="go(1)"><svg width=21 height=21 viewBox="0 0 20 20"><rect x="2.5" y="6" width="13" height="8" rx="2" stroke="#9198A2" stroke-width="1.6" fill="none"/><rect x="16.5" y="8.5" width="2" height="3" rx="1" fill="#9198A2"/><rect x="4.5" y="8" width="6" height="4" rx="1" fill="#9198A2"/></svg><span>Batarya</span><div class=und></div></div><div class="tab " onclick="go(2)"><svg width=21 height=21 viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.3" stroke="#9198A2" stroke-width="1.6" fill="none"/><path d="M10 10 13.2 6.8" stroke="#9198A2" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="#9198A2"/></svg><span>Sürüş</span><div class=und></div></div><div class="tab " onclick="go(3)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M8 1 1 9h4l-1 8 7-8H7l1-8Z" stroke="#9198A2" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg><span>İstasyon</span><div class=und></div></div><div class="tab on" onclick="go(4)"><svg width=21 height=21 viewBox="0 0 20 20"><path d="M3 12l1.5-4.5A2 2 0 0 1 6.4 6h7.2a2 2 0 0 1 1.9 1.5L17 12v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" stroke="#1189FF" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="6" cy="13" r="1" fill="#1189FF"/><circle cx="14" cy="13" r="1" fill="#1189FF"/></svg><span>Araç</span><div class=und></div></div></div>
+<script>
+function go(n){
+  for(var i=0;i<5;i++){
+    document.getElementById('screen'+i).style.display = (i===n)?'block':'none';
+    document.getElementById('tb'+i).style.display = (i===n)?'flex':'none';
+  }
+  window.scrollTo(0,0);
+}
+</script>
+</body></html>
