@@ -5,8 +5,10 @@ export async function POST(req: NextRequest) {
   try {
     const { adminKey, tip: rawTip, versionCode, versionName, apkUrl, notlar, zorunlu } = await req.json();
     if (adminKey !== process.env.OTTO_ADMIN_KEY) return NextResponse.json({ ok:false, hata:'yetkisiz' }, { status:401 });
-    const tip = (typeof rawTip === 'string' && rawTip.trim()) ? rawTip.trim() : 'otto';
-    if (tip !== 'otto' && tip !== 'otto+') return NextResponse.json({ ok:false, hata:'gecersiz_tip' }, { status:400 });
+    // JSON body'de `+` sorunu yok ama yine de sağlam normalize et.
+    const rawStr = typeof rawTip === 'string' ? rawTip : '';
+    const cleaned = rawStr.replace(/ /g, '+').trim();
+    const tip: 'otto' | 'otto+' = cleaned === 'otto+' ? 'otto+' : 'otto';
     const vc = parseInt(versionCode);
     if (!vc || !versionName) return NextResponse.json({ ok:false, hata:'eksik' }, { status:400 });
     const sql = getSql();

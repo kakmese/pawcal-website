@@ -132,35 +132,13 @@ export async function POST(req: NextRequest) {
       }
     };
 
-    // 1) Eski Otto verisini oku (varsa). Herhangi bir hata (tablo yok, kolon yok) sessiz.
-    type EskiOtto = {
-      version_code: number | null;
-      version_name: string | null;
-      apk_url: string | null;
-      notlar: string | null;
-      zorunlu: boolean | null;
-    };
-    let eskiOtto: EskiOtto | null = null;
-    await adim('eski_otto_oku', async () => {
-      try {
-        const r = await sql`SELECT version_code, version_name, apk_url, notlar, zorunlu FROM otto_surum WHERE tip='otto' LIMIT 1` as EskiOtto[];
-        if (r.length > 0) eskiOtto = r[0];
-      } catch {
-        try {
-          const r2 = await sql`SELECT version_code, version_name, apk_url, notlar, zorunlu FROM otto_surum WHERE id=1 LIMIT 1` as EskiOtto[];
-          if (r2.length > 0) eskiOtto = r2[0];
-        } catch {
-          eskiOtto = null;
-        }
-      }
-    });
-
-    // 2) Tabloyu tamamen düşür (eski id-pk + duplicate + tüm bagajıyla temizle)
+    // 1) Tabloyu tamamen düşür (eski id-pk + duplicate + bozuk veri hepsi gider)
+    // NOT: Eski Otto verisi bozuktu (Otto+ değerleriyle ezilmiş). Bilerek OKUMUYORUZ.
     await adim('tablo_drop', async () => {
       await sql`DROP TABLE IF EXISTS otto_surum`;
     });
 
-    // 3) Yeni tabloyu tip-PK ile oluştur
+    // 2) Yeni tabloyu tip-PK ile oluştur
     await adim('tablo_create_tip_pk', async () => {
       await sql`CREATE TABLE otto_surum (
         tip text PRIMARY KEY,
@@ -172,32 +150,39 @@ export async function POST(req: NextRequest) {
         guncelleme_tarihi timestamptz DEFAULT now())`;
     });
 
-    // 4) Otto satırı: eski veriyi taşı; yoksa 1.9 varsayılanı (versionCode=10, versionName='1.9')
-    // TS closure-set değişkeni 'never' olarak daraltır; cast ile ele al.
-    const e = eskiOtto as EskiOtto | null;
-    const ottoVC = (e && typeof e.version_code === 'number' && e.version_code) ? e.version_code : 10;
-    const ottoVN = (e && e.version_name) ? e.version_name : '1.9';
-    const ottoApk = (e && e.apk_url) ? e.apk_url : '';
-    const ottoNot = (e && e.notlar) ? e.notlar : '';
-    const ottoZor = !!(e && e.zorunlu);
+    // 3) Otto satırı: SABİT doğru 1.9 varsayılanı. Mevcut satır varsa FORCE UPDATE.
+    // apk_url boş; admin panel/surum-guncelle ile elle girilecek.
     await adim('satir_otto', async () => {
-      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu)
-        VALUES ('otto', ${ottoVC}, ${ottoVN}, ${ottoApk}, ${ottoNot}, ${ottoZor})
-        ON CONFLICT (tip) DO NOTHING`;
+      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu, guncelleme_tarihi)
+        VALUES ('otto', 10, '1.9', '', 'Otto 1.9', false, now())
+        ON CONFLICT (tip) DO UPDATE SET
+          version_code=EXCLUDED.version_code,
+          version_name=EXCLUDED.version_name,
+          apk_url=EXCLUDED.apk_url,
+          notlar=EXCLUDED.notlar,
+          zorunlu=EXCLUDED.zorunlu,
+          guncelleme_tarihi=now()`;
     });
 
-    // 5) Otto+ satırı: varsayılan APK bilgisiyle
+    // 4) Otto+ satırı: sabit v1.1 varsayılanı. Mevcut satır varsa FORCE UPDATE.
     await adim('satir_otto_plus', async () => {
-      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu)
+      await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu, guncelleme_tarihi)
         VALUES (
           'otto+',
           2,
           '1.1',
           'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk',
           'Otto+ ilk yayin',
-          false
+          false,
+          now()
         )
-        ON CONFLICT (tip) DO NOTHING`;
+        ON CONFLICT (tip) DO UPDATE SET
+          version_code=EXCLUDED.version_code,
+          version_name=EXCLUDED.version_name,
+          apk_url=EXCLUDED.apk_url,
+          notlar=EXCLUDED.notlar,
+          zorunlu=EXCLUDED.zorunlu,
+          guncelleme_tarihi=now()`;
     });
 
     // 6) Doğrulama: kolonlar

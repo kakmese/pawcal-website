@@ -3,7 +3,10 @@ import { getSql } from '@/lib/otto-db';
 
 export async function GET(req: NextRequest) {
   try {
-    const tip = (new URL(req.url).searchParams.get('tip') || 'otto').trim();
+    // URLSearchParams `+` karakterini boşluğa çevirir → geri kur, sonra normalize et
+    const raw = new URL(req.url).searchParams.get('tip') || '';
+    const cleaned = raw.replace(/ /g, '+').trim();
+    const tip: 'otto' | 'otto+' = cleaned === 'otto+' ? 'otto+' : 'otto';
     const sql = getSql();
     const rows = await sql`SELECT version_code, version_name, apk_url, notlar, zorunlu FROM otto_surum WHERE tip=${tip} LIMIT 1` as {
       version_code: number | null;
