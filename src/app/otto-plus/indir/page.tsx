@@ -91,72 +91,155 @@ export default function OttoPlusIndirPage() {
 
   return (
     <main
-      className="relative min-h-screen w-full overflow-hidden"
-      style={{ backgroundColor: '#0E1419' }}
+      className="relative min-h-screen w-full"
+      style={{
+        backgroundColor: '#0E1419',
+        backgroundImage:
+          'radial-gradient(1100px 520px at 50% -160px, rgba(122,75,255,0.22), transparent 62%)',
+      }}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          backgroundImage: "url('/otto-genel.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.35,
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(14,20,25,0.55) 0%, rgba(14,20,25,0.9) 100%)',
-        }}
-      />
+      <section className="relative z-10 px-4 pt-6 sm:pt-8 pb-4">
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center text-center">
+          <div
+            className="flex items-center justify-center overflow-hidden"
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: 18,
+              backgroundColor: '#f1ede3',
+              boxShadow: '0 10px 24px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.28)',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/otto-logo.svg"
+              alt="Otto+"
+              width={72}
+              height={72}
+              style={{ display: 'block' }}
+            />
+          </div>
 
-      <div className="relative z-10 min-h-screen flex items-start sm:items-center justify-center px-4 pt-12 pb-8">
-        <div className="w-full max-w-2xl">
-          <div className="flex flex-col items-center text-center">
-            <div
-              className="flex items-center justify-center overflow-hidden"
-              style={{
-                width: 96,
-                height: 96,
-                borderRadius: 22,
-                backgroundColor: '#f1ede3',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.3)',
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/otto-logo.svg"
-                alt="Otto+"
-                width={96}
-                height={96}
-                style={{ display: 'block' }}
-              />
-            </div>
+          <h1
+            className="mt-3 text-white font-bold lowercase tracking-tight"
+            style={{ fontSize: 30, lineHeight: 1.1 }}
+          >
+            otto+
+          </h1>
 
-            <h1
-              className="mt-6 text-white font-bold lowercase tracking-tight"
-              style={{ fontSize: 40, lineHeight: 1.1 }}
-            >
-              otto+
-            </h1>
+          <p className="mt-1 text-slate-300 text-sm">
+            BYD elektrikli araçlar için premium yol bilgisayarı
+          </p>
 
-            <p className="mt-2 text-slate-300 text-sm sm:text-base">
-              BYD elektrikli araçlar için premium yol bilgisayarı
+          {versionName && (
+            <p className="mt-0.5 text-slate-400 text-xs">
+              Sürüm {versionName}
             </p>
+          )}
 
-            {versionName && (
-              <p className="mt-1 text-slate-400 text-xs sm:text-sm">
-                Sürüm {versionName}
-              </p>
-            )}
+          <button
+            onClick={indir}
+            disabled={indiriliyor}
+            className="mt-4 w-full sm:w-auto sm:px-12 py-3 rounded-xl text-white font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-70"
+            style={{
+              backgroundColor: BUTON,
+              boxShadow:
+                '0 12px 28px rgba(122,75,255,0.42), 0 2px 6px rgba(122,75,255,0.28)',
+              minWidth: 220,
+            }}
+          >
+            {indiriliyor ? 'İndiriliyor...' : 'İndir'}
+          </button>
 
+          <a
+            href="/otto/kurulum"
+            className="mt-2 text-xs hover:underline"
+            style={{ color: AKSAN }}
+          >
+            İndirdikten sonra → Araç verisi kurulumu
+          </a>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-4 pt-4 pb-10">
+        <div className="w-full max-w-3xl mx-auto">
+          <div className="text-center mb-6 sm:mb-8">
+            <div
+              className="inline-block text-xs font-semibold tracking-widest uppercase mb-2"
+              style={{ color: AKSAN }}
+            >
+              Neler sunuyor
+            </div>
+            <h2
+              className="text-white font-bold"
+              style={{ fontSize: 26, lineHeight: 1.15 }}
+            >
+              Otto+ ile aracının içinde
+            </h2>
+            <p className="mt-2 text-slate-400 text-sm">
+              Batarya ve menzilden şarj haritasına, 3D araç görünümünden canlı
+              sürüşe kadar — hepsi tek uygulamada.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-10 sm:gap-14">
+            {GALERI.map((g, i) => (
+              <article key={g.src} className="flex flex-col">
+                <div
+                  className="w-full overflow-hidden"
+                  style={{
+                    borderRadius: 18,
+                    border: '1px solid rgba(255,255,255,0.10)',
+                    boxShadow:
+                      '0 22px 60px rgba(0,0,0,0.55), 0 4px 14px rgba(122,75,255,0.18)',
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={g.src}
+                    alt={g.baslik}
+                    loading={i < 2 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      height: 'auto',
+                    }}
+                  />
+                </div>
+                <div className="mt-4 sm:mt-5 px-1">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-flex items-center justify-center text-xs font-bold shrink-0"
+                      style={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: 8,
+                        backgroundColor: 'rgba(184,146,255,0.14)',
+                        color: AKSAN,
+                        border: '1px solid rgba(184,146,255,0.35)',
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                    <h3 className="text-white font-bold text-lg sm:text-xl">
+                      {g.baslik}
+                    </h3>
+                  </div>
+                  <p className="mt-2 text-slate-400 text-sm sm:text-base leading-relaxed">
+                    {g.aciklama}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-14 sm:mt-16 text-center">
             <button
               onClick={indir}
               disabled={indiriliyor}
-              className="mt-8 w-full sm:w-auto sm:px-12 py-3.5 rounded-xl text-white font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-70"
+              className="w-full sm:w-auto sm:px-12 py-3.5 rounded-xl text-white font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-70"
               style={{
                 backgroundColor: BUTON,
                 boxShadow:
@@ -164,19 +247,30 @@ export default function OttoPlusIndirPage() {
                 minWidth: 220,
               }}
             >
-              {indiriliyor ? 'İndiriliyor...' : 'İndir'}
+              {indiriliyor ? 'İndiriliyor...' : 'Otto+ indir'}
             </button>
+            <div className="mt-3 text-slate-500 text-xs">
+              APK · Android · BYD elektrikli araçlar
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <a
-              href="/otto/kurulum"
-              className="mt-3 text-xs hover:underline"
+      <section className="relative z-10 px-4 pb-20 sm:pb-24">
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="text-center mb-5">
+            <div
+              className="inline-block text-xs font-semibold tracking-widest uppercase"
               style={{ color: AKSAN }}
             >
-              İndirdikten sonra → Araç verisi kurulumu
-            </a>
+              Kurulum
+            </div>
+            <h2 className="mt-2 text-white font-bold text-xl sm:text-2xl">
+              3 adımda kur ve başla
+            </h2>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {[
               { n: '1', t: 'İndir', d: 'APK dosyası inecek' },
               { n: '2', t: 'Kur', d: '"Bilinmeyen kaynak" çıkarsa onayla' },
@@ -291,101 +385,6 @@ export default function OttoPlusIndirPage() {
               </div>
             </div>
           )}
-        </div>
-      </div>
-
-      <section className="relative z-10 px-4 pb-20 sm:pb-24">
-        <div className="w-full max-w-3xl mx-auto">
-          <div className="text-center mb-10 sm:mb-12">
-            <div
-              className="inline-block text-xs font-semibold tracking-widest uppercase mb-3"
-              style={{ color: AKSAN }}
-            >
-              Neler sunuyor
-            </div>
-            <h2
-              className="text-white font-bold"
-              style={{ fontSize: 30, lineHeight: 1.15 }}
-            >
-              Otto+ ile aracının içinde
-            </h2>
-            <p className="mt-3 text-slate-400 text-sm sm:text-base">
-              Batarya ve menzilden şarj haritasına, 3D araç görünümünden canlı
-              sürüşe kadar — hepsi tek uygulamada.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-10 sm:gap-14">
-            {GALERI.map((g, i) => (
-              <article key={g.src} className="flex flex-col">
-                <div
-                  className="w-full overflow-hidden"
-                  style={{
-                    borderRadius: 18,
-                    border: '1px solid rgba(255,255,255,0.10)',
-                    boxShadow:
-                      '0 22px 60px rgba(0,0,0,0.55), 0 4px 14px rgba(122,75,255,0.18)',
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={g.src}
-                    alt={g.baslik}
-                    loading="lazy"
-                    decoding="async"
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      height: 'auto',
-                    }}
-                  />
-                </div>
-                <div className="mt-4 sm:mt-5 px-1">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="inline-flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: 8,
-                        backgroundColor: 'rgba(184,146,255,0.14)',
-                        color: AKSAN,
-                        border: '1px solid rgba(184,146,255,0.35)',
-                      }}
-                    >
-                      {i + 1}
-                    </span>
-                    <h3 className="text-white font-bold text-lg sm:text-xl">
-                      {g.baslik}
-                    </h3>
-                  </div>
-                  <p className="mt-2 text-slate-400 text-sm sm:text-base leading-relaxed">
-                    {g.aciklama}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-14 sm:mt-16 text-center">
-            <button
-              onClick={indir}
-              disabled={indiriliyor}
-              className="w-full sm:w-auto sm:px-12 py-3.5 rounded-xl text-white font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-70"
-              style={{
-                backgroundColor: BUTON,
-                boxShadow:
-                  '0 14px 32px rgba(122,75,255,0.45), 0 2px 6px rgba(122,75,255,0.3)',
-                minWidth: 220,
-              }}
-            >
-              {indiriliyor ? 'İndiriliyor...' : 'Otto+ indir'}
-            </button>
-            <div className="mt-3 text-slate-500 text-xs">
-              APK · Android · BYD elektrikli araçlar
-            </div>
-          </div>
         </div>
       </section>
     </main>
