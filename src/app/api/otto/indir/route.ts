@@ -3,22 +3,11 @@ import { getSql } from '@/lib/otto-db';
 
 export async function GET(req: NextRequest) {
   try {
-    const tip = (new URL(req.url).searchParams.get('tip') || '').trim();
+    const tip = (new URL(req.url).searchParams.get('tip') || 'otto').trim();
     const sql = getSql();
-
-    let rows: { apk_url: string | null; version_name: string | null }[] = [];
-    if (tip) {
-      try {
-        rows = await sql`SELECT apk_url, version_name FROM otto_surum WHERE tip=${tip} LIMIT 1` as typeof rows;
-      } catch {
-        rows = [];
-      }
-    }
-    if (rows.length === 0) {
-      rows = await sql`SELECT apk_url, version_name FROM otto_surum WHERE id=1` as typeof rows;
-    }
+    const rows = await sql`SELECT apk_url, version_name FROM otto_surum WHERE tip=${tip} LIMIT 1` as { apk_url: string | null; version_name: string | null }[];
     if (rows.length === 0 || !rows[0].apk_url) {
-      return NextResponse.json({ ok: false, hata: 'apk yok' }, { status: 404 });
+      return NextResponse.json({ ok: false, hata: 'apk yok', tip }, { status: 404 });
     }
     const apkUrl = rows[0].apk_url as string;
     const vName = (rows[0].version_name as string) || '1.0';

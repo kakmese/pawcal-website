@@ -110,6 +110,23 @@ export async function POST(req: NextRequest) {
       VALUES ('otto_mobil_yayinda', 'false')
       ON CONFLICT (anahtar) DO NOTHING`;
 
+    // otto_surum: tip başına AYRI satır (Otto vs Otto+). PK=tip.
+    await sql`CREATE TABLE IF NOT EXISTS otto_surum (
+      tip text PRIMARY KEY,
+      version_code int,
+      version_name text,
+      apk_url text,
+      notlar text,
+      zorunlu boolean DEFAULT false,
+      guncelleme_tarihi timestamptz DEFAULT now())`;
+    // Eski şema (id=1) için tip kolonu ve unique index garantisi
+    await sql`ALTER TABLE otto_surum ADD COLUMN IF NOT EXISTS tip text`;
+    await sql`UPDATE otto_surum SET tip='otto' WHERE tip IS NULL OR tip=''`;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS otto_surum_tip_uniq ON otto_surum (tip)`;
+    // Her iki tip için satır garantisi (idempotent)
+    await sql`INSERT INTO otto_surum (tip) VALUES ('otto') ON CONFLICT (tip) DO NOTHING`;
+    await sql`INSERT INTO otto_surum (tip) VALUES ('otto+') ON CONFLICT (tip) DO NOTHING`;
+
     // Duyuru/pop-up anahtarları — her tip için ayrı (idempotent).
     const duyuruAnahtarlari: [string, string][] = [
       ['otto_duyuru_aktif', '0'],
