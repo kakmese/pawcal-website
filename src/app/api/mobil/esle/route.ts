@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const rows = await sql`
       SELECT durum, cihaz_id, iptal, tip FROM otto_kodlar WHERE kod=${normKod} LIMIT 1
     `;
-    if (rows.length === 0 || rows[0].iptal === true || rows[0].durum !== 'kullanildi') {
+    if (rows.length === 0 || rows[0].iptal === true) {
       return corsJson({ ok:false, hata:'kod bulunamadı' }, { status:404 });
     }
     // Otto Mobil ücretli sürüm — sadece 'otto+' kodlar eşleşebilir.
@@ -40,21 +40,22 @@ export async function POST(req: NextRequest) {
         { status:403 },
       );
     }
-    const cihazId = rows[0].cihaz_id;
-    if (!cihazId) {
-      return corsJson({ ok:false, hata:'araç henüz aktive edilmemiş' }, { status:409 });
-    }
+    // Araç henüz aktive edilmemiş olabilir (sıra serbest — telefon önce de kurulabilir).
+    // cihaz_id boşsa kodu placeholder olarak kullan; araç aktive olunca gerçek veri akmaya başlar.
+    const gercekCihazId: string | null = rows[0].cihaz_id || null;
+    const tokenCihazId = gercekCihazId ?? `pending:${normKod}`;
 
     const token = tokenUret();
     const tokenHash = await sha256hex(token);
 
     await sql`
       INSERT INTO mobile_tokens (token_hash, cihaz_id)
-      VALUES (${tokenHash}, ${cihazId})
+      VALUES (${tokenHash}, ${tokenCihazId})
     `;
 
-    const st = await sql`SELECT 1 FROM vehicle_state WHERE cihaz_id=${cihazId} LIMIT 1`;
-    const veriVar = st.length > 0;
+    const veriVar = gercekCihazId
+      ? (await sql`SELECT 1 FROM vehicle_state WHERE cihaz_id=${gercekCihazId} LIMIT 1`).length > 0
+      : false;
 
     return corsJson({ ok:true, token, veriVar });
   } catch (e) {
