@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+const OTTO_PLUS_APK_URL =
+  'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk';
 const OTTO_MOBIL_APK_URL =
   'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1/otto-mobil.apk';
 const OTTO_MOBIL_IPHONE_URL = 'https://pawcal.net/otto/mobil/';
@@ -73,7 +75,7 @@ export default function OttoPlusIndirPage() {
 
   function indirOttoPlus() {
     setIndiriliyor(true);
-    window.location.href = '/api/otto/indir?tip=otto%2B';
+    window.location.href = OTTO_PLUS_APK_URL;
     setTimeout(() => setIndiriliyor(false), 4000);
   }
 
