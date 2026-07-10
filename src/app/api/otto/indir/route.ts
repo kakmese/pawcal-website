@@ -1,38 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSql } from '@/lib/otto-db';
+
+const OTTO_URL = 'https://github.com/kakmese/pawcal-website/releases/download/otto-v10/app-debug.apk';
+const OTTO_PLUS_URL = 'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk';
 
 export async function GET(req: NextRequest) {
-  try {
-    // URLSearchParams `+` karakterini boşluğa çevirir → geri kur, sonra normalize et
-    const raw = new URL(req.url).searchParams.get('tip') || '';
-    const cleaned = raw.replace(/ /g, '+').trim();
-    const tip: 'otto' | 'otto+' = cleaned === 'otto+' ? 'otto+' : 'otto';
-    const sql = getSql();
-    const rows = await sql`SELECT apk_url, version_name FROM otto_surum WHERE tip=${tip} LIMIT 1` as { apk_url: string | null; version_name: string | null }[];
-    if (rows.length === 0 || !rows[0].apk_url) {
-      return NextResponse.json({ ok: false, hata: 'apk yok', tip }, { status: 404 });
-    }
-    const apkUrl = rows[0].apk_url as string;
-    const vName = (rows[0].version_name as string) || '1.0';
-    const dosyaAdi = tip === 'otto+' ? `otto-plus-${vName}.apk` : `otto-${vName}.apk`;
-    const upstream = await fetch(apkUrl, { redirect: 'follow' });
-    if (!upstream.ok || !upstream.body) {
-      return NextResponse.json({ ok: false, hata: 'indirilemedi' }, { status: 502 });
-    }
-    return new NextResponse(upstream.body, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/vnd.android.package-archive',
-        'Content-Disposition': `attachment; filename="${dosyaAdi}"`,
-        'Cache-Control': 'no-store',
-      },
-    });
-  } catch (e: unknown) {
-    const err = e as { message?: string; code?: string };
-    console.error('OTTO INDIR ERROR:', e);
-    return NextResponse.json(
-      { ok: false, hata: 'sunucu', detay: String(err?.message || e), kod: err?.code || null },
-      { status: 200 },
-    );
-  }
+  const raw = new URL(req.url).searchParams.get('tip') || '';
+  const cleaned = raw.replace(/ /g, '+').trim().toLowerCase();
+  const hedef = cleaned === 'otto+' ? OTTO_PLUS_URL : OTTO_URL;
+  return NextResponse.redirect(hedef, 302);
 }
