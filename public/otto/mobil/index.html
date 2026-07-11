@@ -1167,21 +1167,36 @@
       cellHtml('Batarya ısısı', has(b.isi)?trN(b.isi,0):'—','°C')+
       cellHtml('Kalan enerji', has(d.kalanKwh)?trN(d.kalanKwh,1):'—','kWh');
   }
+  function fmtDk(n){
+    if(!isFinite(n) || n<=0) return '—';
+    n = Math.round(n);
+    if(n<60) return n+' dk';
+    var sa=Math.floor(n/60), dk=n%60;
+    return dk ? (sa+' sa '+dk+' dk') : (sa+' sa');
+  }
   function renderCharge(){
-    var chg=isCharging();
-    var lastSess=findLastSession();
-    var port = chg ? (lastSess && lastSess.tur ? lastSess.tur : 'Bağlı') : 'Bağlı değil';
-    var guc  = chg && lastSess && has(lastSess.kw) ? trN(lastSess.kw,0) : '—';
-    var kalan= chg && lastSess && has(lastSess.kalanDk) ? trN(lastSess.kalanDk,0)+' dk' : '—';
-    var hedef= (lastSess && has(lastSess.hedef)) ? ('%'+trN(lastSess.hedef,0)) : '%100';
-    var isi  = chg && lastSess && has(lastSess.isi) ? (trN(lastSess.isi,0)+' °C') : '—';
-    $('#sarjGrid').innerHTML=
+    var d=lastDurum||{}, sarj=(d.sarj||{}), lastSess=findLastSession()||{};
+    var chg = (sarj.aktif===true) || isCharging();
+    var portConn = (sarj.port===1||sarj.port===true) || chg;
+    var port = portConn ? (lastSess.tur || 'Bağlı') : 'Bağlı değil';
+    var kwVal  = has(sarj.kw)?Number(sarj.kw) : (has(sarj.guc)?Number(sarj.guc) : (has(lastSess.kw)?Number(lastSess.kw):null));
+    var isiVal = has(sarj.batIsi)?Number(sarj.batIsi) : (has(lastSess.isi)?Number(lastSess.isi):null);
+    var mnVal  = has(sarj.kalanDk)?Number(sarj.kalanDk) : (has(lastSess.kalanDk)?Number(lastSess.kalanDk):null);
+    var hedVal = has(sarj.hedef)?Number(sarj.hedef) : (has(lastSess.hedef)?Number(lastSess.hedef):null);
+    var guc   = has(kwVal) ? trN(kwVal,1) : '—';
+    var isi   = has(isiVal) ? (trN(isiVal,0)+' °C') : '—';
+    var kalan = has(mnVal) ? fmtDk(mnVal) : '—';
+    var hedef = has(hedVal) ? ('%'+trN(hedVal,0)) : '%100';
+    var html =
       '<div class="cell"><div class="cl">Şarj durumu</div><div class="cv '+(chg?'g':'')+'" style="font-size:17px">'+(chg?'Şarjda':'Şarjda değil')+'</div></div>'+
-      '<div class="cell"><div class="cl">Port</div><div class="cv" style="font-size:17px">'+esc(port)+'</div></div>'+
-      cellHtml('Şarj gücü', guc, 'kW')+
-      cellHtml('Kalan süre', kalan, '')+
-      cellHtml('Hedef şarj', hedef, '')+
-      cellHtml('Şarj bat. ısısı', isi, '');
+      '<div class="cell"><div class="cl">Port</div><div class="cv" style="font-size:17px">'+esc(port)+'</div></div>';
+    if(chg){
+      html += cellHtml('Şarj gücü', guc, 'kW');
+      html += cellHtml('Kalan süre', kalan, '');
+      html += cellHtml('Batarya ısısı', isi, '');
+    }
+    html += cellHtml('Hedef şarj', hedef, '');
+    $('#sarjGrid').innerHTML = html;
   }
   function findLastSession(){
     for(var i=0;i<lastOlaylar.length;i++){
