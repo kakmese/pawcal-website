@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import OttoTelegramPopup, { TelegramSerit } from '../../../components/OttoTelegram';
 
 const OTTO_PLUS_APK_URL =
   'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk';
@@ -478,6 +479,8 @@ export default function OttoPlusIndirPage() {
           </div>
         </div>
       </section>
+      <TelegramSerit />
+      <OttoTelegramPopup />
     </main>
   );
 }

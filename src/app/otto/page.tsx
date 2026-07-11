@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import OttoTelegramPopup from '../../components/OttoTelegram';
 
 const EKRAN_SAYISI = 4;
 
@@ -146,6 +147,7 @@ export default function OttoTanitim() {
         overflow: 'hidden',
       }}
     >
+      <OttoTelegramPopup />
       {/* Arka plan görseli + gradient */}
       <div
         style={{
