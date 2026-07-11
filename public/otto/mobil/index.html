@@ -663,7 +663,7 @@
   <!-- ═══ ARAÇ ═══ -->
   <section class="screen" id="s-arac">
     <div class="schema">
-      <div class="sst">Lastik basıncı<small>bar</small></div>
+      <div class="sst">Lastik basıncı</div>
       <div class="carbox">
         <svg width="190" height="270" viewBox="0 0 190 270" style="position:absolute;left:0;top:0">
           <rect x="52" y="15" width="86" height="240" rx="34" fill="var(--pill)" stroke="var(--brd2)" stroke-width="2"/>
@@ -1416,7 +1416,7 @@
       var n=Number(vals[k]);
       var low = isFinite(n) && n<rec-0.15;
       el.classList.toggle('low', !!low);
-      el.querySelector('.tvv').innerHTML=(isFinite(n)?trN(n,1):'—');
+      el.querySelector('.tvv').innerHTML=(isFinite(n)?trN(n/10,1):'—');
     });
     var lows=[];
     if(has(vals.FL) && Number(vals.FL)<rec-0.15) lows.push('Sol ön');
