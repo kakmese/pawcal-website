@@ -169,10 +169,10 @@ export async function POST(req: NextRequest) {
       await sql`INSERT INTO otto_surum (tip, version_code, version_name, apk_url, notlar, zorunlu, guncelleme_tarihi)
         VALUES (
           'otto+',
-          2,
-          '1.1',
-          'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk',
-          'Otto+ ilk yayin',
+          3,
+          '1.2',
+          'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.2/otto-plus-v1.2.apk',
+          'Otto+ 1.2',
           false,
           now()
         )

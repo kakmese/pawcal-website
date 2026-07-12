@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import OttoTelegramPopup, { TelegramSerit } from '../../../components/OttoTelegram';
 
 const OTTO_PLUS_APK_URL =
-  'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.1/otto-plus-v1.1.apk';
+  'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.2/otto-plus-v1.2.apk';
 const OTTO_MOBIL_APK_URL =
-  'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1/otto-mobil.apk';
+  'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1.0.5/otto-mobil-v1.0.5.apk';
 const OTTO_MOBIL_IPHONE_URL = 'https://pawcal.net/otto/mobil/';
 
 const AKSAN = '#B892FF';

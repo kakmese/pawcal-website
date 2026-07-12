@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 const OTTO_MOBIL_APK_URL =
-  'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1/otto-mobil.apk';
+  'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1.0.5/otto-mobil-v1.0.5.apk';
 
 export default function OttoIndirPage() {
   const [versionName, setVersionName] = useState<string | null>(null);
