@@ -2,6 +2,19 @@
 
 import { useState } from 'react';
 
+function cihazIdAl(): string {
+  try {
+    let c = localStorage.getItem('otto_cihaz');
+    if (!c) {
+      c = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? crypto.randomUUID()
+        : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('otto_cihaz', c);
+    }
+    return c;
+  } catch { return 'nostorage'; }
+}
+
 export default function OttoKodAlPage() {
   const [etiket, setEtiket] = useState('');
   const [kod, setKod] = useState<string | null>(null);
@@ -17,7 +30,7 @@ export default function OttoKodAlPage() {
       const r = await fetch('/api/otto/kod-al-public', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ etiket: etiket.trim() }),
+        body: JSON.stringify({ etiket: etiket.trim(), cihaz: cihazIdAl() }),
       });
       const j = await r.json();
       if (!j.ok) {
