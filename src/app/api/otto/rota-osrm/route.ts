@@ -28,7 +28,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const hedef = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+  // v4-P3b: opsiyonel steps=true (yalniz 'true' kabul; yoksa davranis birebir eski).
+  const stepsParam = new URL(req.url).searchParams.get('steps');
+  const stepsQS = stepsParam === 'true' ? '&steps=true' : '';
+  const hedef = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson${stepsQS}`;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
