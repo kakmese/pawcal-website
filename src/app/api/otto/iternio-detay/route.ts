@@ -3,7 +3,6 @@ import { corsJson, corsPreflight } from '@/app/api/_lib/cors';
 
 export const maxDuration = 25;
 
-const IDS_RE = /^[0-9a-zA-Z_,-]+$/;
 const FETCH_TIMEOUT_MS = 15000;
 const ABRP_BASE = 'https://api.iternio.com';
 const ABRP_VERSION = '7.1.1';
@@ -12,27 +11,26 @@ export async function OPTIONS() {
   return corsPreflight();
 }
 
-export async function GET(req: NextRequest) {
-  const ids = (new URL(req.url).searchParams.get('ids') || '').trim();
-  if (!ids || !IDS_RE.test(ids)) {
-    return corsJson({ hata: 'ids gecersiz' }, { status: 400 });
-  }
-  const parcalar = ids.split(',').filter(Boolean);
-  if (parcalar.length < 1 || parcalar.length > 50) {
-    return corsJson({ hata: 'ids 1-50 arasi' }, { status: 400 });
+export async function POST(req: NextRequest) {
+  let govde: { chargerIds?: unknown };
+  try { govde = await req.json(); }
+  catch { return corsJson({ hata: 'gecersiz json' }, { status: 400 }); }
+
+  const ham = govde?.chargerIds;
+  if (!Array.isArray(ham) || ham.length < 1 || ham.length > 50) {
+    return corsJson({ hata: 'chargerIds 1-50 arasi dizi olmali' }, { status: 400 });
   }
   const chargerIds: number[] = [];
-  for (const p of parcalar) {
-    const n = Number(p);
+  for (const x of ham) {
+    const n = Number(x);
     if (!Number.isFinite(n) || !Number.isInteger(n)) {
-      return corsJson({ hata: 'ids sayisal olmali' }, { status: 400 });
+      return corsJson({ hata: 'chargerIds sayisal olmali' }, { status: 400 });
     }
     chargerIds.push(n);
   }
+
   const key = process.env.ITERNIO_KEY || '';
-  if (!key) {
-    return corsJson({ hata: 'iternio anahtar yok' }, { status: 503 });
-  }
+  if (!key) return corsJson({ hata: 'iternio anahtar yok' }, { status: 503 });
 
   const hedef = ABRP_BASE + '/2/charger/_get/geo-chargers';
   const ctrl = new AbortController();
@@ -48,12 +46,10 @@ export async function GET(req: NextRequest) {
       },
       body: JSON.stringify({ chargerIds }),
     });
-    if (!r.ok) {
-      return corsJson({ hata: 'iternio ust servis ' + r.status }, { status: 502 });
-    }
+    if (!r.ok) return corsJson({ hata: 'iternio ust servis ' + r.status }, { status: 502 });
     const j = await r.json();
     const res = corsJson(j);
-    res.headers.set('Cache-Control', 'public, s-maxage=60');
+    res.headers.set('Cache-Control', 'public, s-maxage=3600');
     return res;
   } catch (e: unknown) {
     const err = e as { message?: string };
