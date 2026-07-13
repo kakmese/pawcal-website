@@ -5,6 +5,8 @@ export const maxDuration = 25;
 
 const IDS_RE = /^[0-9a-zA-Z_,-]+$/;
 const FETCH_TIMEOUT_MS = 15000;
+const ABRP_BASE = 'https://api.iternio.com';
+const ABRP_VERSION = '7.1.1';
 
 export async function OPTIONS() {
   return corsPreflight();
@@ -15,22 +17,36 @@ export async function GET(req: NextRequest) {
   if (!ids || !IDS_RE.test(ids)) {
     return corsJson({ hata: 'ids gecersiz' }, { status: 400 });
   }
-  const adet = ids.split(',').filter(Boolean).length;
-  if (adet < 1 || adet > 50) {
+  const parcalar = ids.split(',').filter(Boolean);
+  if (parcalar.length < 1 || parcalar.length > 50) {
     return corsJson({ hata: 'ids 1-50 arasi' }, { status: 400 });
+  }
+  const chargerIds: number[] = [];
+  for (const p of parcalar) {
+    const n = Number(p);
+    if (!Number.isFinite(n) || !Number.isInteger(n)) {
+      return corsJson({ hata: 'ids sayisal olmali' }, { status: 400 });
+    }
+    chargerIds.push(n);
   }
   const key = process.env.ITERNIO_KEY || '';
   if (!key) {
     return corsJson({ hata: 'iternio anahtar yok' }, { status: 503 });
   }
 
-  const hedef = 'https://api.iternio.com/1/tiles/get_stations?ids=' + encodeURIComponent(ids);
+  const hedef = ABRP_BASE + '/2/charger/_get/geo-chargers';
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
     const r = await fetch(hedef, {
+      method: 'POST',
       signal: ctrl.signal,
-      headers: { 'Authorization': 'APIKEY ' + key },
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'x-abrp-version': ABRP_VERSION,
+      },
+      body: JSON.stringify({ chargerIds }),
     });
     if (!r.ok) {
       return corsJson({ hata: 'iternio ust servis ' + r.status }, { status: 502 });
