@@ -3,7 +3,8 @@ import { corsJson, corsPreflight } from '@/app/api/_lib/cors';
 
 export const maxDuration = 25;
 
-const COORD_RE = /^-?\d{1,3}(?:\.\d+)?,-?\d{1,3}(?:\.\d+)?(?:;-?\d{1,3}(?:\.\d+)?,-?\d{1,3}(?:\.\d+)?)?$/;
+// v4-P2a: 2-4 nokta destegi (baslangic + ara duraklar + hedef, en fazla 4).
+const COORD_RE = /^-?\d{1,3}(?:\.\d+)?,-?\d{1,3}(?:\.\d+)?(?:;-?\d{1,3}(?:\.\d+)?,-?\d{1,3}(?:\.\d+)?){1,3}$/;
 const FETCH_TIMEOUT_MS = 15000;
 
 export async function OPTIONS() {
@@ -16,8 +17,8 @@ export async function GET(req: NextRequest) {
     return corsJson({ hata: 'gecersiz coords' }, { status: 400 });
   }
   const noktalar = coords.split(';');
-  if (noktalar.length < 2 || noktalar.length > 2) {
-    return corsJson({ hata: 'coords 2 nokta olmali' }, { status: 400 });
+  if (noktalar.length < 2 || noktalar.length > 4) {
+    return corsJson({ hata: 'coords 2-4 nokta olmali' }, { status: 400 });
   }
   for (const nk of noktalar) {
     const [lonS, latS] = nk.split(',');
