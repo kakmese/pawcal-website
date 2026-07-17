@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "charging:sync": "node scripts/sync-otto-charging-data.mjs",
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start"

@@ -656,7 +656,7 @@
         <button data-s="cheap">En ucuz</button>
       </div>
       <div id="stList"></div>
-      <div class="note" id="stFoot">Fiyat ve güç ABRP'den; ABRP'de kaydı olmayan istasyonda fiyat gösterilmez.</div>
+      <div class="note" id="stFoot">Fiyatlar resmi operatör kaynaklarından; resmi fiyat yoksa ABRP doğrulanmamış yedek olarak denenir.</div>
     </div>
   </section>
 
@@ -1513,8 +1513,9 @@
     }, {enableHighAccuracy:false, timeout:8000, maximumAge:5*60*1000});
   }
 
-  var CAR=null, ST=null, stLoaded=false, stLoading=false, fMode='all', sMode='near';
+  var CAR=null, ST=null, stMeta=null, stLoaded=false, stLoading=false, fMode='all', sMode='near';
   var stFetchErr=false;
+  var livePayload=null, liveLoading=false, liveLoaded=false, liveErr=false, liveRetryAt=0, officialKeyCounts=null, liveByKey=null, liveKeyCounts=null;
 
   var _BRAND_KW = {
     'zes':130,'Trugo':120,'wat mobilite':120,'VOLTRUN':120,'Otopriz':120,
@@ -1541,6 +1542,39 @@
     return 60;
   }
   function tipHesap(kw){return kw>=150?'HY':(kw>=50?'DC':'AC')}
+  function stationKw(s){
+    var dc=Number(s&&s.dc), ac=Number(s&&s.ac), own=Number(s&&s.kw);
+    if(isFinite(own) && own>0) return Math.round(own);
+    if(isFinite(dc) && dc>0) return Math.round(dc);
+    if(isFinite(ac) && ac>0) return Math.round(ac);
+    return kwTahmin(s&&s.b);
+  }
+  function stationTip(s){
+    if(s && (s.y==='AC'||s.y==='DC')) return s.y==='DC' ? tipHesap(stationKw(s)) : 'AC';
+    return tipHesap(stationKw(s));
+  }
+  function resmiFiyatVar(p){
+    return !!p && (p.s==='known'||p.s==='stale') &&
+      (isFinite(Number(p.p)) || (isFinite(Number(p.mn)) && isFinite(Number(p.mx))));
+  }
+  function fiyatSiraDegeri(p){
+    if(!p) return null;
+    if(isFinite(Number(p.p))) return Number(p.p);
+    if(isFinite(Number(p.mn))) return Number(p.mn);
+    return null;
+  }
+  function fiyatHtml(p, loading){
+    if(resmiFiyatVar(p)){
+      if(isFinite(Number(p.p))) return trN(Number(p.p),2)+'<small>₺</small>';
+      return trN(Number(p.mn),2)+'-'+trN(Number(p.mx),2)+'<small>₺</small>';
+    }
+    if(p && p.s==='conflict') return '<span title="Resmi kaynaklar çelişiyor">Çelişki</span>';
+    if(p && p.r && p.r.indexOf('APP_ONLY')>=0) return '<span title="Fiyat operatör uygulamasında">App</span>';
+    return loading ? '…' : '—';
+  }
+  function fiyatKilitli(p){
+    return resmiFiyatVar(p) || (p && p.s==='conflict');
+  }
 
   var _fiyatCache = {};
   var _fiyatCekBusy = false;
@@ -1549,6 +1583,75 @@
     var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;
     var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);
     return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+  }
+  function liveNorm(v){
+    var text=String(v==null?'':v).trim();
+    if(text.toLocaleLowerCase) text=text.toLocaleLowerCase('tr-TR'); else text=text.toLowerCase();
+    if(text.normalize) text=text.normalize('NFD');
+    return text.replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9çğıöşü]+/gi,' ').trim().replace(/\s+/g,' ');
+  }
+  function liveCoord(v){
+    var n=Number(v);
+    return isFinite(n) ? n.toFixed(6) : null;
+  }
+  function liveInt(v){
+    var n=Number(v);
+    return isFinite(n) && n>=0 && Math.floor(n)===n ? n : null;
+  }
+  function liveKey(s, role){
+    if(!s) return null;
+    var brand=liveNorm(role==='live'?(s.brand||s.b):(s.b||s.brand));
+    var name=liveNorm(role==='live'?(s.title||s.name||s.t):(s.t||s.name||s.title));
+    var la=liveCoord(role==='live'?(s.lat||s.latitude||s.la):(s.la||s.latitude||s.lat));
+    var ln=liveCoord(role==='live'?(s.lng||s.longitude||s.ln):(s.ln||s.longitude||s.lng));
+    var sockets=role==='live' && Array.isArray(s.sockets) ? s.sockets.length : liveInt(s.n||s.socketCount);
+    if(!brand||!name||la==null||ln==null||sockets==null) return null;
+    return [brand,name,la,ln,String(sockets)].join('\u0000');
+  }
+  function indexOfficialKeys(){
+    officialKeyCounts=Object.create(null);
+    (ST||[]).forEach(function(s){
+      var k=liveKey(s,'official');
+      if(k) officialKeyCounts[k]=(officialKeyCounts[k]||0)+1;
+    });
+  }
+  function setLiveRecords(records, observedAt, expiresAt){
+    liveByKey=Object.create(null); liveKeyCounts=Object.create(null);
+    records.forEach(function(s){
+      var k=liveKey(s,'live');
+      if(!k) return;
+      liveKeyCounts[k]=(liveKeyCounts[k]||0)+1;
+      if(!liveByKey[k]) liveByKey[k]=s;
+    });
+    livePayload={observedAt:observedAt, expiresAt:expiresAt, count:records.length};
+  }
+  function liveFresh(){
+    return livePayload && Date.now()<Date.parse(livePayload.expiresAt);
+  }
+  function liveForStation(s){
+    if(!liveFresh()||!officialKeyCounts||!liveByKey) return null;
+    var k=liveKey(s,'official');
+    if(!k || officialKeyCounts[k]!==1 || liveKeyCounts[k]!==1) return null;
+    var rec=liveByKey[k];
+    if(rec.available===true) return {status:'available'};
+    if(rec.available===false) return {status:'not_available'};
+    return null;
+  }
+  function loadLiveStations(){
+    if(liveLoading || liveFresh()) return;
+    if(liveErr && Date.now()<liveRetryAt) return;
+    liveLoading=true; liveErr=false;
+    fetch('/api/mobil/istasyon-canli',{cache:'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('http '+r.status);
+      return r.json();
+    }).then(function(j){
+      if(!j || !j.ok || !Array.isArray(j.records)) throw new Error('bad live');
+      setLiveRecords(j.records, j.observedAt, j.expiresAt);
+      liveLoaded=true; liveLoading=false;
+      renderStations();
+    }).catch(function(){
+      liveErr=true; liveRetryAt=Date.now()+15000; liveLoading=false;
+    });
   }
   function guncelleSatir(la, ln, ent){
     var k = coordKey(la, ln);
@@ -1560,7 +1663,7 @@
     }
     if(!row) return;
     var pv = row.querySelector('.spp .spv');
-    if(pv){
+    if(pv && row.getAttribute('data-price-lock')!=='1'){
       if(ent && typeof ent.price==='number' && isFinite(ent.price)){
         pv.innerHTML = trN(ent.price,2)+'<small>₺</small>';
       } else {
@@ -1622,11 +1725,20 @@
   function ensureStations(){
     if(stLoaded||stLoading) { renderStations(); return }
     stLoading=true; stFetchErr=false;
-    fetch('/otto/mobil/sarjtr_stations.json',{cache:'force-cache'}).then(function(r){
+    fetch('/otto/mobil/charging_stations.v1.json',{cache:'force-cache'}).then(function(r){
       if(!r.ok) throw new Error('http '+r.status);
       return r.json();
+    }).catch(function(){
+      return fetch('/otto/mobil/sarjtr_stations.json',{cache:'force-cache'}).then(function(r){
+        if(!r.ok) throw new Error('http '+r.status);
+        return r.json();
+      });
     }).then(function(js){
-      ST=Array.isArray(js)?js:[]; stLoaded=true; stLoading=false;
+      stMeta = (js && Array.isArray(js.stations)) ? js : null;
+      ST = stMeta ? js.stations : (Array.isArray(js)?js:[]);
+      indexOfficialKeys();
+      stLoaded=true; stLoading=false;
+      loadLiveStations();
       renderStations();
     }).catch(function(e){
       stLoading=false; stFetchErr=true; ST=[]; stLoaded=true;
@@ -1667,18 +1779,26 @@
       return;
     }
     var center=effectiveCenter();
+    loadLiveStations();
     var enriched=ST.filter(function(s){return s && isFinite(Number(s.la)) && isFinite(Number(s.ln))}).map(function(s){
       var la=Number(s.la), ln=Number(s.ln);
       var k = coordKey(la, ln);
       var cached = _fiyatCache[k] || null;
-      var kw = (cached && typeof cached.guc==='number' && isFinite(cached.guc))
+      var official = s.p || null;
+      var locked = fiyatKilitli(official);
+      var live = liveForStation(s);
+      var kw = (cached && !locked && typeof cached.guc==='number' && isFinite(cached.guc))
         ? Math.round(cached.guc)
-        : kwTahmin(s.b);
-      var price = (cached && typeof cached.price==='number' && isFinite(cached.price)) ? cached.price : null;
+        : stationKw(s);
+      var tip = stationTip(s);
+      var price = resmiFiyatVar(official)
+        ? fiyatSiraDegeri(official)
+        : ((cached && typeof cached.price==='number' && isFinite(cached.price)) ? cached.price : null);
       return {
-        t:s.t, b:s.b, la:la, ln:ln, n:s.n, a:s.a,
-        kw:kw, tip:tipHesap(kw),
-        price: price, hasCached: !!cached,
+        t:s.t, b:s.b, la:la, ln:ln, n:s.n, a:s.a, p:official, live:live,
+        kw:kw, tip:tip,
+        price: price, hasCached: !!cached, priceLocked: locked,
+        needsFallback: !locked && !resmiFiyatVar(official),
         d: center ? distKm(center.la,center.ln,la,ln) : null
       };
     });
@@ -1713,30 +1833,36 @@
     var footTxt = ST.length? ST.length.toLocaleString('tr-TR')+' kayıtlı nokta' : '';
     if(center) footTxt += ' · en yakın '+top.length+'\u2019u gösteriliyor';
     else footTxt += ' · isim/marka sırası';
+    if(stMeta && stMeta.registryRevision) footTxt += ' · resmi tarife '+stMeta.registryRevision;
+    if(liveFresh()) footTxt += ' · canlı '+Number(livePayload.count||0).toLocaleString('tr-TR')+' sinyal';
+    else if(liveLoading) footTxt += ' · canlı durum yükleniyor';
     $('#stFoot').textContent = footTxt;
 
     $('#stList').innerHTML=top.map(function(s, idx){
       var tip=s.tip==='HY'?'kW':s.tip;
       var cls=s.tip==='HY'?' hy':(s.tip==='DC'?' dc':'');
       var dTxt = (s.d==null) ? '—' : trN(s.d,1)+' km';
-      var priceHtml;
-      if(s.hasCached){
+      var priceHtml = fiyatHtml(s.p, center && idx<15 && s.needsFallback && !s.hasCached);
+      if(!resmiFiyatVar(s.p) && s.p && s.p.s!=='conflict' && s.hasCached){
         priceHtml = (s.price!=null) ? (trN(s.price,2)+'<small>₺</small>') : '—';
-      } else if(center && idx<15){
-        priceHtml = '…';
-      } else {
-        priceHtml = '—';
       }
-      return '<div class="srow" data-la="'+s.la+'" data-ln="'+s.ln+'" data-isim="'+esc(s.t||s.b||'İstasyon')+'">'+
+      var liveKnown = s.live && (s.live.status==='available'||s.live.status==='not_available');
+      var availText = liveKnown
+        ? (s.live.status==='available'?'Müsait':'Müsait değil')
+        : (s.a?'Açık':'Dolu');
+      var availClass = liveKnown
+        ? (s.live.status==='available'?'o':'b')
+        : (s.a?'o':'b');
+      return '<div class="srow" data-la="'+s.la+'" data-ln="'+s.ln+'" data-price-lock="'+(s.priceLocked?'1':'0')+'" data-isim="'+esc(s.t||s.b||'İstasyon')+'">'+
         '<div class="kwbi'+cls+'">'+s.kw+'<small>'+esc(tip)+'</small></div>'+
         '<div class="si"><div class="st2">'+esc(s.t||'')+'</div>'+
         '<div class="ss">'+esc(s.b||'')+' · '+(s.n||'?')+' soket · '+dTxt+'</div></div>'+
         '<div class="spp"><div class="spv num">'+priceHtml+'</div>'+
-        '<div class="spd '+(s.a?'o':'b')+'">'+(s.a?'Açık':'Dolu')+'</div></div></div>';
+        '<div class="spd '+availClass+'">'+esc(availText)+'</div></div></div>';
     }).join('');
 
     if(center){
-      fiyatCek(top.slice(0,15));
+      fiyatCek(top.filter(function(s){return s.needsFallback}).slice(0,15));
     }
   }
   document.getElementById('stList').addEventListener('click', function(ev){
