@@ -1,0 +1,4 @@
+.claude/
+.backups/
+dev.log
+*.tsbuildinfo
