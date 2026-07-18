@@ -1553,20 +1553,26 @@
     if(s && (s.y==='AC'||s.y==='DC')) return s.y==='DC' ? tipHesap(stationKw(s)) : 'AC';
     return tipHesap(stationKw(s));
   }
+  function fiyatDegeri(v){
+    return (typeof v==='number' && isFinite(v) && v>0) ? v : null;
+  }
   function resmiFiyatVar(p){
     return !!p && (p.s==='known'||p.s==='stale') &&
-      (isFinite(Number(p.p)) || (isFinite(Number(p.mn)) && isFinite(Number(p.mx))));
+      (fiyatDegeri(p.p)!=null || (fiyatDegeri(p.mn)!=null && fiyatDegeri(p.mx)!=null));
   }
   function fiyatSiraDegeri(p){
     if(!p) return null;
-    if(isFinite(Number(p.p))) return Number(p.p);
-    if(isFinite(Number(p.mn))) return Number(p.mn);
+    var exact=fiyatDegeri(p.p);
+    if(exact!=null) return exact;
+    var min=fiyatDegeri(p.mn);
+    if(min!=null) return min;
     return null;
   }
   function fiyatHtml(p, loading){
     if(resmiFiyatVar(p)){
-      if(isFinite(Number(p.p))) return trN(Number(p.p),2)+'<small>₺</small>';
-      return trN(Number(p.mn),2)+'-'+trN(Number(p.mx),2)+'<small>₺</small>';
+      var exact=fiyatDegeri(p.p);
+      if(exact!=null) return trN(exact,2)+'<small>₺</small>';
+      return trN(fiyatDegeri(p.mn),2)+'-'+trN(fiyatDegeri(p.mx),2)+'<small>₺</small>';
     }
     if(p && p.s==='conflict') return '<span title="Resmi kaynaklar çelişiyor">Çelişki</span>';
     if(p && p.r && p.r.indexOf('APP_ONLY')>=0) return '<span title="Fiyat operatör uygulamasında">App</span>';
@@ -1844,7 +1850,7 @@
       var dTxt = (s.d==null) ? '—' : trN(s.d,1)+' km';
       var priceHtml = fiyatHtml(s.p, center && idx<15 && s.needsFallback && !s.hasCached);
       if(!resmiFiyatVar(s.p) && s.p && s.p.s!=='conflict' && s.hasCached){
-        priceHtml = (s.price!=null) ? (trN(s.price,2)+'<small>₺</small>') : '—';
+        priceHtml = fiyatDegeri(s.price)!=null ? (trN(s.price,2)+'<small>₺</small>') : '—';
       }
       var liveKnown = s.live && (s.live.status==='available'||s.live.status==='not_available');
       var availText = liveKnown
