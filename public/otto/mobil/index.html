@@ -290,6 +290,24 @@
   .cvv span,.cvv .sc{display:block;font-family:var(--num);color:var(--grn);font-size:11px;font-weight:700;margin-top:2px;letter-spacing:1.2px;text-transform:uppercase}
   .cvv .sc.a{color:var(--orn)}
   .cvv .sc.b{color:var(--red)}
+  .tripRow{align-items:flex-start;padding:12px 0}
+  .tripTop{display:flex;align-items:center;gap:8px;min-width:0}
+  .tripDate{
+    flex:none;font-family:var(--num);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--acc);background:var(--accS);padding:4px 7px;clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  }
+  .tripKpis{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .tripKpi{
+    font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--tx2);
+    background:var(--pill);padding:5px 7px;clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  }
+  .tripKpi b{color:var(--tx);font-size:12px;font-weight:700}
+  .tripKpi.good b{color:var(--grn)}
+  .tripKpi.warn b{color:var(--orn)}
+  .tripScore{font-family:var(--num);font-size:18px;font-weight:700;color:var(--grn);line-height:1}
+  .tripScore.a{color:var(--orn)}
+  .tripScore.b{color:var(--red)}
+  .tripScore small{display:block;font-size:9px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px}
 
   /* ── SÜRÜŞ ── */
   .perrow{display:flex;justify-content:flex-end;margin-bottom:11px}
@@ -1121,14 +1139,34 @@
     var d=lastDurum||{}, hiz=Number(d.hiz);
     return d.gear==='D'||d.gear==='R'||d.gear==='N' || (isFinite(hiz)&&hiz>0);
   }
+  function lowerTxt(v){
+    var t=String(v==null?'':v).trim();
+    if(t.toLocaleLowerCase) return t.toLocaleLowerCase('tr-TR');
+    return t.toLowerCase();
+  }
+  function chargeState(){
+    var d=lastDurum||{}, sarj=(d.sarj||{});
+    var fresh=isFresh(), driving=isDriving();
+    var kw = has(sarj.kw)?Number(sarj.kw):(has(sarj.guc)?Number(sarj.guc):null);
+    var kwActive = isFinite(kw) && kw>0.2;
+    var rawPort = sarj.port!=null ? sarj.port : (sarj.portBagli!=null ? sarj.portBagli : (sarj.plugged!=null ? sarj.plugged : sarj.fis));
+    var portTrue = rawPort===1 || rawPort===true || rawPort==='1' || lowerTxt(rawPort)==='true' || lowerTxt(rawPort)==='bagli' || lowerTxt(rawPort)==='bağlı' || lowerTxt(rawPort)==='connected';
+    var state = lowerTxt(sarj.durum || sarj.state || sarj.status || sarj.mod);
+    var stateSaysCharging = !!state && (state.indexOf('charging')>=0 || state.indexOf('şarjda')>=0 || state.indexOf('sarjda')>=0 || state.indexOf('charge')>=0);
+    var stateSaysIdle = !!state && (state.indexOf('değil')>=0 || state.indexOf('degil')>=0 || state.indexOf('not ')>=0 || state.indexOf('idle')>=0 || state.indexOf('stopped')>=0 || state.indexOf('complete')>=0);
+    var activeTrue = sarj.aktif===true || sarj.charging===true || sarj.sarjda===true || stateSaysCharging;
+    var activeFalse = sarj.aktif===false || sarj.charging===false || sarj.sarjda===false || stateSaysIdle;
+    var charging = fresh && !driving && !activeFalse && (activeTrue || kwActive);
+    var portConnected = fresh && !driving && (portTrue || charging);
+    return {
+      charging: charging,
+      portConnected: portConnected,
+      kw: kw,
+      portLabel: portConnected ? (sarj.tur || sarj.tip || sarj.konnektor || null) : null
+    };
+  }
   function isCharging(){
-    if(!lastOlaylar||!lastOlaylar.length) return false;
-    var last=null;
-    for(var i=0;i<lastOlaylar.length;i++){
-      var t=lastOlaylar[i].tip;
-      if(t==='sarj_basladi'||t==='sarj_bitti'){ last=lastOlaylar[i]; break }
-    }
-    return last && last.tip==='sarj_basladi';
+    return chargeState().charging;
   }
   function renderHero(){
     var d=lastDurum||{};
@@ -1231,15 +1269,29 @@
     el.innerHTML=tripRowHtml(v.baslik||v.rota||v.yer||v.konum||'Yolculuk', e.ts, v.km, v.kwh, v.cons100, v.skor);
   }
   function tripRowHtml(baslik, ts, km, kwh, c100Raw, skor){
-    var kmN=Number(km)||0, kwhN=Number(kwh)||0;
-    var c100=has(c100Raw)?Number(c100Raw):(kmN?kwhN/kmN*100:0);
-    var s=Number(skor)||0;
-    var sCls=s>=80?'':(s>=60?'a':'b');
-    return '<div class="drow" style="padding:2px 0;border:none">'+
-      '<div class="cc"><div class="ct">'+esc(baslik)+'</div>'+
-      '<div class="cs">'+esc(dateTr(ts,false))+' · '+(kmN?trN(kmN,1)+' km':'—')+' · '+(c100?trN(c100,1)+' kWh/100':'—')+'</div></div>'+
-      '<div class="cvv">'+(kwhN?trN(kwhN,1):'—')+'<small>kWh</small>'+
-      (s?'<span class="sc '+sCls+'">'+s+'</span>':'')+'</div></div>';
+    return tripRecordHtml({b:baslik, ts:ts, km:km, kwh:kwh, c100:c100Raw, skor:skor}, true);
+  }
+  function tripRecordHtml(r, compact){
+    var kmN=firstNum(r.km), kwhN=firstNum(r.kwh, r.enerji);
+    var c100=firstNum(r.c100, r.cons100);
+    if(c100==null && kmN && kwhN) c100=kwhN/kmN*100;
+    var hiz=firstNum(r.hiz, r.avgSpeed, r.ortalamaHiz);
+    var sure=fmtTripDuration(r);
+    var s=firstNum(r.skor, r.score);
+    var sCls=s!=null?(s>=80?'':(s>=60?'a':'b')):'';
+    var consCls=c100!=null?(c100<=16?'good':(c100>=24?'warn':'')):'';
+    var kpis =
+      tripKpi('Mesafe', kmN!=null&&kmN>0?trN(kmN,1):null, 'km')+
+      tripKpi('Tüketim', c100!=null&&c100>0?trN(c100,1):null, 'kWh/100 km', consCls)+
+      tripKpi('Enerji', kwhN!=null&&kwhN>0?trN(kwhN,1):null, 'kWh')+
+      tripKpi('Süre', sure, '')+
+      tripKpi('Ort.', hiz!=null&&hiz>0?trN(hiz,0):null, 'km/h');
+    if(!kpis) kpis='<span class="tripKpi">Detay bekleniyor</span>';
+    var title=String(r.b||r.baslik||r.rota||r.yer||r.konum||'Yolculuk').trim()||'Yolculuk';
+    return '<div class="drow tripRow"'+(compact?' style="padding:2px 0;border:none"':'')+'>'+
+      '<div class="cc"><div class="tripTop"><div class="ct">'+esc(title)+'</div><div class="tripDate">'+esc(tripDateTr(r.ts||r.tarih))+'</div></div>'+
+      '<div class="tripKpis">'+kpis+'</div></div>'+
+      '<div class="cvv">'+(s!=null&&s>0?'<div class="tripScore '+sCls+'">'+Math.round(s)+'<small>skor</small></div>':'')+'</div></div>';
   }
 
   /* ── BATARYA ekranı ── */
@@ -1279,13 +1331,13 @@
   }
   function renderCharge(){
     var d=lastDurum||{}, sarj=(d.sarj||{}), lastSess=findLastSession()||{};
-    var chg = (sarj.aktif===true) || isCharging();
-    var portConn = (sarj.port===1||sarj.port===true) || chg;
-    var port = portConn ? (lastSess.tur || 'Bağlı') : 'Bağlı değil';
-    var kwVal  = has(sarj.kw)?Number(sarj.kw) : (has(sarj.guc)?Number(sarj.guc) : (has(lastSess.kw)?Number(lastSess.kw):null));
-    var isiVal = has(sarj.batIsi)?Number(sarj.batIsi) : (has(lastSess.isi)?Number(lastSess.isi):null);
-    var mnVal  = has(sarj.kalanDk)?Number(sarj.kalanDk) : (has(lastSess.kalanDk)?Number(lastSess.kalanDk):null);
-    var hedVal = has(sarj.hedef)?Number(sarj.hedef) : (has(lastSess.hedef)?Number(lastSess.hedef):null);
+    var chInfo = chargeState();
+    var chg = chInfo.charging;
+    var port = chInfo.portConnected ? (chInfo.portLabel || lastSess.tur || 'Bağlı') : 'Bağlı değil';
+    var kwVal  = has(sarj.kw)?Number(sarj.kw) : (has(sarj.guc)?Number(sarj.guc) : (chg && has(lastSess.kw)?Number(lastSess.kw):null));
+    var isiVal = has(sarj.batIsi)?Number(sarj.batIsi) : (chg && has(lastSess.isi)?Number(lastSess.isi):null);
+    var mnVal  = has(sarj.kalanDk)?Number(sarj.kalanDk) : (chg && has(lastSess.kalanDk)?Number(lastSess.kalanDk):null);
+    var hedVal = has(sarj.hedef)?Number(sarj.hedef) : (chg && has(lastSess.hedef)?Number(lastSess.hedef):null);
     var guc   = has(kwVal) ? trN(kwVal,1) : '—';
     var isi   = has(isiVal) ? (trN(isiVal,0)+' °C') : '—';
     var kalan = has(mnVal) ? fmtDk(mnVal) : '—';
@@ -1318,6 +1370,45 @@
     var today=new Date(); var same= d.getFullYear()===today.getFullYear() && d.getMonth()===today.getMonth() && d.getDate()===today.getDate();
     var pref = same ? 'Bugün' : (g+' '+ay);
     return short ? pref : (pref+' '+hh+':'+mm);
+  }
+  function tripDateTr(iso){
+    if(!iso) return 'Tarih yok';
+    var raw=String(iso);
+    var d=new Date(iso); if(isNaN(d)) return 'Tarih yok';
+    var start=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+    var now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+    var diff=Math.round((today-start)/86400000);
+    var ay=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][d.getMonth()];
+    var pref = diff===0 ? 'Bugün' : (diff===1 ? 'Dün' : (d.getDate()+' '+ay));
+    var rawMidnight = /^\d{4}-\d{2}-\d{2}$/.test(raw) || /T00:00(?::00(?:\.000)?)?(?:Z|[+-]\d\d:?\d\d)?$/.test(raw);
+    var hasRealTime = !rawMidnight && (d.getHours()!==0 || d.getMinutes()!==0);
+    if(!hasRealTime) return pref;
+    return pref+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+  }
+  function numVal(v){
+    if(v==null || v==='') return null;
+    var n=Number(v);
+    return isFinite(n) ? n : null;
+  }
+  function firstNum(){
+    for(var i=0;i<arguments.length;i++){
+      var n=numVal(arguments[i]);
+      if(n!=null) return n;
+    }
+    return null;
+  }
+  function fmtTripDuration(v){
+    var n=firstNum(v && v.sureDk, v && v.durationMin, v && v.dakika, v && v.dk, v && v.sure);
+    if(n==null || n<=0) return null;
+    if(n<10 && v && v.sure!=null && v.sureDk==null && v.durationMin==null && v.dakika==null && v.dk==null) n=n*60;
+    n=Math.round(n);
+    if(n<60) return n+' dk';
+    var h=Math.floor(n/60), m=n%60;
+    return m ? h+' sa '+m+' dk' : h+' sa';
+  }
+  function tripKpi(label, value, unit, cls){
+    if(value==null || value==='') return '';
+    return '<span class="tripKpi '+(cls||'')+'">'+esc(label)+' <b>'+esc(value)+'</b>'+(unit?' '+esc(unit):'')+'</span>';
   }
   function renderChargeHistory(){
     var d=lastDurum||{};
@@ -1503,25 +1594,27 @@
       cnt.textContent = evs.length+' yolculuk';
       evs.slice(0,8).forEach(function(e){
         var v=e.veri||{};
-        rows.push({b:v.baslik||v.rota||v.yer||v.konum||'Yolculuk', ts:e.ts, km:v.km, kwh:v.kwh, c100:v.cons100, skor:v.skor});
+        rows.push({
+          b:v.baslik||v.rota||v.yer||v.konum||'Yolculuk',
+          ts:v.ts||v.tarih||e.ts,
+          km:v.km, kwh:v.kwh||v.enerji, c100:v.cons100||v.c100,
+          skor:v.skor||v.score, sure:v.sure, sureDk:v.sureDk, durationMin:v.durationMin,
+          dakika:v.dakika, dk:v.dk, hiz:v.hiz||v.avgSpeed||v.ortalamaHiz
+        });
       });
     } else {
       cnt.textContent = yg.length+' yolculuk';
       yg.slice(0,8).forEach(function(y){
-        rows.push({b:y.baslik||y.rota||'Yolculuk', ts:y.ts||y.tarih, km:y.km, kwh:y.kwh, c100:y.cons100, skor:y.skor});
+        rows.push({
+          b:y.baslik||y.rota||y.yer||y.konum||'Yolculuk',
+          ts:y.ts||y.tarih,
+          km:y.km, kwh:y.kwh||y.enerji, c100:y.cons100||y.c100,
+          skor:y.skor||y.score, sure:y.sure, sureDk:y.sureDk, durationMin:y.durationMin,
+          dakika:y.dakika, dk:y.dk, hiz:y.hiz||y.avgSpeed||y.ortalamaHiz
+        });
       });
     }
-    el.innerHTML=rows.map(function(r){
-      var kmN=Number(r.km)||0, kwhN=Number(r.kwh)||0;
-      var c=has(r.c100)?Number(r.c100):(kmN?kwhN/kmN*100:0);
-      var s=Number(r.skor)||0;
-      var sCls=s>=80?'':(s>=60?'a':'b');
-      return '<div class="drow">'+
-        '<div class="cc"><div class="ct">'+esc(r.b)+'</div>'+
-        '<div class="cs">'+esc(dateTr(r.ts,false))+' · '+(kmN?trN(kmN,1)+' km':'—')+' · '+(c?trN(c,1)+' kWh/100':'—')+'</div></div>'+
-        '<div class="cvv">'+(kwhN?trN(kwhN,1):'—')+'<small>kWh</small>'+
-        (s?'<span class="sc '+sCls+'">'+s+'</span>':'')+'</div></div>';
-    }).join('');
+    el.innerHTML=rows.map(function(r){ return tripRecordHtml(r, false); }).join('');
   }
 
   /* ── LASTİK ── */
