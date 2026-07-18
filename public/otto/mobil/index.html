@@ -92,7 +92,7 @@
   button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
   .num{font-variant-numeric:tabular-nums;letter-spacing:-.4px;font-weight:800}
 
-  .app{max-width:440px;margin:0 auto;padding:0 16px calc(126px + env(safe-area-inset-bottom));min-height:100vh}
+  .app{max-width:440px;margin:0 auto;padding:0 16px calc(118px + env(safe-area-inset-bottom));min-height:100vh}
 
   /* ── FROST GLASS PRIMITIVE ── */
   .hero,.panel,.q,.hst,.cellwrap,.dhero,.dmetrics,.dmod,.schema,.perbtn,.tabbar,.empty{
@@ -460,7 +460,7 @@
 
   /* ── TABBAR — floating capsule ── */
   .tabbar{
-    position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);
+    position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 5px);
     max-width:428px;margin:0 auto;z-index:20;
     display:flex;justify-content:space-around;
     border-radius:100px;padding:9px;
@@ -551,7 +551,7 @@
   .selrow .sk{width:22px;color:var(--acc);text-align:center;margin-right:8px;font-weight:800;font-size:14px}
   .selrow.on{color:var(--acc)}
   .toast{
-    position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));z-index:40;
+    position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));z-index:40;
     transform:translate(-50%,10px);
     padding:11px 18px;border-radius:100px;
     background:var(--inkBtn);color:var(--inkBtnTx);
