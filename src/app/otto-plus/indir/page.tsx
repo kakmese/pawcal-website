@@ -60,7 +60,7 @@ const GALERI: { src: string; baslik: string; aciklama: string }[] = [
 ];
 
 export default function OttoPlusIndirPage() {
-  const [versionName, setVersionName] = useState<string | null>(null);
+  const [versionName, setVersionName] = useState<string | null>('1.3');
   const [indiriliyor, setIndiriliyor] = useState(false);
   const [mobilIndiriliyor, setMobilIndiriliyor] = useState(false);
 

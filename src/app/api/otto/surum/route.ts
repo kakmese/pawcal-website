@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/otto-db';
 
+const OTTO_PLUS_RELEASE = {
+  versionCode: 4,
+  versionName: '1.3',
+  apkUrl: 'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.3/otto-plus-v1.3.apk',
+  notlar: 'Otto+ 1.3 - Navigasyon, rota takibi ve EV planlama iyilestirmeleri',
+  zorunlu: false,
+};
+
 export async function GET(req: NextRequest) {
   try {
     // URLSearchParams `+` karakterini boşluğa çevirir → geri kur, sonra normalize et
@@ -15,6 +23,12 @@ export async function GET(req: NextRequest) {
       notlar: string | null;
       zorunlu: boolean | null;
     }[];
+    if (
+      tip === 'otto+' &&
+      (rows.length === 0 || (rows[0].version_code ?? 0) < OTTO_PLUS_RELEASE.versionCode)
+    ) {
+      return NextResponse.json({ ok: true, tip, ...OTTO_PLUS_RELEASE });
+    }
     if (rows.length === 0) {
       return NextResponse.json({ ok: false, tip, hata: 'satir_yok' }, { status: 200 });
     }
