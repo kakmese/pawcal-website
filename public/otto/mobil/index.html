@@ -120,13 +120,14 @@
   }
   .lg{
     width:38px;height:38px;flex:none;
-    background:var(--acc);
-    clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);
-    box-shadow:0 0 18px rgba(255,68,0,.35);
+    background:var(--card2);
+    border:1px solid var(--brd2);
+    border-radius:12px;
+    box-shadow:0 0 18px rgba(255,68,0,.18), var(--shCardSm);
     display:grid;place-items:center;overflow:hidden;
   }
-  .lg img{display:block;width:78%;height:78%;object-fit:contain;filter:brightness(0) invert(0)}
-  [data-theme="dark"] .lg img{filter:brightness(0) invert(0)}
+  .lg img{display:block;width:100%;height:100%;object-fit:cover;filter:none}
+  [data-theme="dark"] .lg img{filter:none}
   .hnm{font-family:var(--num);font-size:14px;font-weight:700;color:var(--tx);line-height:1;letter-spacing:.5px;text-transform:uppercase}
   .hnm small{display:block;font-family:var(--num);font-size:9.5px;color:var(--acc2);font-weight:600;margin-top:3px;letter-spacing:1.6px;text-transform:uppercase}
   .hst{
@@ -579,8 +580,8 @@
 
 <div class="app">
   <div class="topbar">
-    <div class="lg"><img src="/otto/mobil/otto_icon.png" alt="Otto"></div>
-    <div class="hnm">Otto<small>Sealion 7</small></div>
+    <div class="lg"><img src="/otto/mobil/otto_icon.png" alt="Otto+"></div>
+    <div class="hnm">OTTO+<small>MOBILE</small></div>
     <button class="hst" id="stamp" title="Sunucudan yenile">
       <i></i><span id="stampTxt">—</span><span id="stampMeta" style="opacity:.7;font-weight:600">—</span>
     </button>
