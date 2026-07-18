@@ -92,7 +92,7 @@
   button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
   .num{font-variant-numeric:tabular-nums;letter-spacing:-.4px;font-weight:800}
 
-  .app{max-width:440px;margin:0 auto;padding:0 16px calc(110px + env(safe-area-inset-bottom));min-height:100vh}
+  .app{max-width:440px;margin:0 auto;padding:0 16px calc(126px + env(safe-area-inset-bottom));min-height:100vh}
 
   /* ── FROST GLASS PRIMITIVE ── */
   .hero,.panel,.q,.hst,.cellwrap,.dhero,.dmetrics,.dmod,.schema,.perbtn,.tabbar,.empty{
@@ -460,19 +460,19 @@
 
   /* ── TABBAR — floating capsule ── */
   .tabbar{
-    position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 12px);
-    max-width:408px;margin:0 auto;z-index:20;
+    position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);
+    max-width:428px;margin:0 auto;z-index:20;
     display:flex;justify-content:space-around;
-    border-radius:100px;padding:8px;
+    border-radius:100px;padding:9px;
     border-top:none;
   }
   .tab{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
-    font-size:9.5px;font-weight:700;color:var(--dim);padding:9px 2px;
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
+    font-size:11px;font-weight:700;color:var(--dim);padding:12px 2px;
     letter-spacing:0;text-transform:none;
     transition:.2s;border-radius:100px;position:relative;z-index:1;
   }
-  .tab svg{color:currentColor}
+  .tab svg{color:currentColor;width:24px;height:24px}
   .tab.on{color:var(--inkBtnTx);background:var(--inkBtn);box-shadow:var(--shInk),inset 0 1px 0 rgba(255,255,255,.15)}
   .und{display:none}
   .tab.on .und{display:none}
@@ -551,7 +551,7 @@
   .selrow .sk{width:22px;color:var(--acc);text-align:center;margin-right:8px;font-weight:800;font-size:14px}
   .selrow.on{color:var(--acc)}
   .toast{
-    position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));z-index:40;
+    position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));z-index:40;
     transform:translate(-50%,10px);
     padding:11px 18px;border-radius:100px;
     background:var(--inkBtn);color:var(--inkBtnTx);
