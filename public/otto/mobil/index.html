@@ -421,11 +421,20 @@
   .schema{background:var(--card);border-left:3px solid var(--acc);padding:20px 16px 16px;box-shadow:var(--shHero);margin-bottom:11px;clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)}
   .sst{font-family:var(--num);font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx);letter-spacing:1.4px;text-transform:uppercase}
   .sst small{font-family:var(--num);font-size:10px;color:var(--acc2);font-weight:600;margin-left:6px;letter-spacing:1px;text-transform:uppercase}
-  .carbox{position:relative;width:190px;height:270px;margin:6px auto 0}
+  .carbox{position:relative;width:220px;height:330px;margin:8px auto 0}
+  .tireCar{
+    position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
+  }
+  .tireCar img{
+    width:100%;height:100%;object-fit:contain;display:block;
+    filter:drop-shadow(0 18px 24px rgba(0,0,0,.34));
+  }
+  [data-theme="light"] .tireCar img{filter:drop-shadow(0 16px 22px rgba(20,30,48,.16))}
   .tvb{
-    position:absolute;background:var(--pill);border:1px solid var(--brd2);
+    position:absolute;z-index:2;background:var(--surface);border:1px solid var(--brd2);
     padding:6px 10px;text-align:center;box-shadow:var(--shCardSm);
     clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%);
+    backdrop-filter:blur(12px);
   }
   .tvv{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;line-height:1;color:var(--tx)}
   .tvv small{font-size:9px;color:var(--dim);margin-left:1px;font-weight:600}
@@ -787,19 +796,11 @@
     <div class="schema">
       <div class="sst">Lastik basıncı</div>
       <div class="carbox">
-        <svg width="190" height="270" viewBox="0 0 190 270" style="position:absolute;left:0;top:0">
-          <rect x="52" y="15" width="86" height="240" rx="34" fill="var(--pill)" stroke="var(--brd2)" stroke-width="2"/>
-          <path d="M62 55 Q95 40 128 55 L128 90 Q95 80 62 90 Z" fill="var(--shell)" opacity=".7"/>
-          <rect x="64" y="112" width="62" height="84" rx="12" fill="var(--brd2)" opacity=".55"/>
-          <rect x="40" y="40" width="14" height="38" rx="6" fill="#1B222C"/>
-          <rect x="136" y="40" width="14" height="38" rx="6" fill="#1B222C"/>
-          <rect x="40" y="192" width="14" height="38" rx="6" fill="#1B222C"/>
-          <rect x="136" y="192" width="14" height="38" rx="6" fill="#1B222C"/>
-        </svg>
-        <div class="tvb" id="tvFL" style="top:30px;left:-14px"><div class="tvv">—</div><div class="tvl">SOL ÖN</div></div>
-        <div class="tvb" id="tvFR" style="top:30px;right:-14px"><div class="tvv">—</div><div class="tvl">SAĞ ÖN</div></div>
-        <div class="tvb" id="tvRL" style="bottom:18px;left:-14px"><div class="tvv">—</div><div class="tvl">SOL ARKA</div></div>
-        <div class="tvb" id="tvRR" style="bottom:18px;right:-14px"><div class="tvv">—</div><div class="tvl">SAĞ ARKA</div></div>
+        <div class="tireCar"><img src="/otto/mobil/sealion7_a.png" alt="BYD Sealion 7 üst görünüm"></div>
+        <div class="tvb" id="tvFL" style="top:72px;left:-18px"><div class="tvv">—</div><div class="tvl">SOL ÖN</div></div>
+        <div class="tvb" id="tvFR" style="top:72px;right:-18px"><div class="tvv">—</div><div class="tvl">SAĞ ÖN</div></div>
+        <div class="tvb" id="tvRL" style="bottom:46px;left:-18px"><div class="tvv">—</div><div class="tvl">SOL ARKA</div></div>
+        <div class="tvb" id="tvRR" style="bottom:46px;right:-18px"><div class="tvv">—</div><div class="tvl">SAĞ ARKA</div></div>
       </div>
       <div class="tnote" id="tnote">Lastik verisi bekleniyor.</div>
     </div>
