@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import OttoTelegramPopup, { TelegramSerit } from '../../../components/OttoTelegram';
 
 const OTTO_PLUS_APK_URL =
-  'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.3/otto-plus-v1.3.apk';
+  'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.4/otto-plus-v1.4.apk';
 const OTTO_MOBIL_APK_URL =
   'https://github.com/kakmese/pawcal-website/releases/download/ottomobil-v1.0.5/otto-mobil-v1.0.5.apk';
 const OTTO_MOBIL_IPHONE_URL = 'https://pawcal.net/otto/mobil/';
@@ -60,7 +60,7 @@ const GALERI: { src: string; baslik: string; aciklama: string }[] = [
 ];
 
 export default function OttoPlusIndirPage() {
-  const [versionName, setVersionName] = useState<string | null>('1.3');
+  const [versionName, setVersionName] = useState<string | null>('1.4');
   const [indiriliyor, setIndiriliyor] = useState(false);
   const [mobilIndiriliyor, setMobilIndiriliyor] = useState(false);
 
