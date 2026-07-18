@@ -300,6 +300,13 @@
   .sortRow{display:flex;background:var(--pill);border-radius:100px;padding:3px;margin-bottom:12px}
   .sortRow button{flex:1;padding:7px 8px;border-radius:100px;font-size:11.5px;font-weight:750;color:var(--dim)}
   .sortRow button.on{background:var(--card);color:var(--tx);box-shadow:var(--shCardSm)}
+  .radiusRow{display:flex;gap:7px;overflow-x:auto;margin:-3px 0 12px;padding-bottom:1px}
+  .radiusRow::-webkit-scrollbar{display:none}
+  .radiusRow button{
+    flex:1 0 auto;min-width:58px;padding:7px 10px;border-radius:100px;
+    background:var(--pill);color:var(--dim);font-size:11.5px;font-weight:800;
+  }
+  .radiusRow button.on{background:var(--accS);color:var(--acc);box-shadow:var(--shCardSm)}
   .srow{
     display:flex;align-items:center;background:var(--card);border-radius:14px;
     padding:12px 13px;margin-bottom:9px;box-shadow:var(--shCardSm);
@@ -654,6 +661,12 @@
         <button class="on" data-s="near">En yakın</button>
         <button data-s="fast">En hızlı</button>
         <button data-s="cheap">En ucuz</button>
+      </div>
+      <div class="radiusRow" aria-label="Mesafe filtresi">
+        <button data-r="5">5 km</button>
+        <button data-r="10">10 km</button>
+        <button class="on" data-r="30">30 km</button>
+        <button data-r="all">Tümü</button>
       </div>
       <div id="stList"></div>
       <div class="note" id="stFoot">Fiyatlar resmi operatör kaynaklarından; resmi fiyat yoksa ABRP doğrulanmamış yedek olarak denenir.</div>
@@ -1513,7 +1526,7 @@
     }, {enableHighAccuracy:false, timeout:8000, maximumAge:5*60*1000});
   }
 
-  var CAR=null, ST=null, stMeta=null, stLoaded=false, stLoading=false, fMode='all', sMode='near';
+  var CAR=null, ST=null, stMeta=null, stLoaded=false, stLoading=false, fMode='all', sMode='near', rMode='30';
   var stFetchErr=false;
   var livePayload=null, liveLoading=false, liveLoaded=false, liveErr=false, liveRetryAt=0, officialKeyCounts=null, liveByKey=null, liveKeyCounts=null;
 
@@ -1589,6 +1602,11 @@
     var R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;
     var x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)*Math.sin(dn/2);
     return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+  }
+  function selectedRadiusKm(){
+    if(rMode==='all') return null;
+    var n=Number(rMode);
+    return isFinite(n) && n>0 ? n : 30;
   }
   function liveNorm(v){
     var text=String(v==null?'':v).trim();
@@ -1809,7 +1827,11 @@
       };
     });
 
+    var radius = center ? selectedRadiusKm() : null;
     var list=enriched.filter(function(s){return fMode==='all'||s.tip===fMode});
+    if(center && radius!=null){
+      list = list.filter(function(s){return s.d!=null && s.d<=radius});
+    }
     if(center){
       if(sMode==='fast'){
         list.sort(function(a,b){return (b.kw||0)-(a.kw||0) || (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)});
@@ -1835,14 +1857,26 @@
     var top=list.slice(0,30);
 
     var srcLbl = center ? (center.src==='user' ? 'senin konumun' : 'aracın konumu') : 'konum bekleniyor';
-    $('#stCount').textContent = top.length+' · '+srcLbl;
+    var radiusLbl = center ? (radius==null ? 'tüm mesafe' : radius+' km') : '';
+    $('#stCount').textContent = top.length+' · '+srcLbl+(radiusLbl?' · '+radiusLbl:'');
     var footTxt = ST.length? ST.length.toLocaleString('tr-TR')+' kayıtlı nokta' : '';
-    if(center) footTxt += ' · en yakın '+top.length+'\u2019u gösteriliyor';
+    if(center) footTxt += ' · '+(radius==null?'tüm mesafeden':'ilk '+radius+' km içinden')+' '+top.length+'\u2019u gösteriliyor';
     else footTxt += ' · isim/marka sırası';
     if(stMeta && stMeta.registryRevision) footTxt += ' · resmi tarife '+stMeta.registryRevision;
     if(liveFresh()) footTxt += ' · canlı '+Number(livePayload.count||0).toLocaleString('tr-TR')+' sinyal';
     else if(liveLoading) footTxt += ' · canlı durum yükleniyor';
     $('#stFoot').textContent = footTxt;
+
+    if(top.length===0){
+      var emptyText = center && radius!=null
+        ? radius+' km içinde uygun istasyon yok'
+        : 'Gösterilecek istasyon yok';
+      var emptySub = center && radius!=null
+        ? 'Mesafeyi 10/30 km ya da Tümü olarak genişletebilirsin.'
+        : 'Filtreleri değiştirip tekrar dene.';
+      $('#stList').innerHTML='<div class="crow"><div class="cc"><div class="ct">'+esc(emptyText)+'</div><div class="cs">'+esc(emptySub)+'</div></div></div>';
+      return;
+    }
 
     $('#stList').innerHTML=top.map(function(s, idx){
       var tip=s.tip==='HY'?'kW':s.tip;
@@ -1885,6 +1919,10 @@
   $$('.sortRow button').forEach(function(b){b.addEventListener('click',function(){
     $$('.sortRow button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
     sMode=b.dataset.s; renderStations();
+  })});
+  $$('.radiusRow button').forEach(function(b){b.addEventListener('click',function(){
+    $$('.radiusRow button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    rMode=b.dataset.r||'30'; renderStations();
   })});
   var _useLocBtnEl = document.getElementById('useLocBtn');
   if(_useLocBtnEl){
