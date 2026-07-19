@@ -6,6 +6,8 @@
     "charging:sync": "node scripts/sync-otto-charging-data.mjs",
     "dev": "next dev --webpack",
     "build": "next build --webpack",
+    "build:cloudflare": "opennextjs-cloudflare build",
+    "deploy:cloudflare": "opennextjs-cloudflare deploy",
     "start": "next start"
   },
   "dependencies": {
