@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/otto-db';
 
 const OTTO_PLUS_RELEASE = {
-  versionCode: 5,
-  versionName: '1.4',
-  apkUrl: 'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.4/otto-plus-v1.4.apk',
-  notlar: 'Otto+ 1.4 - Acil hata duzeltmeleri ve navigasyon kararliligi iyilestirmeleri',
+  versionCode: 7,
+  versionName: '1.5.1',
+  apkUrl: 'https://github.com/kakmese/pawcal-website/releases/download/ottoplus-v1.5.1/otto-plus-v1.5.1.apk',
+  notlar: 'Otto+ 1.5.1 - hata duzeltmeleri ve kararlilik iyilestirmeleri',
   zorunlu: false,
 };
 
